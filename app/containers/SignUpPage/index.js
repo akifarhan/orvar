@@ -29,7 +29,7 @@ import {
     Typography,
 } from '@material-ui/core';
 import ErrorMessage from 'components/ErrorMessage';
-// import FacebookButton from 'containers/FacebookButton';
+import FacebookButton from 'containers/FacebookButton';
 import { dataChecking } from 'globalUtils';
 import InputForm from 'components/InputForm';
 import { withStyles } from '@material-ui/core/styles';
@@ -56,6 +56,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
             tac: '',
             signupEmail: '',
             signupPassword: '',
+            error: '',
             password_confirmation: '',
             showPassword: false,
             showConfPassword: false,
@@ -64,6 +65,8 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
             timer: null,
             sendClick: false,
             sendSuccess: false,
+            checkRecaptcha: false,
+            recaptchaError: false,
         };
     }
 
@@ -96,6 +99,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
     handleChange = (event) => {
         this.setState({ [event.target.id]: event.target.value });
     };
+
     handleChangeNumber = (event) => {
         const onlyNums = event.target.value.replace(/[^0-9]/g, '');
         if (onlyNums.length < 15) {
@@ -111,8 +115,21 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
             sms_prefix: this.state.sms_prefix,
             tac: this.state.tac,
         };
-        this.props.dispatch(doSignup(signUpData));
-        event.preventDefault();
+        if (this.state.checkRecaptcha) {
+            this.props.dispatch(doSignup(signUpData));
+            event.preventDefault();
+        } else {
+            this.setState({
+                recaptchaError: true,
+                error: {
+                    messages: [{
+                        text: 'Please verify that you are not robot.',
+                        type: 'error',
+                    }],
+                },
+            });
+            event.preventDefault();
+        }
     }
     // add function to Send OTP
     handleSendOTP = () => {
@@ -282,6 +299,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                 <ReCAPTCHA
                     sitekey="6LcKZVMUAAAAABT4fKxxTImskc2dTbY5J8QjsXFa"
                     style={{ margin: 'auto' }}
+                    onChange={() => this.setState({ checkRecaptcha: true })}
                 />
             </FormControl>
         </div>
@@ -297,7 +315,8 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                 <Typography>Sign Up</Typography>
             </Button>
             <Typography className="text-xs-center my-half" variant="h6">or<br /></Typography>
-            {this.props.fb()}
+            {/* {this.props.fb()} */}
+            <FacebookButton />
         </FormControl>
     )
 
@@ -315,6 +334,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                             </CardContent>
                             <div className="py-1 px-2">
                                 {this.props.signUpPage.error && <ErrorMessage error={this.props.signUpPage.error} />}
+                                {this.state.recaptchaError && <ErrorMessage error={this.state.error} />}
                             </div>
                             <CardActions>
                                 {this.formAction()}

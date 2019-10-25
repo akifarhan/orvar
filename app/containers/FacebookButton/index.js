@@ -6,7 +6,7 @@
 
 /* global FB */
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import globalScope from 'globalScope';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -15,7 +15,7 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Button, FormControl } from '@material-ui/core';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-
+import { postFb } from './actions';
 import makeSelectFacebookButton from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -60,22 +60,27 @@ export class FacebookButton extends React.PureComponent {
         }(document, 'script', 'facebook-jssdk'));
     }
 
-    testAPI = () => {
-        console.log('Welcome!  Fetching your information.... ');
-        FB.api('/me', (response) => {
-            console.log(`Successful login for: ${response.name}`);
-            document.getElementById('status').innerHTML =
-        `Thanks for logging in, ${response.name}!`;
+    componentWillReceiveProps = (nextProps) => {
+        if (nextProps.facebookButton.fb.success !== this.props.facebookButton.fb.success && nextProps.facebookButton.fb.success) {
+            window.location.href = globalScope.previousPage || '/';
+            console.log(window.location.href);
+        }
+    }
+
+    loginFb = (authResponse) => {
+        FB.api('/me', { fields: 'email, name' }, (response) => {
+            const payload = {
+                id: response.id,
+                email: response.email,
+                token: authResponse.accessToken,
+            };
+            this.props.dispatch(postFb(payload));
         });
     }
 
     statusChangeCallback(response) {
         if (response.status === 'connected') {
-            this.testAPI();
-        } else if (response.status === 'not_authorized') {
-            console.log('Please log into this app.');
-        } else {
-            console.log('Please log into this facebook.');
+            this.loginFb(response.authResponse);
         }
     }
     checkLoginState() {
@@ -84,7 +89,9 @@ export class FacebookButton extends React.PureComponent {
         });
     }
     handleFBLogin() {
-        FB.login(() => this.checkLoginState());
+        FB.login(() => {
+            this.checkLoginState();
+        }, { scope: 'email', return_scopes: true });
     }
 
     render() {
@@ -127,7 +134,7 @@ export class FacebookButton extends React.PureComponent {
 }
 
 FacebookButton.propTypes = {
-    // dispatch: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({

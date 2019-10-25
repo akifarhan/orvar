@@ -1,4 +1,5 @@
 import { takeLatest, call, put } from 'redux-saga/effects';
+import { notifyError } from 'containers/Notify';
 import globalScope from 'globalScope';
 import { staticErrorResponse, apiRequest, setCookie } from '../../globalUtils';
 import {
@@ -21,10 +22,12 @@ export function* postFbWorker(action) {
         const response = yield call(apiRequest, '/facebook', 'post', body);
         if (response && response.ok !== false) {
             yield put(postFbSuccess(response));
+            console.log(response);
             globalScope.token = response.data.token;
             globalScope.axios.setHeader('hertoken', globalScope.token);
             setCookie(process.env.TOKEN_KEY, globalScope.token);
         } else if (response && response.ok === false) {
+            notifyError(response.data.messages[0].text);
             yield put(postFbFailed(response));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
