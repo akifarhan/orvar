@@ -30,7 +30,7 @@ import { dataChecking } from 'globalUtils';
 
 import ErrorMessage from 'components/ErrorMessage';
 import InputForm from 'components/InputForm';
-import FacebookButton from 'containers/FacebookButton';
+// import FacebookButton from 'containers/FacebookButton';
 import makeSelectLoginForm from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -142,7 +142,7 @@ export class LoginForm extends React.PureComponent { // eslint-disable-line reac
                 <Typography>Login</Typography>
             </Button>
             <Typography className="text-xs-center my-half" variant="h6">or<br /></Typography>
-            <FacebookButton isLogin={true} />
+            {this.props.fb(true)}
         </FormControl>
     )
 

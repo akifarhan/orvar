@@ -29,7 +29,7 @@ import {
     Typography,
 } from '@material-ui/core';
 import ErrorMessage from 'components/ErrorMessage';
-import FacebookButton from 'containers/FacebookButton';
+// import FacebookButton from 'containers/FacebookButton';
 import { dataChecking } from 'globalUtils';
 import InputForm from 'components/InputForm';
 import { withStyles } from '@material-ui/core/styles';
@@ -297,7 +297,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                 <Typography>Sign Up</Typography>
             </Button>
             <Typography className="text-xs-center my-half" variant="h6">or<br /></Typography>
-            <FacebookButton />
+            {this.props.fb()}
         </FormControl>
     )
 
