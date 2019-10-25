@@ -29,7 +29,7 @@ import {
     Typography,
 } from '@material-ui/core';
 import ErrorMessage from 'components/ErrorMessage';
-import FacebookButton from 'containers/FacebookButton';
+// import FacebookButton from 'containers/FacebookButton';
 import { dataChecking } from 'globalUtils';
 import InputForm from 'components/InputForm';
 import { withStyles } from '@material-ui/core/styles';

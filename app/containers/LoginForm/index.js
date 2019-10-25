@@ -30,7 +30,7 @@ import { dataChecking } from 'globalUtils';
 
 import ErrorMessage from 'components/ErrorMessage';
 import InputForm from 'components/InputForm';
-import FacebookButton from 'containers/FacebookButton';
+// import FacebookButton from 'containers/FacebookButton';
 import makeSelectLoginForm from './selectors';
 import reducer from './reducer';
 import saga from './saga';
