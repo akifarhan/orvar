@@ -4,15 +4,18 @@
  *
  */
 
+/* global FB */
+
 import React from 'react';
 // import PropTypes from 'prop-types';
+import globalScope from 'globalScope';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import { Grid, Container, Hidden, Button, Typography, Divider, FormControl } from '@material-ui/core';
-
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import LoginForm from 'containers/LoginForm';
 import SignUpPage from 'containers/SignUpPage';
 import InputForm from 'components/InputForm';
@@ -23,6 +26,23 @@ import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
 
+const theme = createMuiTheme({
+    overrides: {
+        MuiButton: {
+            startIcon: {
+                position: 'absolute',
+                left: '0px',
+                padding: '2rem',
+            },
+            root: {
+                fontFamily: 'Poppins',
+                textTransform: 'none',
+                fontSize: '1rem',
+            },
+        },
+    },
+});
+
 export class AuthPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     constructor(props) {
         super(props);
@@ -32,6 +52,27 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
             forgotDialog: false,
             forgotEmail: '',
         };
+    }
+
+    componentDidMount() {
+        window.fbAsyncInit = () => {
+            FB.init({
+                appId: globalScope.fb_id,
+                cookie: true,
+                xgbml: true,
+                version: 'v4.0',
+            });
+        };
+
+        // eslint-disable-next-line func-names
+        (function (d, s, id) {
+            let js = d.getElementsByTagName(s)[0];
+            const fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = '//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v4.0';
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
     }
 
     componentWillReceiveProps = (nextProps) => {
@@ -50,6 +91,71 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
         this.setState({ [event.target.id]: event.target.value });
     };
 
+
+    testAPI = () => {
+        console.log('Welcome!  Fetching your information.... ');
+        FB.api('/me', (response) => {
+            console.log(`Successful login for: ${response.name}`);
+            document.getElementById('status').innerHTML =
+        `Thanks for logging in, ${response.name}!`;
+        });
+    }
+
+    statusChangeCallback(response) {
+        if (response.status === 'connected') {
+            this.testAPI();
+        } else if (response.status === 'not_authorized') {
+            console.log('Please log into this app.');
+        } else {
+            console.log('Please log into this facebook.');
+        }
+    }
+    checkLoginState() {
+        FB.getLoginStatus((response) => {
+            this.statusChangeCallback(response);
+        });
+    }
+    handleFBLogin() {
+        FB.login(() => this.checkLoginState());
+    }
+
+    renderFacebook = (isLogin) => {
+        const fbLogo = <img src={require('./rsc/fb_logo.png')} alt="Facebook" />;
+        return (
+            <FormControl fullWidth={true}>
+                {
+                    isLogin ?
+                        <ThemeProvider theme={theme}>
+                            <Button
+                                className="btn-facebook-login"
+                                id="btn-social-login"
+                                type="button"
+                                variant="contained"
+                                style={{ backgroundColor: '#3b5998', color: 'white' }}
+                                onClick={() => this.handleFBLogin()}
+                                startIcon={fbLogo}
+                            >
+                                Login with Facebook
+                            </Button>
+                        </ThemeProvider>
+                        :
+                        <ThemeProvider theme={theme}>
+                            <Button
+                                className="btn-facebook-signup"
+                                id="btn-social-login"
+                                type="button"
+                                variant="contained"
+                                style={{ backgroundColor: '#3b5998', color: 'white' }}
+                                startIcon={fbLogo}
+                                onClick={() => this.handleFBLogin()}
+                            >
+                                Sign up with Facebook
+                            </Button>
+                        </ThemeProvider>
+                }
+            </FormControl>
+        );
+    }
     renderLite = () => {
         const variantLogin = this.state.login ? 'contained' : 'outlined';
         const variantSignup = this.state.login ? 'outlined' : 'contained';
@@ -86,7 +192,7 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
 
                     </Grid>
                 </Container>
-                {this.state.login ? <LoginForm isModal={this.props.isModal} onClickForgot={this.onClickForgot} /> : <SignUpPage isModal={this.props.isModal} />}
+                {this.state.login ? <LoginForm isModal={this.props.isModal} onClickForgot={this.onClickForgot} fb={this.renderFacebook} /> : <SignUpPage isModal={this.props.isModal} fb={this.renderFacebook} />}
             </div>
         );
     }
@@ -103,10 +209,10 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
                                 <Container className="authpage-desktop">
                                     <Grid container={true} justify="space-evenly">
                                         <Grid item={true}>
-                                            <LoginForm onClickForgot={this.onClickForgot} />
+                                            <LoginForm onClickForgot={this.onClickForgot} fb={this.renderFacebook} />
                                         </Grid>
                                         <Grid item={true}>
-                                            <SignUpPage />
+                                            <SignUpPage fb={this.renderFacebook} />
                                         </Grid>
                                     </Grid>
                                 </Container>

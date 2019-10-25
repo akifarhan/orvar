@@ -297,7 +297,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                 <Typography>Sign Up</Typography>
             </Button>
             <Typography className="text-xs-center my-half" variant="h6">or<br /></Typography>
-            <FacebookButton />
+            {this.props.fb()}
         </FormControl>
     )
 
