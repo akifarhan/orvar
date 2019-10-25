@@ -29,8 +29,8 @@ const prettyHost = customHost || 'localhost';
 
 // Start your app.
 https.createServer({
-    key: fs.readFileSync('./server.key'),
-    cert: fs.readFileSync('./server.crt'),
+    key: fs.readFileSync('./server/ssl/server.key'),
+    cert: fs.readFileSync('./server/ssl/server.crt'),
 }, app).listen(port, host, (err) => {
     if (err) {
         return logger.error(err.message);
