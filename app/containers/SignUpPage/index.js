@@ -299,7 +299,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                 <ReCAPTCHA
                     sitekey="6LcKZVMUAAAAABT4fKxxTImskc2dTbY5J8QjsXFa"
                     style={{ margin: 'auto' }}
-                    onChange={() => this.setState({ checkRecaptcha: true })}
+                    onChange={() => this.setState({ checkRecaptcha: true, recaptchaError: false })}
                 />
             </FormControl>
         </div>
@@ -315,7 +315,6 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                 <Typography>Sign Up</Typography>
             </Button>
             <Typography className="text-xs-center my-half" variant="h6">or<br /></Typography>
-            {/* {this.props.fb()} */}
             <FacebookButton />
         </FormControl>
     )
