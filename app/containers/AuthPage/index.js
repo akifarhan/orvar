@@ -4,15 +4,15 @@
  *
  */
 
+
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import { Grid, Container, Hidden, Button, Typography, Divider, FormControl } from '@material-ui/core';
-
 import LoginForm from 'containers/LoginForm';
 import SignUpPage from 'containers/SignUpPage';
 import InputForm from 'components/InputForm';
@@ -49,7 +49,6 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
     handleChange = (event) => {
         this.setState({ [event.target.id]: event.target.value });
     };
-
     renderLite = () => {
         const variantLogin = this.state.login ? 'contained' : 'outlined';
         const variantSignup = this.state.login ? 'outlined' : 'contained';
@@ -155,9 +154,9 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
     }
 }
 
-// AuthPage.propTypes = {
-//     dispatch: PropTypes.func.isRequired,
-// };
+AuthPage.propTypes = {
+    dispatch: PropTypes.func.isRequired,
+};
 
 const mapStateToProps = createStructuredSelector({
     authPage: makeSelectAuthPage(),

@@ -134,8 +134,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         if (event.origin !== 'https://www.hermo.my'
             && event.origin !== 'https://hermo.my'
             && event.origin !== 'https://devshop2.hermo.my'
-            && event.origin !== 'http://10.0.2.181:1234'
-            && event.origin !== 'http://localhost:1234'
             && event.origin !== 'http://hershop.hermo.my') {
             console.log(`Receive postMessage from invalid source: ${event.origin}`);
             return null;
@@ -157,6 +155,8 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                 console.log('Error happen when parsing pocket', error);
             }
         }
+        globalScope.previousPage = window.location.pathname;
+        this.setState({ loading: false, requestToken: true });
 
         return null;
     };
@@ -380,7 +380,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             //     }
                             // }
                         }}
-                    >0.3.9</div>
+                    >0.4.0</div>
                     <img
                         draggable="false"
                         onLoad={this.onBgImageLoaded}
