@@ -42,7 +42,7 @@ export class FacebookButton extends React.PureComponent {
     componentDidMount() {
         window.fbAsyncInit = () => {
             FB.init({
-                appId: globalScope.fb_id,
+                appId: '1392058637684776',
                 cookie: true,
                 xfbml: true,
                 version: 'v4.0',
