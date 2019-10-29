@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { notifyError } from 'containers/Notify';
 import { Button, FormControl } from '@material-ui/core';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
@@ -39,10 +40,17 @@ const theme = createMuiTheme({
 });
 
 export class FacebookButton extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: false,
+        };
+    }
+
     componentDidMount() {
         window.fbAsyncInit = () => {
             FB.init({
-                appId: '1392058637684776',
+                appId: globalScope.fb_id,
                 cookie: true,
                 xfbml: true,
                 version: 'v4.0',
@@ -63,7 +71,9 @@ export class FacebookButton extends React.PureComponent {
     componentWillReceiveProps = (nextProps) => {
         if (nextProps.facebookButton.fb.success !== this.props.facebookButton.fb.success && nextProps.facebookButton.fb.success) {
             window.location.href = globalScope.previousPage || '/';
-            console.log(window.location.href);
+        }
+        if (nextProps.facebookButton.fb.loading !== this.props.facebookButton.fb.loading && nextProps.facebookButton.fb.loading) {
+            this.setState({ loading: !this.state.loading });
         }
     }
 
@@ -81,6 +91,8 @@ export class FacebookButton extends React.PureComponent {
     statusChangeCallback(response) {
         if (response.status === 'connected') {
             this.loginFb(response.authResponse);
+        } else {
+            notifyError('Connect to Facebook failed.');
         }
     }
     checkLoginState() {
@@ -99,34 +111,37 @@ export class FacebookButton extends React.PureComponent {
         return (
             <FormControl fullWidth={true}>
                 {
-                    this.props.isLogin ?
-                        <ThemeProvider theme={theme}>
-                            <Button
-                                className="btn-facebook-login"
-                                id="btn-social-login"
-                                type="button"
-                                variant="contained"
-                                style={{ backgroundColor: '#3b5998', color: 'white' }}
-                                onClick={() => this.handleFBLogin()}
-                                startIcon={fbLogo}
-                            >
-                                Login with Facebook
-                            </Button>
-                        </ThemeProvider>
+                    this.state.loading ?
+                        <img className="facebook-loading api-loading" src={require('images/preloader-02.gif')} alt="loading" style={{ width: '10%', margin: 'auto' }} />
                         :
-                        <ThemeProvider theme={theme}>
-                            <Button
-                                className="btn-facebook-signup"
-                                id="btn-social-login"
-                                type="button"
-                                variant="contained"
-                                style={{ backgroundColor: '#3b5998', color: 'white' }}
-                                startIcon={fbLogo}
-                                onClick={() => this.handleFBLogin()}
-                            >
-                                Sign up with Facebook
-                            </Button>
-                        </ThemeProvider>
+                        this.props.isLogin ?
+                            <ThemeProvider theme={theme}>
+                                <Button
+                                    className="btn-facebook-login"
+                                    id="btn-social-login"
+                                    type="button"
+                                    variant="contained"
+                                    style={{ backgroundColor: '#3b5998', color: 'white' }}
+                                    onClick={() => this.handleFBLogin()}
+                                    startIcon={fbLogo}
+                                >
+                                    Login with Facebook
+                                </Button>
+                            </ThemeProvider>
+                            :
+                            <ThemeProvider theme={theme}>
+                                <Button
+                                    className="btn-facebook-signup"
+                                    id="btn-social-login"
+                                    type="button"
+                                    variant="contained"
+                                    style={{ backgroundColor: '#3b5998', color: 'white' }}
+                                    startIcon={fbLogo}
+                                    onClick={() => this.handleFBLogin()}
+                                >
+                                    Sign up with Facebook
+                                </Button>
+                            </ThemeProvider>
                 }
             </FormControl>
         );

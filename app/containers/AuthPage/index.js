@@ -24,16 +24,11 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
     constructor(props) {
         super(props);
 
-        this.state = {};
+        this.state = {
+            login: true,
+        };
     }
 
-    onClickForgot = () => this.setState({ forgotDialog: true })
-    onClose = () => {
-        this.setState({
-            forgotDialog: false,
-            forgotEmail: '',
-        });
-    }
     handleChange = (event) => {
         this.setState({ [event.target.id]: event.target.value });
     };
@@ -73,7 +68,7 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
 
                     </Grid>
                 </Container>
-                {this.state.login ? <LoginForm isModal={this.props.isModal} onClickForgot={this.onClickForgot} /> : <SignUpPage isModal={this.props.isModal} />}
+                {this.state.login ? <LoginForm isModal={this.props.isModal} /> : <SignUpPage />}
             </div>
         );
     }
@@ -90,7 +85,7 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
                                 <Container className="authpage-desktop">
                                     <Grid container={true} justify="space-evenly">
                                         <Grid item={true}>
-                                            <LoginForm onClickForgot={this.onClickForgot} />
+                                            <LoginForm />
                                         </Grid>
                                         <Grid item={true}>
                                             <SignUpPage />
