@@ -6,15 +6,38 @@
 
 import { fromJS } from 'immutable';
 import {
-    DEFAULT_ACTION,
+    GET_RESULT,
+    GET_RESULT_SUCCESS,
+    GET_RESULT_FAILED,
 } from './constants';
 
-export const initialState = fromJS({});
+export const initialState = fromJS({
+    result: {
+        loading: false,
+        error: false,
+        success: false,
+    },
+});
 
 function gamesPageReducer(state = initialState, action) {
     switch (action.type) {
-        case DEFAULT_ACTION:
-            return state;
+        case GET_RESULT:
+            return state
+                .setIn(['result', 'loading'], true)
+                .setIn(['result', 'error'], false)
+                .setIn(['result', 'success'], false)
+                .setIn(['result', 'data'], null);
+        case GET_RESULT_SUCCESS:
+            return state
+                .setIn(['result', 'loading'], false)
+                .setIn(['result', 'error'], false)
+                .setIn(['result', 'success'], true)
+                .setIn(['result', 'data'], action.resultData);
+        case GET_RESULT_FAILED:
+            return state
+                .setIn(['result', 'loading'], false)
+                .setIn(['result', 'error'], true)
+                .setIn(['result', 'data'], action.resultData);
         default:
             return state;
     }

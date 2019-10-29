@@ -1,7 +1,21 @@
 @import 'app/breakpoints';
 
 .header-wrapper {
-    padding-top: 5.4rem;
+    @include media-breakpoint-only(lg) {
+        padding-top: 5.3rem;
+    }
+
+    @include media-breakpoint-only(sm) {
+        padding-top: 5.3rem;
+    }
+
+    @include media-breakpoint-only(sm) {
+        padding-top: 8.7rem;
+    }
+
+    @include media-breakpoint-down(xs) {
+        padding-top: 12rem;
+    }
 
     .header-desktop {
         min-height: 3rem;
