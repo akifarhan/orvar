@@ -44,7 +44,7 @@ export class FacebookButton extends React.PureComponent {
             FB.init({
                 appId: globalScope.fb_id,
                 cookie: true,
-                xgbml: true,
+                xfbml: true,
                 version: 'v4.0',
             });
         };
