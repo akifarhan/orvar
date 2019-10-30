@@ -11,7 +11,7 @@ import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import { dataChecking, Events } from 'globalUtils';
+import { dataChecking, Events, setCookie } from 'globalUtils';
 import globalScope from 'globalScope';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
@@ -166,6 +166,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
             globalScope.profile = pocket;
             globalScope.token = pocket.hertoken;
             globalScope.axios.setHeader('hertoken', globalScope.token);
+            setCookie(process.env.TOKEN_KEY, globalScope.token);
             this.setState({ loading: false });
         } else if (globalScope.token) {
             this.setState({ loading: false, requestToken: false });
@@ -380,7 +381,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             //     }
                             // }
                         }}
-                    >1.0.0</div>
+                    >1.0.1</div>
                     <img
                         draggable="false"
                         onLoad={this.onBgImageLoaded}
