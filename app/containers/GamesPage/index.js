@@ -89,16 +89,18 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         }, 1100);
         if (window.takePocket) {
             this.handlePocket(window.takePocket());
-        } else if (this.props.location.search.indexOf('pickPocket') || window.location !== window.parent.location) {
+        } else if (this.props.location.search.indexOf('pickPocket') !== -1) {
             if (window.addEventListener) {
                 // For standards-compliant web browsers
                 window.addEventListener('message', this.parsePocketFromWeb, false);
             } else {
                 window.attachEvent('onmessage', this.parsePocketFromWeb);
             }
-        } else {
+        } else if (!globalScope.token) {
             globalScope.previousPage = window.location.pathname;
             this.setState({ requestToken: true, loading: false });
+        } else {
+            this.setState({ requestToken: false, loading: false });
         }
     }
 
