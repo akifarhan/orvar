@@ -1,54 +1,18 @@
 
 import {
-    doLogin,
-    doLogout,
-    loginSuccess,
-    loginFailed,
+    defaultAction,
 } from '../actions';
 import {
-    LOGIN,
-    LOGOUT,
-    LOGIN_SUCCESS,
-    LOGIN_FAILED,
+    DEFAULT_ACTION,
 } from '../constants';
 
 describe('LoginForm actions', () => {
-    describe('doLogin()', () => {
-        it('has a type of LOGIN', () => {
+    describe('Default Action', () => {
+        it('has a type of DEFAULT_ACTION', () => {
             const expected = {
-                type: LOGIN,
+                type: DEFAULT_ACTION,
             };
-            expect(doLogin()).toEqual(expected);
-        });
-    });
-
-    describe('doLogout()', () => {
-        it('has a type of LOGOUT', () => {
-            const expected = {
-                type: LOGOUT,
-            };
-            expect(doLogout()).toEqual(expected);
-        });
-    });
-
-    describe('loginSuccess()', () => {
-        it('has a type of LOGIN_SUCCESS', () => {
-            const response = { token: '' };
-            const expected = {
-                type: LOGIN_SUCCESS,
-                payload: response.token,
-            };
-            expect(loginSuccess(response)).toEqual(expected);
-        });
-    });
-
-    describe('loginFailed()', () => {
-        it('has a type of LOGIN_FAILED', () => {
-            const expected = {
-                type: LOGIN_FAILED,
-                payload: undefined,
-            };
-            expect(loginFailed()).toEqual(expected);
+            expect(defaultAction()).toEqual(expected);
         });
     });
 });

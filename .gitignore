@@ -3,10 +3,11 @@ coverage
 build
 node_modules
 stats.json
+.firebase/
 
 # Cruft
 .DS_Store
 npm-debug.log
 .idea
 .env-local
-package-lock.json
+.vscode

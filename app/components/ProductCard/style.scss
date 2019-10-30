@@ -1,0 +1,80 @@
+@import 'app/breakpoints';
+@import 'app/legacy-styling.scss';
+
+.product-container {
+    &.no-box-shadow {
+        box-shadow: none;
+    }
+
+    .product-img {
+        position: relative;
+        width: 10rem;
+        margin-left: auto;
+        margin-right: auto;
+
+        .out-of-stock {
+            height: 5rem;
+            width: 5rem;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto auto;
+            padding: 1rem;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+        }
+
+        .oos-text {
+            color: #FFFFFF;
+            line-height: 0;
+            position: relative;
+            top: 25%;
+        }
+    }
+
+    .product-brand {
+        min-height: 1rem;
+
+        @include line-elips(1rem, 1.3, 1);
+    }
+
+    .product-description {
+        min-height: 2rem;
+
+        @include line-elips(1rem, 1.3, 2);
+    }
+
+    .product-feature {
+        margin-right: 20px;
+        min-height: 4rem;
+
+        .feature-tag {
+            width: 3vw;
+            height: 3vw;
+            border-radius: 50px;
+
+            @include media-breakpoint-down(sm) {
+                width: 7vw;
+                height: 7vw;
+            }
+        }
+
+        .discount-tag {
+            width: 3vw;
+            height: 3vw;
+            line-height: 3vw;
+            border-radius: 50px;
+            background-color: #FF0068;
+            color: #FFFFFF;
+            text-align: center;
+
+            @include media-breakpoint-down(sm) {
+                width: 7vw;
+                height: 7vw;
+                line-height: 7vw;
+            }
+        }
+    }
+}

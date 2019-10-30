@@ -1,3 +1,17 @@
+# Developing
+- Fork this repo
+- Clone it with `git clone git@github.com:<your_github_username>/orvar`
+- Start developing
+## Linux 
+```
+sudo apt install libpng-dev
+npm i && npm start
+```
+# Readme
+
+Orvar
+----------
+
 Documentation:
 Type of enzyme test coverage:
 * functions: check if the return value from function matches expectation
@@ -22,4 +36,4 @@ Assummed TDD flow:
     - make sure each and every branch have their own test
     - run some sample use case to make sure it is working correctly
 
-
+======

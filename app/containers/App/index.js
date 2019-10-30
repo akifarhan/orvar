@@ -2,104 +2,120 @@
  *
  * App.js
  *
- * This component is the skeleton around the actual pages, and should only
- * contain code that should be seen on all pages. (e.g. navigation bar)
+ * This component is the skeleton around the actual pages, and Expect only
+ * contain code that Expect be seen on all pages. (e.g. navigation bar)
  *
- * NOTE: while this component should technically be a stateless functional
+ * NOTE: while this component Expect technically be a stateless functional
  * component (SFC), hot reloading does not currently support SFCs. If hot
  * reloading is not a necessity for you then you can refactor it and remove
  * the linting exception.
  */
 
 import React from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
 import { Switch, Route } from 'react-router-dom';
 
-import injectSaga from 'utils/injectSaga';
-import injectReducer from 'utils/injectReducer';
-
 import Notify from 'containers/Notify';
-
+import ProductView from 'containers/ProductView';
 import HomePage from 'containers/HomePage';
 import LogoutForm from 'containers/LogoutForm';
+import MallPage from 'containers/MallPage';
+import BrandPage from 'containers/BrandPage';
 import NotFoundPage from 'containers/NotFoundPage';
+import OnboardingPage from 'containers/OnboardingPage';
+import ProfilePage from 'components/ProfilePage';
+import CartPage from 'containers/CartPage';
+import PrivateRoute from 'containers/App/PrivateRoute';
+import CheckoutPage from 'containers/CheckoutPage';
+import ProfileOrderList from 'containers/ProfileOrderList';
+import ProfileOrderDetail from 'containers/ProfileOrderDetail';
+import ProfileEditInfo from 'containers/ProfileEditInfo';
+import ProfileWishlist from 'containers/ProfileWishlist';
+import ProfileReview from 'containers/ProfileReview';
+import AboutUs from 'containers/AboutUs';
+import FeedbackPage from 'containers/FeedbackPage';
+import AuthPage from 'containers/AuthPage';
+import SignUp from 'containers/SignUpPage';
+import LogIn from 'containers/LoginForm';
+import ProfileAddress from 'containers/ProfileAddress';
+import ProfileRewards from 'containers/ProfileRewards';
+import BeautyWall from 'containers/BeautyWall';
+import GamesPage from 'containers/GamesPage';
 
-// import { dataChecking } from 'globalUtils';
-// import globalScope from 'globalScope';
+import Header from 'containers/Header';
+import Footer from 'containers/Footer';
+import { ProfileWallet } from '../ProfileWallet';
+import './style.scss';
 
-import {
-    makeSelectLocation,
-} from './selectors';
-import reducer from './reducer';
-import saga from './saga';
+export default function App() {
+    return (
+        <section className="main-content">
+            <Notify></Notify>
+            <Header />
+            <div
+                id="hershop-content-container"
+            >
+                <Switch>
+                    <Route exact={true} path="/" component={HomePage} />
+                    <Route exact={true} path="/auth" component={AuthPage} />
+                    <Route exact={true} path="/signup" component={SignUp} />
+                    <Route exact={true} path="/login" component={LogIn} />
+                    <PrivateRoute exact={true} path="/logout" component={LogoutForm} />
+                    <PrivateRoute exact={true} path="/onboarding" component={OnboardingPage} />
+                    <Route exact={true} path="/mall" component={MallPage} />
+                    <Route exact={true} path="/brand" component={BrandPage} />
+                    <Route exact={true} path="/mall/page-:pageNum?" component={MallPage} />
+                    <Route exact={true} path="/wall/beauty" component={BeautyWall} />
+                    {/* group or category without pagenum */}
+                    <Route
+                        exact={true}
+                        path="/:groupName(skin-care|make-up|fragrance|bath-and-body|set-item|hair|beauty-and-wellness)/:categoryQueries?"
+                        component={MallPage}
+                    />
+                    {/* group or category with pagenum */}
+                    <Route
+                        exact={true}
+                        path="/:groupName(skin-care|make-up|fragrance|bath-and-body|set-item|hair|beauty-and-wellness)/:categoryQueries?/page-:pageNum(\d+)"
+                        component={MallPage}
+                    />
+                    {/* subcategory without pagenum */}
+                    <Route
+                        exact={true}
+                        path="/:groupName(skin-care|make-up|fragrance|bath-and-body|set-item|hair|beauty-and-wellness)/:categoryQueries?/:subCategoryQueries?"
+                        component={MallPage}
+                    />
+                    {/* subcategory with pagenum */}
+                    <Route
+                        exact={true}
+                        path="/:groupName(skin-care|make-up|fragrance|bath-and-body|set-item|hair|beauty-and-wellness)/:categoryQueries?/:subCategoryQueries?/page-:pageNum(\d+)"
+                        component={MallPage}
+                    />
+                    <Route exact={true} path="/mall/:productId" component={ProductView} />
+                    <Route
+                        exact={true}
+                        path="/about/:abouthermo(joinus|contactus|shippinginfo|returnpolicy|membership|privacypolicy|termandcondition|faq|userterm|hermobankaccount)?"
+                        component={AboutUs}
+                    />
+                    <PrivateRoute exact={true} path="/feedback" component={FeedbackPage} />
+                    <PrivateRoute exact={true} path="/cart" component={CartPage} />
+                    <PrivateRoute exact={true} path="/checkout" component={CheckoutPage} />
+                    <PrivateRoute exact={true} path="/profile" component={ProfilePage} />
+                    <PrivateRoute exact={true} path="/profile/address" component={ProfileAddress} />
+                    <PrivateRoute exact={true} path="/profile/wallet" component={ProfileWallet} />
+                    <PrivateRoute exact={true} path="/profile/detail" component={ProfileEditInfo} />
+                    <PrivateRoute exact={true} path="/profile/rewards" component={ProfileRewards} />
+                    <PrivateRoute exact={true} path="/profile/review" component={ProfileReview} />
+                    <PrivateRoute exact={true} path="/profile/wishlist" component={ProfileWishlist} />
+                    <PrivateRoute exact={true} path="/profile/order" component={ProfileOrderList} />
+                    <PrivateRoute exact={true} path="/profile/order:ordercatergory(/to-paid|/to-ship|/to-receive|/reviewable)" component={ProfileOrderList} />
+                    <PrivateRoute exact={true} path="/profile/order/:orderID" component={ProfileOrderDetail} />
+                    <PrivateRoute exact={true} path="/cart" component={CartPage} />
 
-import {
-    fetchConfig,
-} from './actions';
+                    <Route exact={true} path="/games/:id" component={GamesPage} />
 
-// import PrivateRoute from './PrivateRoute';
-
-const topbarHeight = '40px';
-
-const HershopContent = styled.div`
-    // margin-top: ${topbarHeight};
-`;
-
-export class App extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-    componentDidMount() {
-        this.props.dispatch(fetchConfig());
-    }
-
-    render() {
-        return (
-            <section>
-                <Notify></Notify>
-
-                <HershopContent id="hershop-content-container">
-                    <Switch>
-                        {/* <Route exact={true} path="/login" component={globalScope.token ? LogoutForm : LoginForm} /> */}
-                        <Route exact={true} path="/logout" component={LogoutForm} />
-                        <Route exact={true} path="/" component={HomePage} />
-                        {/* <PrivateRoute
-                            exact={true}
-                            path="/"
-                            token={globalScope.token || ''}
-                            render={() => <HomePage />}
-                        /> */}
-                        <Route path="" component={NotFoundPage} />
-                    </Switch>
-                </HershopContent>
-            </section>
-        );
-    }
+                    <Route component={NotFoundPage} />
+                </Switch>
+            </div>
+            <Footer />
+        </section>
+    );
 }
-
-App.propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    // location: PropTypes.object,
-};
-
-const mapStateToProps = createStructuredSelector({
-    location: makeSelectLocation(),
-});
-
-function mapDispatchToProps(dispatch) {
-    return {
-        dispatch,
-    };
-}
-
-const withConnect = connect(mapStateToProps, mapDispatchToProps);
-
-const withReducer = injectReducer({ key: 'config', reducer });
-const withSaga = injectSaga({ key: 'config', saga });
-
-export default compose(
-    withReducer,
-    withSaga,
-    withConnect,
-)(App);

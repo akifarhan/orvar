@@ -6,99 +6,240 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
-// import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import Input from 'components/Input';
-// import Loading from 'components/Loading';
-import ErrorMessage from 'components/ErrorMessage';
+import PopupDialog from 'components/PopupDialog';
 
+
+import globalScope from 'globalScope';
+
+import {
+    Button,
+    ButtonBase,
+    Card,
+    CardActions,
+    Container,
+    Divider,
+    FormControl,
+    Link,
+    Typography,
+} from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import { dataChecking } from 'globalUtils';
+
+import ErrorMessage from 'components/ErrorMessage';
+import InputForm from 'components/InputForm';
+import FacebookButton from 'containers/FacebookButton';
+import makeSelectLoginForm from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { doLogin } from './actions';
 import {
-    makeSelectAuthError,
-    makeSelectAuthLoading,
-    makeSelectAuthLoginSuccess,
-} from './selectors';
+    doLogin,
+    resetPassword,
+    getImageLink,
+} from './actions';
 import './style.scss';
-
-export const authkeys = ['username', 'password'];
-
-export const Form = (props) => (
-    <form className="login-form" onSubmit={props.action}>
-        {props.keys.map((key) => (
-            <Input key={key} type={key} placeholder={key} name={key} />)
-        )}
-        {props.error &&
-            <ErrorMessage error={props.error} type="danger" />
-        }
-        <Input type="submit" className="hershop-button" value="Login" loading={props.loading} />
-    </form>
-);
+import styles from './materialStyle';
 
 export class LoginForm extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            email: '',
+            forgotEmail: '',
+            password: '',
+            forgotDialog: false,
+            showPassword: false,
+        };
+    }
+    componentDidMount() {
+        this.props.dispatch(getImageLink());
+    }
+
     componentWillReceiveProps(nextProps) {
-        if (nextProps.loginSuccess !== this.props.loginSuccess && nextProps.loginSuccess) {
-            window.location.href = window.location.pathname;
+        if (nextProps.loginForm.loginSuccess !== this.props.loginSuccess && nextProps.loginForm.loginSuccess) {
+            window.location.href = globalScope.previousPage || '/';
+            console.log(window.location.href);
         }
 
         if (nextProps.error !== this.props.error && nextProps.error) {
             console.log(nextProps.error);
         }
+        if (nextProps.loginForm.reset.success !== this.props.loginForm.reset.success && nextProps.loginForm.reset.success) {
+            this.setState({ forgotDialog: false, forgotEmail: '' });
+        }
     }
 
-    loginAction = (evt) => {
-        evt.preventDefault();
-        const form = {};
-        authkeys.map((key) => (
-            form[key] = evt.target[key].value)
-        );
-        this.props.dispatch(doLogin(form));
+    onClickForgot = () => this.setState({ forgotDialog: true })
+    handleChange = (event) => {
+        this.setState({ [event.target.id]: event.target.value });
     };
+
+    handleClickShowPassword = () => {
+        this.setState((state) => ({ showPassword: !state.showPassword }));
+    }
+
+    cardHeader = () => {
+        if (this.props.isModal) {
+            return (
+                <div className="pl-1">
+                    <Typography variant="h4" color="primary">
+                        <b>Log in now!</b>
+                    </Typography>
+                </div>
+            );
+        }
+        return (
+            <div className=" mt-2 pl-1">
+                <Typography variant="h5" color="primary">
+                    <b>{dataChecking(this.props.loginForm, 'image', 'items') && this.props.loginForm.image.items[0].title}</b>
+                </Typography>
+                <Typography variant="h6" color="textSecondary">
+                    <br />{dataChecking(this.props.loginForm, 'image', 'items') && this.props.loginForm.image.items[0].brief}
+                </Typography>
+            </div>
+        );
+    }
+
+    formInput = () => (
+        <div>
+            <FormControl fullWidth={true}>
+                <InputForm
+                    label="Email address"
+                    id="email"
+                    type="email"
+                    handleChange={this.handleChange}
+                    value={this.state.email}
+                    onClear={() => {
+                        this.setState({ email: '' });
+                    }}
+                />
+            </FormControl>
+            <FormControl fullWidth={true}>
+                <InputForm
+                    label="Password"
+                    id="password"
+                    type={this.state.showPassword ? 'text' : 'password'}
+                    value={this.state.password}
+                    showPassword={this.state.showPassword}
+                    handleChange={this.handleChange}
+                    handleClickShowPassword={this.handleClickShowPassword}
+                    onClear={() => {
+                        this.setState({ password: '' });
+                    }}
+                    autoComplete="off"
+                    togglePassword={true}
+                />
+            </FormControl>
+        </div>
+    )
+    // Need update on function
+    forgotPassword = () => (
+        <FormControl>
+            <ButtonBase onClick={() => this.onClickForgot()}>
+                <Typography variant="body2" color="textSecondary"><u>Forgot Password?</u></Typography>
+            </ButtonBase>
+        </FormControl>
+    )
+
+    formAction = () => (
+        <FormControl fullWidth={true} className="text-xs-center">
+            <Button type="submit" variant="contained" color="primary">
+                <Typography>Login</Typography>
+            </Button>
+            <Typography className="text-xs-center my-half" variant="h6">or<br /></Typography>
+            {/* {this.props.fb(true)} */}
+            <FacebookButton isLogin={true} />
+        </FormControl>
+    )
 
     render() {
         return (
-            <div id="LoginForm-container" className="LoginForm-page">
-                <Helmet>
-                    <title>Login to Hermo</title>
-                    <meta name="description" content="Form to facilitate logoin" />
-                </Helmet>
-                <section className="container">
-                    <div className="loginForm-wrapper">
-                        <Form action={this.loginAction} keys={authkeys} {...this.props} />
+            <div>
+                <Container className={this.props.classes.card}>
+                    <Card>
+                        <Container className="p-3">
+                            {this.cardHeader()}
+                            <form onSubmit={() => { this.props.dispatch(doLogin(this.state)); event.preventDefault(); }}>
+                                <div className="py-1 px-1">
+                                    {this.formInput()}
+                                    {this.forgotPassword()}
+                                    <div className="py-half">
+                                        {
+                                            this.props.loginForm.error && <ErrorMessage error={this.props.loginForm.error} />
+                                        }
+                                    </div>
+                                </div>
+                                <CardActions>
+                                    {this.formAction()}
+                                </CardActions>
+                            </form>
+                            <div className="text-xs-center">
+                                <Typography className="mt-1" variant="caption" color="textSecondary">
+                                    By logging, you agree to our <br /><Link href="https://www.hermo.my/about#/userterm?ucf=login-modal"><u>Terms & Conditions</u></Link>
+                                </Typography>
+                            </div>
+
+                        </Container>
+                    </Card>
+                </Container>
+                <PopupDialog
+                    display={this.state.forgotDialog}
+                    title="Reset Your Password"
+                    onClose={() =>
+                        this.setState({
+                            forgotDialog: false,
+                            forgotEmail: '',
+                        })
+                    }
+                >
+                    <Divider />
+                    <form onSubmit={() => { this.props.dispatch(resetPassword(this.state.forgotEmail)); event.preventDefault(); }}>
+                        <div className="p-1" style={{ textAlign: 'center' }} >
+                            <Typography variant="body1">Please enter your registered email address so we can send you the reset instructions.</Typography>
+                        </div>
+                        <FormControl fullWidth={true}>
+                            <InputForm
+                                label="Email address"
+                                placeholder="Enter your registered email address"
+                                id="forgotEmail"
+                                type="email"
+                                handleChange={this.handleChange}
+                                value={this.state.forgotEmail}
+                                onClear={() => {
+                                    this.setState({ forgotEmail: '' });
+                                }}
+                            />
+                        </FormControl>
+                        <FormControl fullWidth={true}>
+                            <Button type="submit" variant="contained" color="primary">
+                                Send me the instructions
+                            </Button>
+                        </FormControl>
+                    </form>
+                    <div className="p-1" style={{ textAlign: 'center' }} >
+                        <Divider />
+                        <Typography variant="caption">Trouble logging in? Drop our helpdesk an email <a href="mailto:admin@hermo.my" style={{ color: '#603' }}>admin@hermo.my</a> or call <a href="tel:+607-5623567" style={{ color: '#603' }}>07-5623567</a></Typography>
                     </div>
-                </section>
+                </PopupDialog>
             </div>
         );
     }
 }
 
 LoginForm.propTypes = {
-    // dispatch: PropTypes.func.isRequired,
-};
-
-Form.propTypes = {
-    action: PropTypes.func,
-    keys: PropTypes.array,
-    error: PropTypes.oneOfType([
-        PropTypes.object,
-        PropTypes.bool,
-    ]),
-    loading: PropTypes.bool,
+    dispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
-    loading: makeSelectAuthLoading(),
-    error: makeSelectAuthError(),
-    loginSuccess: makeSelectAuthLoginSuccess(),
+    loginForm: makeSelectLoginForm(),
 });
 
-export function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch) {
     return {
         dispatch,
     };
@@ -106,11 +247,13 @@ export function mapDispatchToProps(dispatch) {
 
 const withConnect = connect(mapStateToProps, mapDispatchToProps);
 
-const withReducer = injectReducer({ key: 'LoginForm', reducer });
-const withSaga = injectSaga({ key: 'session', saga });
+const withReducer = injectReducer({ key: 'loginForm', reducer });
+const withSaga = injectSaga({ key: 'loginForm', saga });
 
 export default compose(
     withReducer,
     withSaga,
+    withStyles(styles),
     withConnect,
 )(LoginForm);
+

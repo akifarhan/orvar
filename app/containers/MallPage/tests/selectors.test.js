@@ -1,8 +1,11 @@
-// import { fromJS } from 'immutable';
-// import { selectMallPageDomain } from '../selectors';
+import { fromJS } from 'immutable';
+import makeSelectMallPage from '../selectors';
+import { initialState } from '../reducer';
 
-describe('selectMallPageDomain', () => {
-    it('Expect to have unit tests specified', () => {
-        expect(true).toEqual(false);
+describe('makeSelectMallPage', () => {
+    it('Expect makeSelectMallPage to return state from reducer', () => {
+        const selector = makeSelectMallPage();
+        const mock = fromJS({ mallPage: initialState });
+        expect(selector(mock)).toEqual(initialState.toJS());
     });
 });

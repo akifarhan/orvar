@@ -4,12 +4,14 @@
 
 /* eslint-disable redux-saga/yield-effects */
 // import { take, call, put, select } from 'redux-saga/effects';
-// import { defaultSaga } from '../saga';
+// import { mallPageSaga } from '../saga';
+import mallPageSaga, { getMallDataWorker } from '../saga';
 
-// const generator = defaultSaga();
+// const generator = mallPageSaga();
 
-describe('defaultSaga Saga', () => {
+describe('mallPageSaga', () => {
     it('Expect to have unit tests specified', () => {
-        expect(true).toEqual(false);
+        const generator = mallPageSaga();
+        expect(generator.next(getMallDataWorker()).FORK).toEqual(undefined);
     });
 });

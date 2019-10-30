@@ -1,0 +1,103 @@
+@import 'app/breakpoints';
+
+.header-wrapper {
+    @include media-breakpoint-only(lg) {
+        padding-top: 5.3rem;
+    }
+
+    @include media-breakpoint-only(sm) {
+        padding-top: 5.3rem;
+    }
+
+    @include media-breakpoint-only(sm) {
+        padding-top: 8.7rem;
+    }
+
+    @include media-breakpoint-down(xs) {
+        padding-top: 12rem;
+    }
+
+    .header-desktop {
+        min-height: 3rem;
+    }
+}
+
+#header {
+    display: flex;
+    align-items: center;
+    height: 80px;
+    justify-content: space-between;
+    .logo { width: 100px; }
+
+    .logo.show { display: none; }
+    .top-nav {
+        display: flex;
+        .category {
+            cursor: pointer;
+            &:hover { color: #603; }
+        }
+    }
+    .top-nav.show { display: none; }
+
+    .quicklink {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        .search-keyword {
+            font-weight: bold;
+            background-color: transparent;
+        }
+        .resultBoxhide { display: none; }
+        .resultBoxshow {
+            position: absolute;
+            top: 41px;
+            background-color: white;
+            padding: 1rem;
+            left: 40px;
+            width: 82vw;
+            border: 1px solid #ccc;
+            box-shadow: 0px 2px 5px -1px #cccccc;
+            min-height: 5rem;
+        }
+        .search-background-overlay { display: none; }
+        .search.show {
+            position: relative;
+
+            .search-background-overlay {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+            }
+            .search-icon { display: none; }
+
+            input { width: 72vw; }
+        }
+    }
+
+    .cart-in-header {
+        position: relative;
+        cursor: pointer;
+
+        .cart-popup-modal {
+            position: absolute;
+            top: 1.6rem;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            width: 400px;
+            box-shadow: 0px 0px 2px 0px rgba(204,204,204,1);
+        }
+    }
+}
+.search-box {
+    top: 3rem;
+    position: fixed;
+    z-index: 1102;
+    left: 0;
+    right: 0;
+    @include media-breakpoint-down(md) { top: 7rem; }
+}

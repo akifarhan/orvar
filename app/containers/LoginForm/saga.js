@@ -1,39 +1,31 @@
 import { takeLatest, call, put } from 'redux-saga/effects';
-import { apiRequest, setCookie } from 'globalUtils';
+import { apiRequest, setCookie, staticErrorResponse } from 'globalUtils';
+import { notifySuccess, notifyError } from 'containers/Notify';
 import globalScope from 'globalScope';
-
-import { AUTH_LOGIN } from './constants';
+import {
+    AUTH_LOGIN,
+    GET_IMAGE_LINK,
+    RESET_PASSWORD,
+} from './constants';
 import {
     loginSuccess,
     loginFailed,
+    getImageLinkSuccess,
+    getImageLinkFailed,
+    resetPasswordSuccess,
+    resetPasswordFailed,
 } from './actions';
 
-export function* doLogin(action) {
-    const { username, password } = action.payload;
+export function* loginQuery(action) {
     try {
         const base64 = require('base-64');
-        const hash = base64.encode(`${username}:${password}`);
-        const response = yield call(apiRequest, 'auth/token', 'post', {}, null, { headers: { 'Authorization': `Basic ${hash}` } });
-        console.log('response', response);
+        const hash = base64.encode(`${action.loginData.email}:${action.loginData.password}`);
+        const response = yield call(apiRequest, 'auth/token', 'post', {}, 'https://api.hermo.my', { headers: { 'Authorization': `Basic ${hash}` } });
         if (response && response.ok) {
-            // const response2 = yield call(apiRequest, 'login', 'post', { username }, process.env.API);
-            // console.log('response2', response2);
-            // if (response2 && response2.ok) {
             globalScope.token = response.data.token;
-            const isAdminResponse = yield call(apiRequest, '/view/preview/145', 'post');
-            globalScope.isAdmin = !!(isAdminResponse && isAdminResponse.data && isAdminResponse.data.id);
-            if (globalScope.isAdmin) {
-                // globalScope.token = response.data.token;
-                globalScope.token = response.data.token;
-                setCookie(process.env.TOKEN_KEY, globalScope.token);
-                setCookie(process.env.ADMIN_KEY, globalScope.isAdmin);
-                yield put(loginSuccess(response.data.token));
-            } else {
-                globalScope.token = '';
-                response.data.messages[0] = { type: 'error', text: 'Invalid user access level!' };
-                yield put(loginFailed(response.data));
-            }
-            // }
+            globalScope.axios.setHeader('hertoken', globalScope.token);
+            setCookie(process.env.TOKEN_KEY, globalScope.token);
+            yield put(loginSuccess(response.data));
         } else {
             yield put(loginFailed(response.data));
         }
@@ -41,7 +33,41 @@ export function* doLogin(action) {
         yield put(loginFailed(error));
     }
 }
+export function* imageLinkQuery() {
+    const response = yield call(apiRequest, '/image?code=hershop-login', 'get');
+    if (response && response.ok) {
+        yield put(getImageLinkSuccess(response.data));
+    } else {
+        yield put(getImageLinkFailed(response.data));
+    }
+}
 
-export default function* authSaga() {
-    yield takeLatest(AUTH_LOGIN, doLogin);
+export function* resetWorker(action) {
+    let err;
+    const params = JSON.stringify({
+        action: 'reset',
+        email: action.resetData,
+    });
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/password/reset', 'post', params);
+        if (response && response.ok !== false) {
+            yield put(resetPasswordSuccess(response.data));
+            notifySuccess(response.data.messages[0].text);
+        } else if (response && response.ok === false) {
+            yield put(resetPasswordFailed(response.data));
+            notifyError(response.data.messages[0].text);
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(resetPasswordFailed(e));
+    }
+}
+// Individual exports for testing
+export default function* loginFormSaga() {
+    yield takeLatest(AUTH_LOGIN, loginQuery);
+    yield takeLatest(GET_IMAGE_LINK, imageLinkQuery);
+    yield takeLatest(RESET_PASSWORD, resetWorker);
 }
