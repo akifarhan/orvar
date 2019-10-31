@@ -24,7 +24,6 @@ import {
     Container,
     Divider,
     FormControl,
-    Link,
     Typography,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
@@ -180,7 +179,7 @@ export class LoginForm extends React.PureComponent { // eslint-disable-line reac
                             </form>
                             <div className="text-xs-center">
                                 <Typography className="mt-1" variant="caption" color="textSecondary">
-                                    By logging, you agree to our <br /><Link href="https://www.hermo.my/about#/userterm?ucf=login-modal"><u>Terms & Conditions</u></Link>
+                                    By logging, you agree to our <br /><ButtonBase onClick={() => this.props.onClickTnc()}><Typography variant="caption" color="primary"><u>Terms & Conditions</u></Typography></ButtonBase>
                                 </Typography>
                             </div>
 
