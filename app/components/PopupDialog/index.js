@@ -18,7 +18,7 @@ import { Close, ArrowBack } from '@material-ui/icons';
 
 class PopupDialog extends React.PureComponent {
     render() {
-        const onCloseStyle = this.props.isBack ? { position: 'absolute', left: '0rem', top: '0.8rem' } : { position: 'absolute', right: '0rem', top: '0.8rem' };
+        const onCloseStyle = this.props.isBack ? { position: 'absolute', left: '0rem', top: '0.8rem', zIndex: '1001' } : { position: 'absolute', right: '0rem', top: '0.8rem', zIndex: '1001' };
         return (
             <div>
                 <Dialog open={this.props.display} onClose={this.props.onClose} fullWidth={this.props.fullWidth} fullScreen={this.props.fullScreen}>
