@@ -20,7 +20,7 @@ class PopupDialog extends React.PureComponent {
     render() {
         return (
             <div>
-                <Dialog open={this.props.display} onClose={this.props.onClose} fullWidth={this.props.fullWidth}>
+                <Dialog open={this.props.display} onClose={this.props.onClose} fullWidth={this.props.fullWidth} fullScreen={this.props.fullScreen}>
                     <DialogTitle id="alert-dialog-title">
                         <span>{this.props.title}</span>
                         {

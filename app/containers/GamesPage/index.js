@@ -11,7 +11,7 @@ import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import { dataChecking, Events } from 'globalUtils';
+import { dataChecking, Events, setCookie } from 'globalUtils';
 import globalScope from 'globalScope';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
@@ -89,16 +89,18 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         }, 1100);
         if (window.takePocket) {
             this.handlePocket(window.takePocket());
-        } else if (this.props.location.search.indexOf('pickPocket') || window.location !== window.parent.location) {
+        } else if (this.props.location.search.indexOf('pickPocket') !== -1) {
             if (window.addEventListener) {
                 // For standards-compliant web browsers
                 window.addEventListener('message', this.parsePocketFromWeb, false);
             } else {
                 window.attachEvent('onmessage', this.parsePocketFromWeb);
             }
-        } else {
+        } else if (!globalScope.token) {
             globalScope.previousPage = window.location.pathname;
             this.setState({ requestToken: true, loading: false });
+        } else {
+            this.setState({ requestToken: false, loading: false });
         }
     }
 
@@ -166,6 +168,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
             globalScope.profile = pocket;
             globalScope.token = pocket.hertoken;
             globalScope.axios.setHeader('hertoken', globalScope.token);
+            setCookie(process.env.TOKEN_KEY, globalScope.token);
             this.setState({ loading: false });
         } else if (globalScope.token) {
             this.setState({ loading: false, requestToken: false });
@@ -380,7 +383,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             //     }
                             // }
                         }}
-                    >1.0.0</div>
+                    >1.0.1</div>
                     <img
                         draggable="false"
                         onLoad={this.onBgImageLoaded}
