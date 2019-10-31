@@ -125,6 +125,7 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
                     display={this.state.tncModal}
                     onClose={() => this.setState({ tncModal: false, loading: true })}
                     fullScreen={true}
+                    isBack={true}
                 >
                     {this.renderTnc()}
                 </PopupDialog>
