@@ -13,6 +13,7 @@
 
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
+import globalScope from 'globalScope';
 
 import Notify from 'containers/Notify';
 import ProductView from 'containers/ProductView';
@@ -23,7 +24,7 @@ import BrandPage from 'containers/BrandPage';
 import NotFoundPage from 'containers/NotFoundPage';
 import OnboardingPage from 'containers/OnboardingPage';
 import ProfilePage from 'components/ProfilePage';
-// import Cart from 'containers/CartPage';
+import CartPage from 'containers/CartPage';
 import PrivateRoute from 'containers/App/PrivateRoute';
 import CheckoutPage from 'containers/CheckoutPage';
 import ProfileOrderList from 'containers/ProfileOrderList';
@@ -36,15 +37,20 @@ import AboutUs from 'containers/AboutUs';
 import FeedbackPage from 'containers/FeedbackPage';
 import AuthPage from 'containers/AuthPage';
 import SignUp from 'containers/SignUpPage';
+import LogIn from 'containers/LoginForm';
 import ProfileAddress from 'containers/ProfileAddress';
 import ProfileRewards from 'containers/ProfileRewards';
+import BeautyWall from 'containers/BeautyWall';
+import GamesPage from 'containers/GamesPage';
 
 import Header from 'containers/Header';
+import Footer from 'containers/Footer';
 import './style.scss';
 
 export default function App() {
+    globalScope.previousPage = window.location.pathname;
     return (
-        <section>
+        <section className="main-content">
             <Notify></Notify>
             <Header />
             <div
@@ -52,15 +58,15 @@ export default function App() {
             >
                 <Switch>
                     <Route exact={true} path="/" component={HomePage} />
-                    <PrivateRoute exact={true} path="/login" component={LogoutForm} />
                     <Route exact={true} path="/auth" component={AuthPage} />
                     <Route exact={true} path="/signup" component={SignUp} />
+                    <Route exact={true} path="/login" component={LogIn} />
                     <PrivateRoute exact={true} path="/logout" component={LogoutForm} />
                     <PrivateRoute exact={true} path="/onboarding" component={OnboardingPage} />
-
                     <Route exact={true} path="/mall" component={MallPage} />
                     <Route exact={true} path="/brand" component={BrandPage} />
                     <Route exact={true} path="/mall/page-:pageNum?" component={MallPage} />
+                    <Route exact={true} path="/wall/beauty" component={BeautyWall} />
                     {/* group or category without pagenum */}
                     <Route
                         exact={true}
@@ -92,6 +98,7 @@ export default function App() {
                         component={AboutUs}
                     />
                     <PrivateRoute exact={true} path="/feedback" component={FeedbackPage} />
+                    <PrivateRoute exact={true} path="/cart" component={CartPage} />
                     <PrivateRoute exact={true} path="/checkout" component={CheckoutPage} />
                     <PrivateRoute exact={true} path="/profile" component={ProfilePage} />
                     <PrivateRoute exact={true} path="/profile/address" component={ProfileAddress} />
@@ -103,10 +110,14 @@ export default function App() {
                     <PrivateRoute exact={true} path="/profile/order" component={ProfileOrderList} />
                     <PrivateRoute exact={true} path="/profile/order:ordercatergory(/to-paid|/to-ship|/to-receive|/reviewable)" component={ProfileOrderList} />
                     <PrivateRoute exact={true} path="/profile/order/:orderID" component={ProfileOrderDetail} />
+                    <PrivateRoute exact={true} path="/cart" component={CartPage} />
+
+                    <Route exact={true} path="/games/:id" component={GamesPage} />
 
                     <Route component={NotFoundPage} />
                 </Switch>
             </div>
+            <Footer />
         </section>
     );
 }

@@ -8,7 +8,6 @@
 // Needed for redux-saga es6 generator support
 import 'babel-polyfill';
 import 'react-notifications/lib/notifications.css';
-import { NotificationContainer } from 'react-notifications';
 
 // Import all the third party stuff
 import React from 'react';
@@ -75,6 +74,7 @@ const theme = createMuiTheme({
         },
         MuiTypography: {
             root: { display: 'inline' },
+            h5: { fontSize: '1.5em' },
         },
     },
     typography: {
@@ -91,10 +91,7 @@ const render = (messages) => {
             <LanguageProvider messages={messages}>
                 <ConnectedRouter history={history}>
                     <MuiThemeProvider theme={theme}>
-                        <div>
-                            <NotificationContainer />
-                            <App />
-                        </div>
+                        <App />
                     </MuiThemeProvider>
                 </ConnectedRouter>
             </LanguageProvider>

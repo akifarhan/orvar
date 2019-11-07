@@ -7,6 +7,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
@@ -14,19 +15,21 @@ import injectReducer from 'utils/injectReducer';
 import globalScope from 'globalScope';
 import {
     Button,
+    ButtonBase,
     Card,
     CardContent,
     CardActions,
     Container,
     FormControl,
     FormHelperText,
-    Typography,
     Grid,
-    Select,
     InputLabel,
     OutlinedInput,
+    Select,
+    Typography,
 } from '@material-ui/core';
 import ErrorMessage from 'components/ErrorMessage';
+import FacebookButton from 'containers/FacebookButton';
 import { dataChecking } from 'globalUtils';
 import InputForm from 'components/InputForm';
 import { withStyles } from '@material-ui/core/styles';
@@ -53,6 +56,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
             tac: '',
             signupEmail: '',
             signupPassword: '',
+            error: '',
             password_confirmation: '',
             showPassword: false,
             showConfPassword: false,
@@ -61,6 +65,8 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
             timer: null,
             sendClick: false,
             sendSuccess: false,
+            checkRecaptcha: false,
+            recaptchaError: false,
         };
     }
 
@@ -71,8 +77,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.signUpPage.signupSuccess !== this.props.signUpPage.signupSuccess && nextProps.signUpPage.signupSuccess) {
-            window.location.href = globalScope.previousPage || window.location.pathname;
-            console.log(window.location.href);
+            window.location.href = globalScope.previousPage || '/';
         }
 
         if (nextProps.error !== this.props.error && nextProps.error) {
@@ -94,6 +99,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
     handleChange = (event) => {
         this.setState({ [event.target.id]: event.target.value });
     };
+
     handleChangeNumber = (event) => {
         const onlyNums = event.target.value.replace(/[^0-9]/g, '');
         if (onlyNums.length < 15) {
@@ -109,8 +115,21 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
             sms_prefix: this.state.sms_prefix,
             tac: this.state.tac,
         };
-        this.props.dispatch(doSignup(signUpData));
-        event.preventDefault();
+        if (this.state.checkRecaptcha) {
+            this.props.dispatch(doSignup(signUpData));
+            event.preventDefault();
+        } else {
+            this.setState({
+                recaptchaError: true,
+                error: {
+                    messages: [{
+                        text: 'Please verify that you are not robot.',
+                        type: 'error',
+                    }],
+                },
+            });
+            event.preventDefault();
+        }
     }
     // add function to Send OTP
     handleSendOTP = () => {
@@ -119,7 +138,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
     }
     cardHeader = () => (
         <div className="mt-2 pl-1">
-            <Typography variant="h5" color="primary">
+            <Typography variant="h4" color="primary">
                 <b>{dataChecking(this.props.signUpPage, 'image', 'items') && this.props.signUpPage.image.items[0].title}</b>
             </Typography>
             <Typography variant="h6" color="textSecondary">
@@ -136,13 +155,13 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
         return (
             <Grid container={true} className="py-1" justify="space-around" alignItems="center" direction="row">
                 <Grid item={true} className="p-quater" align="center" xs={4}>
-                    <img src={require('Resources/authPage/signup-wishlist.png')} alt="Wishlist" style={imgStyle} />
+                    <img src={require('resources/authPage/signup-wishlist.png')} alt="Save your favorites" style={imgStyle} />
                 </Grid>
                 <Grid item={true} className="p-quater" align="center" xs={4}>
-                    <img src={require('Resources/authPage/signup-order.png')} alt="Order" style={imgStyle} />
+                    <img src={require('resources/authPage/signup-order.png')} alt="Easily track orders" style={imgStyle} />
                 </Grid>
                 <Grid item={true} className="p-quater" align="center" xs={4}>
-                    <img src={require('Resources/authPage/signup-birthday-rewards.png')} alt="rewards" style={imgStyle} />
+                    <img src={require('resources/authPage/signup-birthday-rewards.png')} alt="Birthday rewards" style={imgStyle} />
                 </Grid>
             </Grid>
         );
@@ -178,7 +197,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
         <div>
             <InputLabel className="text-capitalize pb-half">Mobile number</InputLabel>
             <Grid container={true} direction="row" justify="space-around" align="stretch">
-                <Grid item={true} xs={3}>
+                <Grid item={true} xs={4} sm={3}>
                     <FormControl variant="outlined">
                         <Select
                             native={true}
@@ -194,7 +213,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                         </Select>
                     </FormControl>
                 </Grid>
-                <Grid item={true} xs={9}>
+                <Grid item={true} xs={8} sm={9}>
                     <FormControl>
                         <InputForm
                             id="sms_number"
@@ -213,9 +232,11 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                     </FormControl>
                 </Grid>
             </Grid>
-            {
-                this.state.sendSuccess ? <Typography variant="caption" className="text-success">{this.props.signUpPage.response.messages[0].text}</Typography> : null
-            }
+            <div className="pb-1">
+                {
+                    dataChecking(this.props, 'signUpPage', 'otp', 'message') && <ErrorMessage error={this.props.signUpPage.otp.message} />
+                }
+            </div>
             <FormControl fullWidth={true}>
                 <InputForm
                     label="OTP Number"
@@ -274,6 +295,13 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                     autoComplete="off"
                 />
             </FormControl>
+            <FormControl fullWidth={true}>
+                <ReCAPTCHA
+                    sitekey="6LcKZVMUAAAAABT4fKxxTImskc2dTbY5J8QjsXFa"
+                    style={{ margin: 'auto' }}
+                    onChange={() => this.setState({ checkRecaptcha: true, recaptchaError: false })}
+                />
+            </FormControl>
         </div>
     )
 
@@ -287,13 +315,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                 <Typography>Sign Up</Typography>
             </Button>
             <Typography className="text-xs-center my-half" variant="h6">or<br /></Typography>
-            <Button
-                type="submit"
-                variant="contained"
-                color="secondary"
-            >
-                <Typography>FACEBOOK</Typography>
-            </Button>
+            <FacebookButton />
         </FormControl>
     )
 
@@ -308,18 +330,18 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                         <form onSubmit={this.handleSubmit}>
                             <CardContent>
                                 {this.formInput()}
-                                {/* Add reCAPTCHA*/}
                             </CardContent>
-                            {
-                                this.props.signUpPage.error && <ErrorMessage error={this.props.signUpPage.error} type="danger" />
-                            }
+                            <div className="py-1 px-2">
+                                {this.props.signUpPage.error && <ErrorMessage error={this.props.signUpPage.error} />}
+                                {this.state.recaptchaError && <ErrorMessage error={this.state.error} />}
+                            </div>
                             <CardActions>
                                 {this.formAction()}
                             </CardActions>
                         </form>
                         <div className="text-xs-center">
                             <Typography className="mt-1" variant="caption" color="textSecondary">
-                                By signing up, you agree to the <u>Terms Conditions</u> and will automatically receive insider offers via email.{/* Need to add Link for Terms and condition */}
+                            By signing up, you agree to the <ButtonBase onClick={() => this.props.onClickTnc()}><Typography variant="caption" color="primary"><u>Terms & Conditions</u></Typography></ButtonBase> and will automatically receive insider offers via email.
                             </Typography>
                         </div>
                     </Container>

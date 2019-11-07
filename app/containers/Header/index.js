@@ -15,14 +15,21 @@ import injectReducer from 'utils/injectReducer';
 
 import { NavLink, withRouter } from 'react-router-dom';
 // import CartPage from 'containers/CartPage';
-import { dataChecking } from 'globalUtils';
+import { dataChecking, Events } from 'globalUtils';
 import Highlighter from 'react-highlight-words';
+import globalScope from 'globalScope';
 
 import {
     Person,
     Search,
     ShoppingCart,
     Close,
+    Remove,
+    Menu,
+    ChevronRight,
+    ChevronLeft,
+    ExpandMore,
+    ExpandLess,
 } from '@material-ui/icons';
 import {
     Typography,
@@ -38,10 +45,23 @@ import {
     List,
     Collapse,
     InputAdornment,
+    Popper,
+    IconButton,
+    Card,
+    Box,
+    Badge,
+    Button,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-
-import { layoutTopNav, searchResult } from './actions';
+import CartList from 'components/CartList';
+import {
+    layoutTopNav,
+    searchResult,
+    getImgLink,
+    getUserData,
+    getCartData,
+    removeItemInCart,
+} from './actions';
 import makeSelectHeader from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -53,22 +73,42 @@ export class Header extends React.PureComponent {
         super(props);
 
         this.state = {
+            searchQuery: '',
+            tabVal: 'skin-care',
+            hideHeader: false,
+            anchorElID: null,
+            childVal: null,
+            anchorEl: null,
+            arrowRef: null,
+            cart: null,
             showCartPopout: false,
             searchBar: false,
-            searchQuery: '',
-            anchorElID: null,
-            tabVal: 'skin-care',
             megaMenuToggle: false,
+            open: false,
             left: false,
             toggleChildDrawer: false,
-            open: false,
-            childVal: null,
+            userOpen: false,
+            cartOpen: false,
         };
         this.getSearchResult = this.getSearchResult.bind(this);
+
+        Events.listen('hideHeader', 123456, () => {
+            this.setState({ hideHeader: true });
+        });
     }
 
     componentDidMount() {
         this.props.dispatch(layoutTopNav());
+        this.props.dispatch(getImgLink());
+        if (globalScope.token) {
+            this.props.dispatch(getUserData());
+            this.props.dispatch(getCartData());
+        }
+    }
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.header.cart.data !== this.props.header.cart.data) {
+            this.setState({ cart: nextProps.header.cart.data });
+        }
     }
 
     getSearchResult = (e) => {
@@ -76,6 +116,11 @@ export class Header extends React.PureComponent {
         if (e.target.value.length > 2) {
             this.props.dispatch(searchResult(this.state.searchQuery));
         }
+    }
+
+    deleteCart = (id) => {
+        this.props.dispatch(removeItemInCart(id));
+        this.setState({ cartOpen: false });
     }
 
     toggleDrawer = (event) => {
@@ -95,7 +140,7 @@ export class Header extends React.PureComponent {
 
     megaMenu = () => {
         let content;
-        dataChecking(this.props.header, 'header', 'data').map((data) => {
+        this.props.header.header.data.map((data) => {
             if (this.state.anchorElID === 'category-directory') {
                 if (data.code === 'category-directory') {
                     content = (
@@ -170,12 +215,12 @@ export class Header extends React.PureComponent {
                     right: 0,
                     zIndex: 2,
                 }}
-                onMouseEnter={() => this.setState({ megaMenuToggle: true })}
-                onMouseLeave={() => this.setState({ megaMenuToggle: false, anchorElID: null })}
             >
                 <Container>
                     <div
                         style={{ backgroundColor: 'white' }}
+                        onMouseEnter={() => this.setState({ megaMenuToggle: true })}
+                        onMouseLeave={() => this.setState({ megaMenuToggle: false, anchorElID: null })}
                     >
                         {content}
                     </div>
@@ -183,13 +228,12 @@ export class Header extends React.PureComponent {
             </div>
         );
     }
-
     childDrawer = () => {
         let content;
         this.props.header.header.data.map((data) => {
             if (data.code === 'category-directory') {
                 content = data.items.map((item) => (
-                    <div key={item.code}>
+                    <div key={item.url}>
                         {
                             item.categories ?
                                 <div>
@@ -201,24 +245,38 @@ export class Header extends React.PureComponent {
                                                 childVal: item.code,
                                             })}
                                         />
-                                        {this.state.open && this.state.childVal === item.code ? <i className="fas fa-angle-up"></i> : <i className="fas fa-angle-down"></i>}
+                                        {this.state.open && this.state.childVal === item.code ?
+                                            <ExpandLess
+                                                onClick={() => this.setState({
+                                                    open: !this.state.open,
+                                                    childVal: item.code,
+                                                })}
+                                            />
+                                            :
+                                            <ExpandMore
+                                                onClick={() => this.setState({
+                                                    open: !this.state.open,
+                                                    childVal: item.code,
+                                                })}
+                                            />
+                                        }
                                     </ListItem>
                                     <Collapse in={this.state.open && this.state.childVal === item.code} timeout="auto" unmountOnExit={true}>
                                         <List component="div" disablePadding={true}>
                                             {
                                                 item.categories.map((category) => (
-                                                    <div key={category.url}>
-                                                        <ListItem className={this.props.classes.childDrawer} component={NavLink} button={true} divider={true} to={category.url}>
+                                                    <NavLink key={category.url} to={category.url} style={{ textDecoration: 'none' }}>
+                                                        <ListItem className={this.props.classes.childDrawer} divider={true} >
                                                             <ListItemText primary={category.text} />
                                                         </ListItem>
-                                                    </div>
+                                                    </NavLink>
                                                 ))
                                             }
                                         </List>
                                     </Collapse>
                                 </div>
                             :
-                                <ListItem button={true}>
+                                <ListItem button={true} divider={true}>
                                     <ListItemText primary={item.text} />
                                 </ListItem>
                         }
@@ -229,6 +287,9 @@ export class Header extends React.PureComponent {
         });
         return (
             <List component="div">
+                <ListItem divider={true}>
+                    <ListItemText primary="CATEGORIES" />
+                </ListItem>
                 {content}
             </List>
         );
@@ -242,11 +303,13 @@ export class Header extends React.PureComponent {
                         <div>
                             <div>
                                 <Grid className="p-1" container={true}>
-                                    <Grid item={true}>
-                                        <i className="fas fa-bars pr-1"></i>
+                                    <Grid item={true} xs={4}>
+                                        <IconButton onClick={this.toggleDrawer}>
+                                            <Menu color="primary" className={this.props.classes.icon} />
+                                        </IconButton>
                                     </Grid>
-                                    <Grid item={true}>
-                                        <img src={require('images/hermo-logo-image.png')} alt="Hermo Logo" width="100px" />
+                                    <Grid item={true} xs={8} className="header-home-logo-hamburger">
+                                        <img src={require('images/hermo-logo-image.png')} alt="Hermo Logo" width="100px" className="p-1" />
                                     </Grid>
                                 </Grid>
                                 <Divider />
@@ -257,24 +320,27 @@ export class Header extends React.PureComponent {
                                         <div key={data.code}>
                                             <div className="p-1">
                                                 {
-                                                    data.type !== 'hot-link' ?
-                                                        <Typography
+                                                    data.type === 'category-directory' ?
+                                                        <Box
                                                             onClick={() => this.setState({
                                                                 toggleChildDrawer: !this.state.toggleChildDrawer,
                                                                 code: data.code,
                                                             })}
                                                         >
-                                                            {data.text}
-                                                            <i
-                                                                className="fas fa-angle-right"
-                                                                style={{ float: 'right' }}
-                                                            ></i>
-                                                        </Typography>
+                                                            <Typography>
+                                                                {data.text}
+                                                                <ChevronRight style={{ float: 'right' }} />
+                                                            </Typography>
+                                                        </Box>
                                                     :
-                                                        <Typography>
-                                                            {data.text}
-                                                        </Typography>
-
+                                                        <NavLink
+                                                            className={this.props.classes.navLink}
+                                                            to={data.url}
+                                                        >
+                                                            <Typography>
+                                                                {data.text}
+                                                            </Typography>
+                                                        </NavLink>
                                                 }
                                             </div>
                                             <Divider />
@@ -288,11 +354,12 @@ export class Header extends React.PureComponent {
                         <div>
                             <div
                                 className="p-1"
+                                onClick={() => this.setState({ toggleChildDrawer: !this.state.toggleChildDrawer })}
                             >
+                                <ChevronLeft style={{ float: 'left' }} />
                                 <Typography
                                     onClick={() => this.setState({ toggleChildDrawer: !this.state.toggleChildDrawer })}
                                 >
-                                    <i className="fas fa-angle-left pr-1"></i>
                                     Back
                                 </Typography>
                             </div>
@@ -304,33 +371,56 @@ export class Header extends React.PureComponent {
         </Drawer>
     )
 
-    rightHeader = () => {
-        console.log();
-        return (
-            <Grid item={true}>
-                <span className="mr-1" onClick={() => this.setState({ searchBar: !this.state.searchBar })}>
-                    {
-                        this.state.searchBar ?
-                            <Close
-                                onClick={() => this.setState({ searchBar: !this.state.searchBar, searchQuery: '' })}
-                                className="animated rotateIn"
-                            />
-                        :
-                            <Search className="animated rotateIn" />
+    rightHeader = () => (
+        <Grid item={true} className="right-header">
+            <IconButton onClick={this.state.searchBar ? () => this.setState({ searchBar: !this.state.searchBar, searchQuery: '' }) : () => this.setState({ searchBar: !this.state.searchBar })}>
+                {
+                    this.state.searchBar ?
+                        <Close className="animated rotateIn" />
+                    :
+                        <Search className="animated rotateIn" />
 
-                    }
-                </span>
-                <Person className="mr-1" />
-                <ShoppingCart />
-            </Grid>
-        );
-    }
-
+                }
+            </IconButton>
+            <IconButton
+                id="profile"
+                onMouseEnter={(evt) => this.setState({
+                    anchorEl: evt.currentTarget,
+                    userOpen: true,
+                })}
+                onMouseLeave={() => this.setState({ userOpen: false })}
+                onClick={() => this.setState({ userOpen: !this.state.userOpen })}
+            >
+                <Person />
+            </IconButton>
+            {
+                globalScope.token && this.props.header.cart.success &&
+                <IconButton
+                    id="cart"
+                    className="right-header-cart"
+                    onMouseEnter={(evt) => this.setState({
+                        anchorEl: evt.currentTarget,
+                        cartOpen: true,
+                    })}
+                    onMouseLeave={() => this.setState({ cartOpen: false })}
+                    onClick={() => this.setState({ cartOpen: !this.state.cartOpen })}
+                >
+                    <Badge
+                        color="secondary"
+                        badgeContent={dataChecking(this.state, 'cart', 'summary', 'cart_qty')}
+                        invisible={dataChecking(this.state, 'cart', 'attribute', 'is_empty')}
+                    >
+                        <ShoppingCart />
+                    </Badge>
+                </IconButton>
+            }
+        </Grid>
+    )
     leftHeader = () => (
-        <Grid item={true} style={{ flex: 1 }}>
+        <Grid item={true} style={{ flex: 1 }} className="left-header">
             {
                 this.state.searchBar ?
-                    <div className="animated fadeInLeft">
+                    <div className="animated fadeIn">
                         <TextField
                             autoFocus={true}
                             value={this.state.searchQuery}
@@ -347,9 +437,9 @@ export class Header extends React.PureComponent {
                             }}
                         />
                     </div>
-                :
-                    <Grid className="animated fadeInLeft" container={true} spacing={2} alignItems="center">
-                        <Grid item={true}>
+                    :
+                    <Grid className="animated fadeIn" container={true} spacing={2} alignItems="center">
+                        <Grid item={true} className="header-home-logo-desktop">
                             <NavLink to="/">
                                 <img src={require('images/hermo-logo-image.png')} alt="Hermo Logo" style={{ width: '100px' }} />
                             </NavLink>
@@ -365,12 +455,331 @@ export class Header extends React.PureComponent {
     /**
      * User section for menu to profiles
      */
-    renderUserSection = () => {}
+    renderUserNavLink = () => {
+        const imgStyle = {
+            width: 18,
+            height: 18,
+        };
+        return (
+            <Grid container={true} className="py-1">
+                <Grid item={true} xs={12} className="py-half">
+                    <NavLink to="/profile" style={{ textDecoration: 'none' }}>
+                        <Box
+                            align="left"
+                            style={{
+                                color: '#000',
+                            }}
+                            onClick={() => this.setState({ userOpen: false })}
+                        >
+                            <Grid container={true}>
+                                <Grid item={true} xs={2}>
+                                    <img src={require('resources/header/profile-icon.png')} alt="profile-icon" style={imgStyle} />
+                                </Grid>
+                                <Grid item={true} xs={10}>
+                                    <Typography
+                                        variant="body1"
+                                    >
+                                        My Profile
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </NavLink>
+                    <Divider />
+                </Grid>
+                <Grid item={true} xs={12} className="py-half">
+                    <NavLink to="/profile/order" style={{ textDecoration: 'none' }}>
+                        <Box
+                            align="left"
+                            style={{
+                                color: '#000',
+                            }}
+                            onClick={() => this.setState({ userOpen: false })}
+                        >
+                            <Grid container={true}>
+                                <Grid item={true} xs={2}>
+                                    <img src={require('resources/header/order-icon.png')} alt="order-icon" style={imgStyle} />
+                                </Grid>
+                                <Grid item={true} xs={10}>
+                                    <Typography
+                                        variant="body1"
+                                    >
+                                        My Order
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </NavLink>
+                    <Divider />
+                </Grid>
+                <Grid item={true} xs={12} className="py-half">
+                    <NavLink to="/profile/rewards" style={{ textDecoration: 'none' }}>
+                        <Box
+                            align="left"
+                            style={{
+                                color: '#000',
+                            }}
+                            onClick={() => this.setState({ userOpen: false })}
+                        >
+                            <Grid container={true}>
+                                <Grid item={true} xs={2}>
+                                    <img src={require('resources/header/rewards-icon.png')} alt="rewards-icon" style={imgStyle} />
+                                </Grid>
+                                <Grid item={true} xs={10}>
+                                    <Typography
+                                        variant="body1"
+                                    >
+                                        Rewards
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </NavLink>
+                    <Divider />
+                </Grid>
+                <Grid item={true} xs={12} className="py-half">
+                    <NavLink to="/profile/wallet" style={{ textDecoration: 'none' }}>
+                        <Box
+                            style={{
+                                color: '#000',
+                            }}
+                            onClick={() => this.setState({ userOpen: false })}
+                            align="left"
+                        >
+                            <Grid container={true}>
+                                <Grid item={true} xs={2}>
+                                    <img src={require('resources/header/wallet-icon.png')} alt="wallet-icon" style={imgStyle} />
+                                </Grid>
+                                <Grid item={true} xs={10}>
+                                    <Typography
+                                        variant="body1"
+                                    >
+                                        My Wallet
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </NavLink>
+                    <Divider />
+                </Grid>
+                <Grid item={true} xs={12} className="py-half">
+                    <NavLink to="/profile/wishlist" style={{ textDecoration: 'none' }}>
+                        <Box
+                            align="left"
+                            style={{
+                                color: '#000',
+                            }}
+                            onClick={() => this.setState({ userOpen: false })}
+                        >
+                            <Grid container={true}>
+                                <Grid item={true} xs={2}>
+                                    <img src={require('resources/header/wishlist-icon.png')} alt="wishlist-icon" style={imgStyle} />
+                                </Grid>
+                                <Grid item={true} xs={10}>
+                                    <Typography
+                                        variant="body1"
+                                    >
+                                        My Wishlist
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </NavLink>
+                    <Divider />
+                </Grid>
+                <Grid item={true} xs={12} className="py-half">
+                    <NavLink to="/profile/" style={{ textDecoration: 'none' }}>
+                        <Box
+                            align="left"
+                            style={{
+                                color: '#000',
+                            }}
+                            onClick={() => this.setState({ userOpen: false })}
+                        >
+                            <Grid container={true}>
+                                <Grid item={true} xs={2}>
+                                    <img src={require('resources/header/settings-icon.png')} alt="settings-icon" style={imgStyle} />
+                                </Grid>
+                                <Grid item={true} xs={10}>
+                                    <Typography
+                                        variant="body1"
+                                    >
+                                        Settings
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </NavLink>
+                </Grid>
+            </Grid>
+        );
+    }
 
+    renderUserSection = () => (
+        <Card
+            className={this.props.classes.card}
+            style={{
+                backgroundColor: '#ffffff',
+            }}
+        >
+            {
+                globalScope.token ?
+                    <div>
+                        <Container
+                            className="py-1"
+                            style={{
+                                backgroundColor: '#f2f2f2',
+                            }}
+                        >
+                            <Grid container={true}>
+                                <Grid item={true} xs={11}>
+                                    <Typography variant="body1">
+                                        Hi, {dataChecking(this.props.header, 'user', 'data', 'data') && this.props.header.user.data.data.name}
+                                    </Typography>
+                                    <NavLink to="/logout" style={{ textDecoration: 'none' }}>
+                                        <Typography
+                                            variant="body1"
+                                            style={{ color: '#989898' }}
+                                            onClick={() => this.setState({ userOpen: false })}
+                                        >
+                                            <br /><u>Log Out</u>
+                                        </Typography>
+                                    </NavLink>
+                                </Grid>
+                                <Hidden mdUp={true}>
+                                    <Grid item={true} xs={1}>
+                                        <Remove onClick={() => this.setState({ userOpen: false })} />
+                                    </Grid>
+                                </Hidden>
+                            </Grid>
+                        </Container>
+                        <Container>
+                            {this.state.userOpen && this.renderUserNavLink()}
+                        </Container>
+                    </div>
+                :
+                    (this.state.userOpen
+                    &&
+                    <Grid container={true}>
+                        <Grid item={true} xs={12}>
+                            <Box
+                                className="p-1"
+                                align="left"
+                                style={{
+                                    backgroundColor: '#f2f2f2',
+                                }}
+                            >
+                                <Grid container={true}>
+                                    <Grid item={true} xs={11} md={12}>
+                                        <NavLink
+                                            to="/auth"
+                                            style={{ textDecoration: 'none' }}
+                                            onClick={() => this.setState({ userOpen: false })}
+                                        >
+                                            <div>
+                                                <Typography
+                                                    variant="body1"
+                                                    style={{ color: '#000' }}
+                                                >
+                                                    Log in / {dataChecking(this.props.header, 'imgLink', 'data', 'items') && this.props.header.imgLink.data.items[0].title}
+                                                </Typography>
+                                            </div>
+                                        </NavLink>
+                                    </Grid>
+                                    <Hidden mdUp={true}>
+                                        <Grid item={true} xs={1}>
+                                            <Remove onClick={() => this.setState({ userOpen: false })} />
+                                        </Grid>
+                                    </Hidden>
+                                </Grid>
+                            </Box>
+                        </Grid>
+                        {/* <Grid item={true} xs={12}>
+                            <NavLink to="/signup" style={{ textDecoration: 'none' }}>
+                                <Box
+                                    className="p-1"
+                                    align="left"
+                                    style={{
+                                        backgroundColor: '#603',
+                                    }}
+                                    onClick={() => this.setState({ userOpen: false })}
+                                >
+                                    <Typography
+                                        variant="body1"
+                                        style={{ color: '#fff' }}
+                                    >
+                                        <u>{dataChecking(this.props.header, 'imgLink', 'data', 'items') && this.props.header.imgLink.data.items[0].title}</u>
+                                    </Typography>
+                                    <Typography
+                                        variant="body2"
+                                        style={{ color: '#fff' }}
+                                    >
+                                        <br />{dataChecking(this.props.header, 'imgLink', 'data', 'items') && this.props.header.imgLink.data.items[0].brief}
+                                    </Typography>
+                                </Box>
+                            </NavLink>
+                        </Grid> */}
+                    </Grid>
+                    )
+            }
+        </Card>
+    )
+
+    renderCartTimer = () => {}
     /**
      * User cart dropdown
      */
-    renderCartSection = () => {}
+    renderCartSection = () => (
+        <div>
+            <Card
+                className={this.props.classes.cardCart}
+                style={{
+                    backgroundColor: '#fff',
+                }}
+            >
+                {
+                    dataChecking(this.state, 'cart', 'attribute', 'is_empty') ?
+                        <div>
+                            <Typography>Your cart is empty.</Typography>
+                            <NavLink to="/mall">
+                                <Button>Go shopping</Button>
+                            </NavLink>
+                        </div>
+                    :
+                        <div>
+                            <div>
+                                {this.renderCartTimer()}
+                                <Typography>SUBTOTAL</Typography>
+                            </div>
+                            <Divider />
+                            <div
+                                style={{
+                                    overflow: 'auto',
+                                    maxHeight: '40rem',
+                                }}
+                            >
+                                {
+                                    dataChecking(this.state, 'cart', 'merchants') && this.state.cart.merchants.map((merchant) => (
+                                        <CartList
+                                            cart={this.state.cart}
+                                            merchant={merchant}
+                                            deleteCart={this.deleteCart}
+                                            key={merchant.id}
+                                            noEditQuantity={true}
+                                            noSummary={true}
+                                        />
+                                    ))
+                                }
+                            </div>
+                            <Divider />
+                            <div style={{ float: 'right' }}>
+                                <Button variant="contained">Checkout now</Button>
+                            </div>
+                        </div>
+                }
+            </Card>
+        </div>
+    )
 
     /**
      * quicklink section which is right side of the header
@@ -381,12 +790,39 @@ export class Header extends React.PureComponent {
      * top nav section with data came from api /layout/top-nav
      */
     renderTopCategory = () => (
-        <div className={`top-nav ${!this.state.hideSearchBar ? 'show' : ''}`}>
+        <Grid
+            container={true}
+            className={`
+                top-nav
+                ${!this.state.hideSearchBar ? 'show' : ''}
+                ${this.props.header.header.data ? '' : 'opacity-zero'}
+            `}
+        >
             {
-                dataChecking(this.props.header, 'header', 'data').map((val) => (
-                    <span className="ml-3 category" key={val.code}>
+                this.props.header.header.data && this.props.header.header.data.map((val) => (
+                    <Grid item={true} className="ml-3 category animated fadeIn" key={val.code}>
                         {
-                            val.type === 'hot-link' ?
+                            val.type === 'category-directory' ?
+                                <div>
+                                    <Typography
+                                        id={val.code}
+                                        onMouseEnter={(event) => this.setState({ megaMenuToggle: true, anchorElID: event.target.id })}
+                                    >
+                                        {val.text}
+                                    </Typography>
+                                    {this.state.megaMenuToggle ?
+                                        <ExpandLess
+                                            style={{ float: 'right' }}
+                                            onClick={() => this.setState({ megaMenuToggle: false, anchorElID: null })}
+                                        />
+                                        :
+                                        <ExpandMore
+                                            style={{ float: 'right' }}
+                                            onClick={() => this.setState({ megaMenuToggle: true, anchorElID: val.code })}
+                                        />
+                                    }
+                                </div>
+                            :
                                 <NavLink
                                     className={this.props.classes.navLink}
                                     to={val.url}
@@ -395,19 +831,11 @@ export class Header extends React.PureComponent {
                                         {val.text}
                                     </Typography>
                                 </NavLink>
-                            :
-                                <Typography
-                                    id={val.code}
-                                    onMouseEnter={(event) => this.setState({ megaMenuToggle: true, anchorElID: event.target.id })}
-                                >
-                                    {val.text}
-                                    <i className="fas fa-angle-down ml-quater"></i>
-                                </Typography>
                         }
-                    </span>
+                    </Grid>
                 ))
             }
-        </div>
+        </Grid>
     )
 
     /**
@@ -417,7 +845,7 @@ export class Header extends React.PureComponent {
     renderSearchResult = (type) => {
         let searchQueryResult;
         if (!this.props.header.suggestionData.error) {
-            dataChecking(this.props.header, 'suggestionData', 'data').map((data) => {
+            this.props.header.suggestionData.data.map((data) => {
                 if (data.type === type) {
                     searchQueryResult = data.items.map((item, key) => (
                         <div className="mb-1" key={key}>
@@ -531,41 +959,119 @@ export class Header extends React.PureComponent {
      * - Component will consists of hermo logo, top nav and quicklinks
      */
     render() {
+        if (this.state.hideHeader) {
+            return null;
+        }
+
         return (
-            dataChecking(this.props.header, 'header', 'data') ?
-                <div>
-                    <AppBar color="default" className={this.props.classes.header}>
-                        <Hidden smDown={true}>
-                            <Container className="header-desktop">
+            <div className="header-wrapper">
+                <AppBar color="default">
+                    <Hidden smDown={true}>
+                        <div className={`header-desktop ${this.props.classes.header}`}>
+                            <Container className="header-desktop-container">
                                 <Grid container={true} alignItems="center">
                                     {this.leftHeader()}
                                     {this.rightHeader()}
                                 </Grid>
                             </Container>
-                        </Hidden>
-                        <Hidden mdUp={true}>
-                            <div className="header-mobile">
-                                <Grid container={true} justify="space-between" alignItems="center">
-                                    <Grid item={true}>
-                                        <Grid container={true} alignItems="center">
-                                            <Grid item={true}>
-                                                <i
-                                                    className="fas fa-bars pr-1"
-                                                    onClick={this.toggleDrawer}
-                                                ></i>
-                                            </Grid>
-                                            <Grid item={true}>
-                                                <NavLink to="/">
-                                                    <img src={require('images/hermo-logo-image.png')} alt="Hermo Logo" width="100px" />
-                                                </NavLink>
-                                            </Grid>
+                            <Popper
+                                className={this.props.classes.popper}
+                                style={{ zIndex: 1101, maxWidth: '20rem' }}
+                                open={this.state.userOpen}
+                                placement="top"
+                                anchorEl={this.state.anchorEl}
+                                onMouseEnter={() => this.setState({ userOpen: true })}
+                                onMouseLeave={() => this.setState({ userOpen: false })}
+                                modifiers={{
+                                    arrow: {
+                                        enabled: true,
+                                        element: this.state.arrowRef,
+                                    },
+                                }}
+                            >
+                                <span className={this.props.classes.arrow} ref={(node) => this.setState({ arrowRef: node })} />
+                                {this.renderUserSection()}
+                            </Popper>
+                            {
+                                globalScope.token &&
+                                    <Container>
+                                        <Popper
+                                            className={`cart-popup ${this.props.classes.popper}`}
+                                            style={{ zIndex: 1101, maxWidth: '20rem' }}
+                                            open={this.state.cartOpen}
+                                            placement="bottom-end"
+                                            anchorEl={this.state.anchorEl}
+                                            onMouseEnter={() => this.setState({ cartOpen: true })}
+                                            onMouseLeave={() => this.setState({ cartOpen: true })}
+                                            // onMouseLeave={() => this.setState({ cartOpen: false })}
+                                            modifiers={{
+                                                arrow: {
+                                                    enabled: true,
+                                                    element: this.state.arrowRef,
+                                                },
+                                            }}
+                                        >
+                                            <span className={this.props.classes.arrow} ref={(node) => this.setState({ arrowRef: node })} />
+                                            {/* {
+                                                this.state.cartOpen ?
+                                                    <CartSection />
+                                                    :
+                                                    null
+                                            } */}
+                                        </Popper>
+                                    </Container>
+                            }
+                        </div>
+                    </Hidden>
+                    <Hidden mdUp={true}>
+                        <div className={this.props.classes.headerMobile}>
+                            <Grid container={true} justify="space-between" alignItems="center" style={{ padding: '1rem 1rem 0 1rem' }}>
+                                <Grid item={true}>
+                                    <Grid container={true} alignItems="center">
+                                        <Grid item={true}>
+                                            <IconButton onClick={this.toggleDrawer}>
+                                                <Menu color="primary" className={this.props.classes.icon} />
+                                            </IconButton>
+                                        </Grid>
+                                        <Grid item={true} className="header-home-logo-mobile">
+                                            <NavLink to="/">
+                                                <img src={require('images/hermo-logo-image.png')} alt="Hermo Logo" width="100px" />
+                                            </NavLink>
                                         </Grid>
                                     </Grid>
-                                    <Grid item={true}>
-                                        <i className="fas fa-shopping-cart pr-1"></i>
-                                        <i className="fas fa-user"></i>
-                                    </Grid>
                                 </Grid>
+                                <Grid item={true}>
+                                    <IconButton
+                                        id="profile"
+                                        onClick={(evt) => this.setState({
+                                            anchorEl: evt.currentTarget,
+                                            userOpen: !this.state.userOpen,
+                                        })}
+                                    >
+                                        <Person className={this.props.classes.icon} />
+                                    </IconButton>
+                                    <IconButton
+                                        className="mobile-cart"
+                                    >
+                                        <Badge
+                                            color="secondary"
+                                            badgeContent={dataChecking(this.state, 'cart', 'summary', 'cart_qty')}
+                                            invisible={dataChecking(this.state, 'cart', 'attribute', 'is_empty')}
+                                        >
+                                            <ShoppingCart className={this.props.classes.icon} />
+                                        </Badge>
+                                    </IconButton>
+                                </Grid>
+                            </Grid>
+                            {
+                                this.state.userOpen ?
+                                    <div>
+                                        {this.renderUserSection()}
+                                    </div>
+                                :
+                                    null
+                            }
+                            <div style={{ padding: '0 1rem 1rem 1rem' }}>
                                 <TextField
                                     className={this.props.classes.mobileSearch}
                                     autoFocus={true}
@@ -575,7 +1081,6 @@ export class Header extends React.PureComponent {
                                     autoComplete="off"
                                     margin="dense"
                                     placeholder="Search for Products, Brands, etc.."
-                                    style={{ width: '100%' }}
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
@@ -585,14 +1090,13 @@ export class Header extends React.PureComponent {
                                     }}
                                 />
                             </div>
-                            {this.hamburger()}
-                        </Hidden>
-                    </AppBar>
-                    {this.state.anchorElID && this.megaMenu()}
-                    {this.renderSearchSection()}
-                </div>
-            :
-                null
+                        </div>
+                        {this.hamburger()}
+                    </Hidden>
+                </AppBar>
+                {this.state.anchorElID && this.megaMenu()}
+                {this.renderSearchSection()}
+            </div>
         );
     }
 }

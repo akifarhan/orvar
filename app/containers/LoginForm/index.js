@@ -11,17 +11,19 @@ import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
+import PopupDialog from 'components/PopupDialog';
+
 
 import globalScope from 'globalScope';
 
 import {
     Button,
+    ButtonBase,
     Card,
-    CardContent,
     CardActions,
     Container,
+    Divider,
     FormControl,
-    FormHelperText,
     Typography,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
@@ -29,11 +31,13 @@ import { dataChecking } from 'globalUtils';
 
 import ErrorMessage from 'components/ErrorMessage';
 import InputForm from 'components/InputForm';
+import FacebookButton from 'containers/FacebookButton';
 import makeSelectLoginForm from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import {
     doLogin,
+    resetPassword,
     getImageLink,
 } from './actions';
 import './style.scss';
@@ -45,24 +49,31 @@ export class LoginForm extends React.PureComponent { // eslint-disable-line reac
 
         this.state = {
             email: '',
+            forgotEmail: '',
             password: '',
+            forgotDialog: false,
             showPassword: false,
         };
     }
     componentDidMount() {
         this.props.dispatch(getImageLink());
     }
+
     componentWillReceiveProps(nextProps) {
         if (nextProps.loginForm.loginSuccess !== this.props.loginSuccess && nextProps.loginForm.loginSuccess) {
-            window.location.href = globalScope.previousPage || window.location.pathname;
+            window.location.href = globalScope.previousPage || '/';
             console.log(window.location.href);
         }
 
         if (nextProps.error !== this.props.error && nextProps.error) {
             console.log(nextProps.error);
         }
+        if (nextProps.loginForm.reset.success !== this.props.loginForm.reset.success && nextProps.loginForm.reset.success) {
+            this.setState({ forgotDialog: false, forgotEmail: '' });
+        }
     }
 
+    onClickForgot = () => this.setState({ forgotDialog: true })
     handleChange = (event) => {
         this.setState({ [event.target.id]: event.target.value });
     };
@@ -71,16 +82,27 @@ export class LoginForm extends React.PureComponent { // eslint-disable-line reac
         this.setState((state) => ({ showPassword: !state.showPassword }));
     }
 
-    cardHeader = () => (
-        <div className=" mt-2 pl-1">
-            <Typography variant="h5" color="primary">
-                <b>{dataChecking(this.props.loginForm, 'image', 'items') && this.props.loginForm.image.items[0].title}</b>
-            </Typography>
-            <Typography variant="h6" color="textSecondary">
-                <br />{dataChecking(this.props.loginForm, 'image', 'items') && this.props.loginForm.image.items[0].brief}
-            </Typography>
-        </div>
-    )
+    cardHeader = () => {
+        if (this.props.isModal) {
+            return (
+                <div className="pl-1">
+                    <Typography variant="h4" color="primary">
+                        <b>Log in now!</b>
+                    </Typography>
+                </div>
+            );
+        }
+        return (
+            <div className=" mt-2 pl-1">
+                <Typography variant="h4" color="primary">
+                    <b>{dataChecking(this.props.loginForm, 'image', 'items') && this.props.loginForm.image.items[0].title}</b>
+                </Typography>
+                <Typography variant="h6" color="textSecondary">
+                    <br />{dataChecking(this.props.loginForm, 'image', 'items') && this.props.loginForm.image.items[0].brief}
+                </Typography>
+            </div>
+        );
+    }
 
     formInput = () => (
         <div>
@@ -111,14 +133,15 @@ export class LoginForm extends React.PureComponent { // eslint-disable-line reac
                     autoComplete="off"
                     togglePassword={true}
                 />
-                <FormHelperText id="password-helper">Password should contain at least 8 characters.</FormHelperText>
             </FormControl>
         </div>
     )
     // Need update on function
     forgotPassword = () => (
-        <FormControl fullWidth={true}>
-            <Typography variant="caption" color="textSecondary"><u>Forgot Password?</u></Typography>
+        <FormControl>
+            <ButtonBase onClick={() => this.onClickForgot()}>
+                <Typography variant="body2" color="textSecondary"><u>Forgot Password?</u></Typography>
+            </ButtonBase>
         </FormControl>
     )
 
@@ -128,43 +151,81 @@ export class LoginForm extends React.PureComponent { // eslint-disable-line reac
                 <Typography>Login</Typography>
             </Button>
             <Typography className="text-xs-center my-half" variant="h6">or<br /></Typography>
-            <Button
-                type="submit"
-                variant="contained"
-                color="secondary"
-            >
-                <Typography>FACEBOOK</Typography>
-            </Button>
+            {/* {this.props.fb(true)} */}
+            <FacebookButton isLogin={true} />
         </FormControl>
     )
 
     render() {
         return (
-            <Container className={this.props.classes.card}>
-                <Card>
-                    <Container className="p-3">
-                        {this.cardHeader()}
-                        <form onSubmit={() => { this.props.dispatch(doLogin(this.state)); event.preventDefault(); }}>
-                            <CardContent>
-                                {this.formInput()}
-                                {this.forgotPassword()}
-                                {
-                                    this.props.loginForm.error && <ErrorMessage error={this.props.loginForm.error} type="danger" />
-                                }
-                            </CardContent>
-                            <CardActions>
-                                {this.formAction()}
-                            </CardActions>
-                        </form>
-                        <div className="text-xs-center">
-                            <Typography className="mt-1" variant="caption" color="textSecondary">
-                                By logging, you agree to our <br /><u>Terms Conditions</u> {/* Need to add Link for Terms and condition */}
-                            </Typography>
-                        </div>
+            <div>
+                <Container className={this.props.classes.card}>
+                    <Card>
+                        <Container className="p-3">
+                            {this.cardHeader()}
+                            <form onSubmit={() => { this.props.dispatch(doLogin(this.state)); event.preventDefault(); }}>
+                                <div className="py-1 px-1">
+                                    {this.formInput()}
+                                    {this.forgotPassword()}
+                                    <div className="py-half">
+                                        {
+                                            this.props.loginForm.error && <ErrorMessage error={this.props.loginForm.error} />
+                                        }
+                                    </div>
+                                </div>
+                                <CardActions>
+                                    {this.formAction()}
+                                </CardActions>
+                            </form>
+                            <div className="text-xs-center">
+                                <Typography className="mt-1" variant="caption" color="textSecondary">
+                                    By logging, you agree to our <br /><ButtonBase onClick={() => this.props.onClickTnc()}><Typography variant="caption" color="primary"><u>Terms & Conditions</u></Typography></ButtonBase>
+                                </Typography>
+                            </div>
 
-                    </Container>
-                </Card>
-            </Container>
+                        </Container>
+                    </Card>
+                </Container>
+                <PopupDialog
+                    display={this.state.forgotDialog}
+                    title="Reset Your Password"
+                    onClose={() =>
+                        this.setState({
+                            forgotDialog: false,
+                            forgotEmail: '',
+                        })
+                    }
+                >
+                    <Divider />
+                    <form onSubmit={() => { this.props.dispatch(resetPassword(this.state.forgotEmail)); event.preventDefault(); }}>
+                        <div className="p-1" style={{ textAlign: 'center' }} >
+                            <Typography variant="body1">Please enter your registered email address so we can send you the reset instructions.</Typography>
+                        </div>
+                        <FormControl fullWidth={true}>
+                            <InputForm
+                                label="Email address"
+                                placeholder="Enter your registered email address"
+                                id="forgotEmail"
+                                type="email"
+                                handleChange={this.handleChange}
+                                value={this.state.forgotEmail}
+                                onClear={() => {
+                                    this.setState({ forgotEmail: '' });
+                                }}
+                            />
+                        </FormControl>
+                        <FormControl fullWidth={true}>
+                            <Button type="submit" variant="contained" color="primary">
+                                Send me the instructions
+                            </Button>
+                        </FormControl>
+                    </form>
+                    <div className="p-1" style={{ textAlign: 'center' }} >
+                        <Divider />
+                        <Typography variant="caption">Trouble logging in? Drop our helpdesk an email <a href="mailto:admin@hermo.my" style={{ color: '#603' }}>admin@hermo.my</a> or call <a href="tel:+607-5623567" style={{ color: '#603' }}>07-5623567</a></Typography>
+                    </div>
+                </PopupDialog>
+            </div>
         );
     }
 }
