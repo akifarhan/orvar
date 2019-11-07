@@ -313,6 +313,7 @@
         "react-intl": "2.3.0",
         "react-json-view": "^1.19.1",
         "react-loadable": "4.0.3",
+        "react-lottie": "^1.2.3",
         "react-moment": "^0.6.9",
         "react-notifications": "^1.4.3",
         "react-owl-carousel2": "^0.3.0",

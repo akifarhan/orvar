@@ -23,6 +23,7 @@ import {
 import InputForm from 'components/InputForm';
 import AuthPage from '../AuthPage';
 import PerfectMatchGame from '../PerfectMatchGame';
+import VideoShowGame from '../VideoShowGame';
 import {
     doLogin,
     getGameInfo,
@@ -250,7 +251,16 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         );
                     case 'video-show':
                         return (
-                            <div>Video-show</div>
+                            <VideoShowGame
+                                props={{ smth: true }}
+                                playMusic={this.state.playMusic}
+                                onGameStart={() => alert('gamestart')}
+                                onGameWin={(payload) => this.onGameComplete(payload)}
+                                onGameLose={(payload) => this.onGameComplete(payload)}
+                                onBackToMenu={this.onBackToMenu}
+                                gameConfig={this.state.gameInfo.data.config.game}
+                                gameResultImagelink={this.state.gameResultImagelink}
+                            />
                         );
 
                     default:

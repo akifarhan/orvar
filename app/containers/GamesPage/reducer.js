@@ -49,7 +49,7 @@ function gamesPageReducer(state = initialState, action) {
                 .setIn(['login', 'loading'], false)
                 .setIn(['login', 'error'], true)
                 .setIn(['login', 'success'], false)
-                .setIn(['login', 'data'], action.data);
+                .setIn(['login', 'data'], action.payload);
         case GET_RESULT:
             return state
                 .setIn(['result', 'loading'], true)
@@ -67,7 +67,7 @@ function gamesPageReducer(state = initialState, action) {
                 .setIn(['result', 'loading'], false)
                 .setIn(['result', 'error'], true)
                 .setIn(['result', 'success'], false)
-                .setIn(['result', 'data'], action.resultData);
+                .setIn(['result', 'data'], action.payload);
         case GET_GAME_INFO:
             return state
                 .setIn(['gameInfo', 'loading'], true)
@@ -85,7 +85,7 @@ function gamesPageReducer(state = initialState, action) {
                 .setIn(['gameInfo', 'loading'], false)
                 .setIn(['gameInfo', 'error'], true)
                 .setIn(['gameInfo', 'success'], false)
-                .setIn(['gameInfo', 'data'], action.gameInfoData);
+                .setIn(['gameInfo', 'data'], action.payload);
         default:
             return state;
     }
