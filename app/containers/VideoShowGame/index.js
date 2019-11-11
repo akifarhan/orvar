@@ -48,7 +48,8 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
             gameMusic: new Audio(this.props.gameConfig.background_music),
         };
         this.state.gameMusic.loop = true;
-        this.props.dispatch(getGameToken());
+
+        this.props.dispatch(getGameToken({ id: this.props.gameId }));
 
         document.ondragstart = () => null;
         Events.trigger('hideHeader', {});
@@ -65,7 +66,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
         }
 
         if (dataChecking(nextProps, 'gamePage', 'gameToken', 'success') !== dataChecking(this.props, 'gamePage', 'gameToken', 'success') && nextProps.gamePage.gameToken.success) {
-            this.setState({ gameAccessToken: nextProps.gamePage.gameToken.data.token });
+            this.setState({ gameAccessToken: dataChecking(nextProps.gamePage, 'gameToken', 'data', 'message', 'token') });
             this.initialiseGame();
         }
 
@@ -161,7 +162,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                     <div
                         className="replay result-content"
                         onClick={() => {
-                            this.props.dispatch(getGameToken());
+                            this.props.dispatch(getGameToken({ id: this.props.gameId }));
                             this.setState({
                                 ...initialState,
                             });
@@ -214,6 +215,12 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                                         callback: () => {
                                             if (!this.state.complete) {
                                                 this.setState({ complete: true });
+                                                this.props.onGameComplete({
+                                                    score: null,
+                                                    token_charge: 99999,
+                                                    game_setup_id: this.props.gameId,
+                                                    token: this.state.gameAccessToken,
+                                                });
                                             }
                                         },
                                     },

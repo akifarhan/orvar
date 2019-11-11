@@ -84,7 +84,8 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
             clickSound: new Audio(this.props.gameConfig.flip_sound),
         };
         this.state.gameMusic.loop = true;
-        this.props.dispatch(getGameToken());
+
+        this.props.dispatch(getGameToken({ id: this.props.gameId }));
 
         let counter = 0;
         while (counter < CARD_PAIR) {
@@ -95,7 +96,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
 
     componentWillReceiveProps = (nextProps) => {
         if (dataChecking(nextProps, 'gamePage', 'gameToken', 'success') !== dataChecking(this.props, 'gamePage', 'gameToken', 'success') && nextProps.gamePage.gameToken.success) {
-            this.setState({ gameAccessToken: nextProps.gamePage.gameToken.data.token });
+            this.setState({ gameAccessToken: dataChecking(nextProps.gamePage, 'gameToken', 'data', 'message', 'token') });
             this.initialiseGame();
         }
 
@@ -231,7 +232,12 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                     this.setState({
                                         complete: 'lose',
                                     });
-                                    this.props.onGameLose({ score: 0, token: this.state.gameAccessToken });
+                                    this.props.onGameLose({
+                                        score: 0,
+                                        token_charge: 99999,
+                                        game_setup_id: this.props.gameId,
+                                        token: this.state.gameAccessToken,
+                                    });
                                 }
                                 return <span className="countdown-timer">{seconds}s</span>;
                             }}
@@ -337,7 +343,12 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                             complete: result || this.state.complete,
                                         }, () => {
                                             if (result === 'win') {
-                                                this.props.onGameWin({ score: 6, token: this.state.gameAccessToken });
+                                                this.props.onGameWin({
+                                                    score: CARD_PAIR,
+                                                    token_charge: 99999,
+                                                    game_setup_id: this.props.gameId,
+                                                    token: this.state.gameAccessToken,
+                                                });
                                             }
                                         });
                                     }, 2 * TIME_UNIT);
@@ -453,7 +464,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                     <div
                         className="replay result-content"
                         onClick={() => {
-                            this.props.dispatch(getGameToken());
+                            this.props.dispatch(getGameToken({ id: this.props.gameId }));
                             this.setState({
                                 ...initialState,
                                 brandArr: this.shuffleArray(this.getRandomBrands()),

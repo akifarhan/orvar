@@ -47,9 +47,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
             availableChance: null,
             showModal: null,
             slideArray: null,
-            gameId: null,
-            // gameId: 1,
-            // showModal: 'showPlay',
+            gameId: dataChecking(this.props, 'match', 'params', 'id'),
             playMusic: false,
             showPassword: false,
             showLogin: false,
@@ -71,7 +69,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
 
         if (window.takePocket) {
             this.handlePocket(window.takePocket());
-        } else if (this.props.location.search.indexOf('pickPocket') || window.location !== window.parent.location) {
+        } else if (this.props.location.search.indexOf('pickPocket')) {
             if (window.addEventListener) {
                 // For standards-compliant web browsers
                 window.addEventListener('message', this.parsePocketFromWeb, false);
@@ -84,12 +82,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
             this.setState({ requestToken: true, showUsername: true });
         }
 
-        // call API, check status see if true or false
-        const gameId = dataChecking(this.props, 'match', 'params', 'id');
-        if (gameId) {
-            this.setState({ gameId });
-            this.props.dispatch(getGameInfo({ id: gameId }));
-        }
+        this.props.dispatch(getGameInfo({ id: this.state.gameId }));
     }
 
     componentWillReceiveProps = (nextProps) => {
@@ -238,6 +231,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         return (
                             <PerfectMatchGame
                                 props={{ smth: true }}
+                                gameId={this.state.gameId}
                                 playMusic={this.state.playMusic}
                                 onGameStart={() => alert('gamestart')}
                                 onGameWin={(payload) => this.onGameComplete(payload)}
@@ -251,10 +245,10 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         return (
                             <VideoShowGame
                                 props={{ smth: true }}
+                                gameId={this.state.gameId}
                                 playMusic={this.state.playMusic}
                                 onGameStart={() => alert('gamestart')}
-                                onGameWin={(payload) => this.onGameComplete(payload)}
-                                onGameLose={(payload) => this.onGameComplete(payload)}
+                                onGameComplete={(payload) => this.onGameComplete(payload)}
                                 onBackToMenu={this.onBackToMenu}
                                 gameConfig={this.state.gameInfo.data.config.game}
                                 gameResultImagelink={this.state.gameResultImagelink}
@@ -296,7 +290,11 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
     render() {
         if (!dataChecking(this.state, 'gameInfo', 'data', 'config')) {
             return (
-                <div>Loading....</div>
+                <div>Loading...</div>
+            );
+        } else if (!this.state.gameId) {
+            return (
+                <div>Invalid...</div>
             );
         }
 

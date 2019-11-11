@@ -50,7 +50,7 @@ export function* loginQuery(action) {
 export function* getResultQuery(action) {
     let err;
     try {
-        const response = yield call(apiRequest, '/xmas/game', 'put', JSON.stringify(action.payload));
+        const response = yield call(apiRequest, '/game/result', 'put', JSON.stringify(action.payload), process.env.GAMI_API_URL);
         if (response && response.ok !== false) {
             yield put(getResultSuccess(response.data));
         } else if (response && response.ok === false) {
@@ -69,7 +69,7 @@ export function* getResultQuery(action) {
 export function* getGameInfo(action) {
     let err;
     try {
-        const response = yield call(apiRequest, `/gamesetup/${action.gameParams.id}`, 'get', null, process.env.GAMI_API_URL);
+        const response = yield call(apiRequest, `/game/${action.gameParams.id}`, 'get', null, process.env.GAMI_API_URL);
         if (response && response.ok !== false) {
             yield put(getGameInfoSuccess(response.data));
         } else if (response && response.ok === false) {
@@ -84,10 +84,10 @@ export function* getGameInfo(action) {
     }
 }
 
-export function* getGameTokenQuery() {
+export function* getGameTokenQuery(action) {
     let err;
     try { // Trying the HTTP Request
-        const response = yield call(apiRequest, '/xmas/game', 'post', null);
+        const response = yield call(apiRequest, '/game/play', 'post', { game_setup_id: action.gameParams.id }, process.env.GAMI_API_URL);
         if (response && response.ok !== false) {
             yield put(getGameTokenSuccess(response.data));
         } else if (response && response.ok === false) {
