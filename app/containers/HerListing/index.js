@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import { dataChecking } from 'globalUtils';
-
+import { Container } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import Pagination from 'components/Pagination';
@@ -212,7 +212,7 @@ export class HerListing extends React.PureComponent { // eslint-disable-line rea
     render() {
         const { herlisting } = this.props;
         return (
-            <div className="container">
+            <Container>
                 <Helmet>
                     <title>HerListing</title>
                     <meta name="description" content="Description of HerListing" />
@@ -255,7 +255,7 @@ export class HerListing extends React.PureComponent { // eslint-disable-line rea
 
                         </div>
                 }
-            </div>
+            </Container>
         );
     }
 }

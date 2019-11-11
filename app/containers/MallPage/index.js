@@ -16,7 +16,7 @@ import Async from 'assets/react-async';
 import ProductCard from 'components/ProductCard';
 import PageChanger from 'components/PageChanger';
 import FilterSort from 'components/FilterSort';
-
+import { Container } from '@material-ui/core';
 import makeSelectMallPage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -261,7 +261,7 @@ export class MallPage extends React.PureComponent { // eslint-disable-line react
 
     render() {
         return (
-            <div className="container">
+            <Container>
                 <Async promise={getMallData(this.state.getMall)}>
                     <Async.Loading>
                         <img className="herlisting-loading content-loading" src={require('images/preloader-02.gif')} alt="" />
@@ -310,7 +310,7 @@ export class MallPage extends React.PureComponent { // eslint-disable-line react
                         { console.error }
                     </Async.Rejected>
                 </Async>
-            </div>
+            </Container>
         );
     }
 }

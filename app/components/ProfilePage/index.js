@@ -18,6 +18,7 @@ import {
     Avatar,
     Card,
     CardHeader,
+    Container,
     CardContent,
     Typography,
     Grid,
@@ -530,7 +531,7 @@ class ProfilePage extends React.PureComponent { // eslint-disable-line react/pre
 
     render() {
         return (
-            <div className="container">
+            <Container>
                 <Async promise={this.state.profileData}>
                     <Async.Loading><CircularProgress className={this.props.classes.progress} /></Async.Loading>
                     <Async.Resolved>
@@ -591,7 +592,7 @@ class ProfilePage extends React.PureComponent { // eslint-disable-line react/pre
                         { console.error }
                     </Async.Rejected>
                 </Async>
-            </div>
+            </Container>
         );
     }
 }

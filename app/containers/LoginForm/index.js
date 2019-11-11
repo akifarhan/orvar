@@ -94,7 +94,7 @@ export class LoginForm extends React.PureComponent { // eslint-disable-line reac
         }
         return (
             <div className=" mt-2 pl-1">
-                <Typography variant="h5" color="primary">
+                <Typography variant="h4" color="primary">
                     <b>{dataChecking(this.props.loginForm, 'image', 'items') && this.props.loginForm.image.items[0].title}</b>
                 </Typography>
                 <Typography variant="h6" color="textSecondary">

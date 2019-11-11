@@ -65,6 +65,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
             timer: null,
             sendClick: false,
             sendSuccess: false,
+            submitError: false,
             checkRecaptcha: false,
             recaptchaError: false,
         };
@@ -79,9 +80,8 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
         if (nextProps.signUpPage.signupSuccess !== this.props.signUpPage.signupSuccess && nextProps.signUpPage.signupSuccess) {
             window.location.href = globalScope.previousPage || '/';
         }
-
-        if (nextProps.error !== this.props.error && nextProps.error) {
-            console.log(nextProps.error);
+        if (nextProps.signUpPage.error !== this.props.signUpPage.error && nextProps.signUpPage.error) {
+            this.setState({ submitError: true });
         }
         if (nextProps.signUpPage.sendOtpSuccess !== this.props.signUpPage.sendOtpSuccess && nextProps.signUpPage.sendOtpSuccess) {
             this.setState({
@@ -299,7 +299,11 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                 <ReCAPTCHA
                     sitekey="6LcKZVMUAAAAABT4fKxxTImskc2dTbY5J8QjsXFa"
                     style={{ margin: 'auto' }}
-                    onChange={() => this.setState({ checkRecaptcha: true, recaptchaError: false })}
+                    onChange={() => this.setState((state) => ({
+                        checkRecaptcha: !state.checkRecaptcha,
+                        recaptchaError: false,
+                        submitError: false,
+                    }))}
                 />
             </FormControl>
         </div>
@@ -332,7 +336,7 @@ export class SignUpPage extends React.PureComponent { // eslint-disable-line rea
                                 {this.formInput()}
                             </CardContent>
                             <div className="py-1 px-2">
-                                {this.props.signUpPage.error && <ErrorMessage error={this.props.signUpPage.error} />}
+                                {this.state.submitError && <ErrorMessage error={this.props.signUpPage.error} />}
                                 {this.state.recaptchaError && <ErrorMessage error={this.state.error} />}
                             </div>
                             <CardActions>

@@ -13,6 +13,7 @@
 
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
+import globalScope from 'globalScope';
 
 import Notify from 'containers/Notify';
 import ProductView from 'containers/ProductView';
@@ -31,6 +32,7 @@ import ProfileOrderDetail from 'containers/ProfileOrderDetail';
 import ProfileEditInfo from 'containers/ProfileEditInfo';
 import ProfileWishlist from 'containers/ProfileWishlist';
 import ProfileReview from 'containers/ProfileReview';
+import ProfileWallet from 'containers/ProfileWallet';
 import AboutUs from 'containers/AboutUs';
 import FeedbackPage from 'containers/FeedbackPage';
 import AuthPage from 'containers/AuthPage';
@@ -43,10 +45,10 @@ import GamesPage from 'containers/GamesPage';
 
 import Header from 'containers/Header';
 import Footer from 'containers/Footer';
-import { ProfileWallet } from '../ProfileWallet';
 import './style.scss';
 
 export default function App() {
+    globalScope.previousPage = window.location.pathname;
     return (
         <section className="main-content">
             <Notify></Notify>
