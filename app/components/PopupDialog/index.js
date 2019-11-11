@@ -14,13 +14,14 @@ import {
     DialogTitle,
     IconButton,
 } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { Close, ArrowBack } from '@material-ui/icons';
 
 class PopupDialog extends React.PureComponent {
     render() {
+        const onCloseStyle = this.props.isBack ? { position: 'absolute', left: '0rem', top: '0.8rem', zIndex: '1001' } : { position: 'absolute', right: '0rem', top: '0.8rem', zIndex: '1001' };
         return (
             <div>
-                <Dialog open={this.props.display} onClose={this.props.onClose} fullWidth={this.props.fullWidth}>
+                <Dialog open={this.props.display} onClose={this.props.onClose} fullWidth={this.props.fullWidth} fullScreen={this.props.fullScreen}>
                     <DialogTitle id="alert-dialog-title">
                         <span>{this.props.title}</span>
                         {
@@ -28,13 +29,14 @@ class PopupDialog extends React.PureComponent {
                                 <IconButton
                                     aria-label="Close"
                                     onClick={this.props.onClose}
-                                    style={{
-                                        position: 'absolute',
-                                        right: '0rem',
-                                        top: '0.8rem',
-                                    }}
+                                    style={onCloseStyle}
                                 >
-                                    <CloseIcon />
+                                    {
+                                        this.props.isBack ?
+                                            <ArrowBack />
+                                            :
+                                            <Close />
+                                    }
                                 </IconButton>
                         }
                     </DialogTitle>

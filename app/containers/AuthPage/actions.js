@@ -5,26 +5,11 @@
  */
 
 import {
-    RESET_PASSWORD,
-    RESET_PASSWORD_SUCCESS,
-    RESET_PASSWORD_FAILED,
+    DEFAULT_ACTION,
 } from './constants';
 
-export function resetPassword(resetData) {
+export function defaultAction() {
     return {
-        type: RESET_PASSWORD,
-        resetData,
-    };
-}
-export function resetPasswordSuccess(response) {
-    return {
-        type: RESET_PASSWORD_SUCCESS,
-        response,
-    };
-}
-export function resetPasswordFailed(response) {
-    return {
-        type: RESET_PASSWORD_FAILED,
-        payload: response,
+        type: DEFAULT_ACTION,
     };
 }

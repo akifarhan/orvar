@@ -4,6 +4,7 @@
  *
  */
 
+
 import React from 'react';
 // import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -11,14 +12,11 @@ import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import { Grid, Container, Hidden, Button, Typography, Divider, FormControl } from '@material-ui/core';
-
+import { Grid, Container, Hidden, Button, Typography } from '@material-ui/core';
+import PopupDialog from 'components/PopupDialog';
 import LoginForm from 'containers/LoginForm';
 import SignUpPage from 'containers/SignUpPage';
-import InputForm from 'components/InputForm';
-import PopupDialog from 'components/PopupDialog';
 import makeSelectAuthPage from './selectors';
-import { resetPassword } from './actions';
 import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
@@ -29,27 +27,15 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
 
         this.state = {
             login: true,
-            forgotDialog: false,
-            forgotEmail: '',
+            tncModal: false,
+            loading: true,
         };
     }
 
-    componentWillReceiveProps = (nextProps) => {
-        if (nextProps.authPage.resetSuccess !== this.props.authPage.resetSuccess && nextProps.authPage.resetSuccess) {
-            this.setState({ forgotDialog: false, forgotEmail: '' });
-        }
-    }
-    onClickForgot = () => this.setState({ forgotDialog: true })
-    onClose = () => {
-        this.setState({
-            forgotDialog: false,
-            forgotEmail: '',
-        });
-    }
+    onClickTnc = () => this.setState({ tncModal: true });
     handleChange = (event) => {
         this.setState({ [event.target.id]: event.target.value });
     };
-
     renderLite = () => {
         const variantLogin = this.state.login ? 'contained' : 'outlined';
         const variantSignup = this.state.login ? 'outlined' : 'contained';
@@ -86,10 +72,29 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
 
                     </Grid>
                 </Container>
-                {this.state.login ? <LoginForm isModal={this.props.isModal} onClickForgot={this.onClickForgot} /> : <SignUpPage isModal={this.props.isModal} />}
+                {this.state.login ? <LoginForm isModal={this.props.isModal} onClickTnc={this.onClickTnc} /> : <SignUpPage onClickTnc={this.onClickTnc} />}
             </div>
         );
     }
+
+    renderTnc = () => (
+        <div className="dialog-content-tnc" style={{ width: '100%', height: '100%' }}>
+            {
+                this.state.loading ?
+                    <div className="tnc-iframe-loading">
+                        <img className="tnc-preloader" src={require('images/preloader-02.gif')} alt="loading" />
+                    </div>
+                    :
+                    null
+            }
+            <iframe
+                title="terms and conditions"
+                src="https://devshop2.hermo.my/about?ucf=login-modal&exclude_layout=true#/userterm"
+                style={{ width: '100%', height: '100%' }}
+                onLoad={() => this.setState({ loading: false })}
+            />
+        </div>
+    )
 
     render() {
         return (
@@ -103,10 +108,10 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
                                 <Container className="authpage-desktop">
                                     <Grid container={true} justify="space-evenly">
                                         <Grid item={true}>
-                                            <LoginForm onClickForgot={this.onClickForgot} />
+                                            <LoginForm onClickTnc={this.onClickTnc} />
                                         </Grid>
                                         <Grid item={true}>
-                                            <SignUpPage />
+                                            <SignUpPage onClickTnc={this.onClickTnc} />
                                         </Grid>
                                     </Grid>
                                 </Container>
@@ -117,47 +122,21 @@ export class AuthPage extends React.PureComponent { // eslint-disable-line react
                         </div>
                 }
                 <PopupDialog
-                    display={this.state.forgotDialog}
-                    title="Reset Your Password"
-                    onClose={() => this.onClose()}
+                    display={this.state.tncModal}
+                    onClose={() => this.setState({ tncModal: false, loading: true })}
+                    fullScreen={true}
+                    isBack={true}
                 >
-                    <Divider />
-                    <form onSubmit={() => { this.props.dispatch(resetPassword(this.state.forgotEmail)); event.preventDefault(); }}>
-                        <div className="p-1" style={{ textAlign: 'center' }} >
-                            <Typography variant="body1">Please enter your registered email address so we can send you the reset instructions.</Typography>
-                        </div>
-                        <FormControl fullWidth={true}>
-                            <InputForm
-                                label="Email address"
-                                placeholder="Enter your registered email address"
-                                id="forgotEmail"
-                                type="email"
-                                handleChange={this.handleChange}
-                                value={this.state.forgotEmail}
-                                onClear={() => {
-                                    this.setState({ forgotEmail: '' });
-                                }}
-                            />
-                        </FormControl>
-                        <FormControl fullWidth={true}>
-                            <Button type="submit" variant="contained" color="primary">
-                                Send me the instructions
-                            </Button>
-                        </FormControl>
-                    </form>
-                    <div className="p-1" style={{ textAlign: 'center' }} >
-                        <Divider />
-                        <Typography variant="caption">Trouble logging in? Drop our helpdesk an email admin@hermo.my or call 07-5623567</Typography>
-                    </div>
+                    {this.renderTnc()}
                 </PopupDialog>
             </div>
         );
     }
 }
 
-// AuthPage.propTypes = {
-//     dispatch: PropTypes.func.isRequired,
-// };
+AuthPage.propTypes = {
+    // dispatch: PropTypes.func.isRequired,
+};
 
 const mapStateToProps = createStructuredSelector({
     authPage: makeSelectAuthPage(),

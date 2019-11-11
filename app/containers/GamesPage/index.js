@@ -7,32 +7,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-// import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import { dataChecking, Events } from 'globalUtils';
+import { dataChecking, Events, setCookie } from 'globalUtils';
 import globalScope from 'globalScope';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import 'assets/animate.min.scss';
-import {
-    Button,
-} from '@material-ui/core';
-import InputForm from 'components/InputForm';
 import AuthPage from '../AuthPage';
 import PerfectMatchGame from '../PerfectMatchGame';
 import VideoShowGame from '../VideoShowGame';
 import {
-    doLogin,
     getGameInfo,
     getResult,
 } from './actions';
 import makeSelectGamesPage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-// import messages from './messages';
 import './style.scss';
 
 // import mockData from './mockDataReturnFromAPI';
@@ -48,11 +41,12 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
             showModal: null,
             slideArray: null,
             gameId: dataChecking(this.props, 'match', 'params', 'id'),
+            loading: true,
+            // gameId: 1,
+            // showModal: 'showPlay',
             playMusic: false,
             showPassword: false,
-            showLogin: false,
             requestToken: false,
-            hideLoginModal: false,
             pageFontSize: '13px',
             showUsername: false,
             gameInfo: null,
@@ -66,10 +60,9 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         setTimeout(() => {
             this.setState({ isRendered: true });
         }, 1100);
-
         if (window.takePocket) {
             this.handlePocket(window.takePocket());
-        } else if (this.props.location.search.indexOf('pickPocket')) {
+        } else if (this.props.location.search.indexOf('pickPocket') !== -1) {
             if (window.addEventListener) {
                 // For standards-compliant web browsers
                 window.addEventListener('message', this.parsePocketFromWeb, false);
@@ -77,21 +70,16 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                 window.attachEvent('onmessage', this.parsePocketFromWeb);
             }
         } else if (!globalScope.token) {
-            alert('Please login to continue.');
             globalScope.previousPage = window.location.pathname;
-            this.setState({ requestToken: true, showUsername: true });
+            this.setState({ requestToken: true, loading: false });
+        } else {
+            this.setState({ requestToken: false, loading: false });
         }
 
         this.props.dispatch(getGameInfo({ id: this.state.gameId }));
     }
 
     componentWillReceiveProps = (nextProps) => {
-        if (dataChecking(nextProps, 'gamesPage', 'login', 'success') !== dataChecking(this.props, 'gamesPage', 'login', 'success') && nextProps.gamesPage.login.success) {
-            setTimeout(() => {
-                this.setState({ hideLoginModal: true });
-            }, 1000);
-        }
-
         if (dataChecking(nextProps, 'gamesPage', 'result') !== dataChecking(this.props, 'gamesPage', 'result') && nextProps.gamesPage.result.success) {
             this.setState({ gameResultImagelink: nextProps.gamesPage.result.data });
         }
@@ -138,23 +126,30 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
     parsePocketFromWeb = (event) => {
         if (event.origin !== 'https://www.hermo.my'
             && event.origin !== 'https://hermo.my'
-            && event.origin !== 'https://devshop.hermo.my'
+            && event.origin !== 'https://devshop2.hermo.my'
             && event.origin !== 'http://hershop.hermo.my') {
             console.log(`Receive postMessage from invalid source: ${event.origin}`);
             return null;
         }
-
         if (event.data) {
             try {
                 const pocket = JSON.parse(event.data);
                 if (pocket.hertoken) {
                     this.handlePocket(pocket);
                     return pocket;
+                } else if (globalScope.token) {
+                    return (
+                        this.setState({ loading: false, requestToken: false })
+                    );
                 }
+                globalScope.previousPage = window.location.pathname;
+                this.setState({ loading: false, requestToken: true });
             } catch (error) {
                 console.log('Error happen when parsing pocket', error);
             }
         }
+        globalScope.previousPage = window.location.pathname;
+        this.setState({ loading: false, requestToken: true });
 
         return null;
     };
@@ -164,7 +159,13 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
             globalScope.profile = pocket;
             globalScope.token = pocket.hertoken;
             globalScope.axios.setHeader('hertoken', globalScope.token);
-            this.setState({ showUsername: true });
+            setCookie(process.env.TOKEN_KEY, globalScope.token);
+            this.setState({ loading: false });
+        } else if (globalScope.token) {
+            this.setState({ loading: false, requestToken: false });
+        } else {
+            globalScope.previousPage = window.location.pathname;
+            this.setState({ requestToken: true, loading: false });
         }
     }
 
@@ -172,52 +173,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         this.setState({ [event.target.id]: event.target.value });
     };
 
-    renderLogin = () => (
-        <div className="login-container">
-            <form onSubmit={() => { this.props.dispatch(doLogin(this.state)); event.preventDefault(); }}>
-                <div>
-                    <InputForm
-                        label="Email address"
-                        id="email"
-                        type="email"
-                        handleChange={this.handleChange}
-                        value={this.state.email}
-                        onClear={() => {
-                            this.setState({ email: '' });
-                        }}
-                    />
-                </div>
-                <div>
-                    <InputForm
-                        label="Password"
-                        id="password"
-                        type={this.state.showPassword ? 'text' : 'password'}
-                        value={this.state.password}
-                        showPassword={this.state.showPassword}
-                        handleChange={this.handleChange}
-                        handleClickShowPassword={() => {
-                            this.setState((state) => ({ showPassword: !state.showPassword }));
-                        }}
-                        onClear={() => {
-                            this.setState({ password: '' });
-                        }}
-                        autoComplete="off"
-                        togglePassword={true}
-                    />
-                </div>
-                <div>
-                    <Button variant="contained" color="primary" type="submit" style={{ width: '100%' }}>
-                        {
-                            dataChecking(this.props, 'gamesPage', 'login', 'loading') || dataChecking(this.props, 'gamesPage', 'login', 'success') ?
-                                'Loading...'
-                                :
-                                'Login'
-                        }
-                    </Button>
-                </div>
-            </form>
-        </div>
-    )
 
     renderModalContent = () => {
         const { showModal, slideArray, gameId } = this.state;
@@ -349,9 +304,8 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         </div>
                     </div>
                     {
-                        this.state.requestToken && !this.state.hideLoginModal ?
+                        this.state.requestToken ?
                             <span className="games-login-modal animated fa" style={{ backgroundColor: 'rgba(255,255,255)', overflow: 'auto' }}>
-                                {/* {this.renderLogin()} */}
                                 <AuthPage isModal={true} />
                             </span>
                             :
@@ -467,7 +421,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             //     }
                             // }
                         }}
-                    >0.3.0</div>
+                    >1.0.1</div>
                     <img
                         draggable="false"
                         onLoad={this.onBgImageLoaded}
@@ -475,6 +429,14 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         alt="main menu background"
                         className="main-menu-bg animated fadeIn"
                     />
+                    {
+                        this.state.loading ?
+                            <div className="token-loading">
+                                <img className="token-loading-gif" src={require('images/preloader-02.gif')} alt="loading" />
+                            </div>
+                            :
+                            null
+                    }
                     {
                         this.state.showModal ?
                             <div

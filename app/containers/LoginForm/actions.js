@@ -11,6 +11,9 @@ import {
     GET_IMAGE_LINK,
     GET_IMAGE_LINK_SUCCESS,
     GET_IMAGE_LINK_FAILED,
+    RESET_PASSWORD,
+    RESET_PASSWORD_SUCCESS,
+    RESET_PASSWORD_FAILED,
 } from './constants';
 
 export function doLogin(loginData) {
@@ -45,5 +48,23 @@ export function getImageLinkSuccess(imageLink) {
 export function getImageLinkFailed() {
     return {
         type: GET_IMAGE_LINK_FAILED,
+    };
+}
+export function resetPassword(resetData) {
+    return {
+        type: RESET_PASSWORD,
+        resetData,
+    };
+}
+export function resetPasswordSuccess(resetResponse) {
+    return {
+        type: RESET_PASSWORD_SUCCESS,
+        resetResponse,
+    };
+}
+export function resetPasswordFailed(resetResponse) {
+    return {
+        type: RESET_PASSWORD_FAILED,
+        resetResponse,
     };
 }

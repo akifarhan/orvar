@@ -39,7 +39,6 @@ import LogIn from 'containers/LoginForm';
 import ProfileAddress from 'containers/ProfileAddress';
 import ProfileRewards from 'containers/ProfileRewards';
 import BeautyWall from 'containers/BeautyWall';
-
 import GamesPage from 'containers/GamesPage';
 
 import Header from 'containers/Header';

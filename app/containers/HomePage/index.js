@@ -447,7 +447,7 @@ export class HomePage extends React.PureComponent {
         const sponsored = dataChecking(this.props.homePage, 'sponsored', 'success') && this.props.homePage.sponsored;
         let sponsoredBrands;
         let sponsoredContainer;
-        if (sponsored.success && sponsored.data.result.items) {
+        if (sponsored.success && dataChecking(sponsored, 'data', 'result', 'items')) {
             const sponsors = Object.keys(dataChecking(sponsored, 'data', 'result', 'items'));
 
             sponsoredBrands = sponsors.map((sponsor) => {
@@ -546,7 +546,7 @@ export class HomePage extends React.PureComponent {
     renderReview = () => {
         const review = dataChecking(this.props.homePage, 'review', 'success') && this.props.homePage.review;
         let reviewCards;
-        if (review.success && review.data.result.items) {
+        if (review.success && dataChecking(review, 'data', 'result', 'items')) {
             const items = dataChecking(review, 'data', 'result', 'items');
             const reviewObject = Object.keys(dataChecking(review, 'data', 'result', 'items'));
             reviewCards = reviewObject.map((index) => (
@@ -616,7 +616,7 @@ export class HomePage extends React.PureComponent {
     renderHomeFooter = () => {
         const partnerFooter = dataChecking(this.props.homePage, 'partnerFooter', 'success') && this.props.homePage.partnerFooter;
         let partnerLogos;
-        if (partnerFooter.success && partnerFooter.data.items) {
+        if (partnerFooter.success && dataChecking(partnerFooter, 'data', 'items')) {
             const partnerObject = Object.keys(dataChecking(partnerFooter, 'data', 'items'));
             partnerLogos = partnerObject.map((index) => (
                 <Grid key={partnerFooter.data.items[index].id} item={true}>
@@ -627,7 +627,7 @@ export class HomePage extends React.PureComponent {
         return (
             <Hidden smDown={true}>
                 {
-                    this.props.homePage.layoutFooter.success && this.props.homePage.imageFooter.success && this.props.homePage.partnerFooter &&
+                    this.props.homePage.layoutFooter.success && this.props.homePage.imageFooter.success && this.props.homePage.partnerFooter.success &&
                     <div style={{ backgroundColor: '#000' }}>
                         <Container className="p-3">
                             <Grid container={true}>
