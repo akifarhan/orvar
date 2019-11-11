@@ -33,8 +33,9 @@ import {
 } from '@material-ui/icons';
 import {
     getGameToken,
-} from './actions';
+} from '../GamesPage/actions';
 import makeSelectPerfectMatchGame from './selectors';
+import makeSelectGamesPage from '../GamesPage/selectors';
 import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
@@ -55,16 +56,15 @@ const initialState = {
     shareModal: false,
     tips: '',
     countingDown: null,
-    preparationDone: false,
     correct: 0,
     correctMatch: {},
     wrongMatch: {},
     onHand1: null,
     onHand2: null,
     complete: null,
-    gameAccessToken: null,
     brandArr: [],
     gameResultImage: null,
+    gameAccessToken: null,
 };
 
 export class PerfectMatchGame extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
@@ -94,8 +94,8 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
     }
 
     componentWillReceiveProps = (nextProps) => {
-        if (dataChecking(nextProps, 'perfectMatchGame', 'gameToken', 'success') !== dataChecking(this.props, 'perfectMatchGame', 'gameToken', 'success') && nextProps.perfectMatchGame.gameToken.success) {
-            this.setState({ gameAccessToken: nextProps.perfectMatchGame.gameToken.data.token });
+        if (dataChecking(nextProps, 'gamePage', 'gameToken', 'success') !== dataChecking(this.props, 'gamePage', 'gameToken', 'success') && nextProps.gamePage.gameToken.success) {
+            this.setState({ gameAccessToken: nextProps.gamePage.gameToken.data.token });
             this.initialiseGame();
         }
 
@@ -533,11 +533,11 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                     className="game-background"
                 />
                 {
-                    dataChecking(this.props, 'perfectMatchGame', 'gameToken', 'loading') ?
+                    dataChecking(this.props, 'gamePage', 'gameToken', 'loading') ?
                         <div>Loading...</div>
                         :
                         this.state.complete ?
-                            <div className="result-screen">
+                            <div className="result-screen animated fadeIn">
                                 {this.renderResult()}
                             </div>
                             :
@@ -569,6 +569,7 @@ PerfectMatchGame.propTypes = {
 
 const mapStateToProps = createStructuredSelector({
     perfectMatchGame: makeSelectPerfectMatchGame(),
+    gamePage: makeSelectGamesPage(),
 });
 
 function mapDispatchToProps(dispatch) {

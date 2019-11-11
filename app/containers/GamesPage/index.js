@@ -117,8 +117,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                     this.startSound = new Audio(gameInfo.data.config.menu.start_sound);
                 }
             }
-
-            console.log(nextProps.gamesPage.gameInfo.data);
         }
     }
 
