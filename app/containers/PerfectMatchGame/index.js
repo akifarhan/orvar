@@ -465,6 +465,10 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                     <div
                         className="replay result-content"
                         onClick={() => {
+                            if (this.props.onReplay) {
+                                this.props.onReplay();
+                            }
+
                             this.props.dispatch(getGameToken({ id: this.props.gameId }));
                             this.setState({
                                 ...initialState,

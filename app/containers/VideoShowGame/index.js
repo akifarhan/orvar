@@ -18,7 +18,7 @@ import {
 
 import Lottie from 'react-lottie';
 
-import * as animationData from './jetshow.json';
+// import * as animationData from './jetshow.json';
 // import * as animationData from './2104-surprise.json';
 
 import makeSelectVideoShowGame from './selectors';
@@ -26,12 +26,14 @@ import makeSelectGamesPage from '../GamesPage/selectors';
 import reducer from './reducer';
 import saga from './saga';
 import {
+    getLottieJson,
+} from './actions';
+import {
     getGameToken,
 } from '../GamesPage/actions';
 import './style.scss';
 
 const initialState = {
-    lottieJson: null,
     shareModal: false,
     complete: null,
     gameAccessToken: null,
@@ -41,11 +43,9 @@ const initialState = {
 export class VideoShowGame extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     constructor(props) {
         super(props);
-
-        this.state = {
-        };
         this.state = {
             ...initialState,
+            lottieJson: initialState.lottieJson || null,
             gameMusic: new Audio(this.props.gameConfig.background_music),
         };
         this.state.gameMusic.loop = true;
@@ -55,24 +55,26 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
         document.ondragstart = () => null;
         Events.trigger('hideHeader', {});
 
-        // this.props.dispatch(getLottieJson({ url: 'https://firebasestorage.googleapis.com/v0/b/whenimeetu-backend.appspot.com/o/gallery%2F1573116287003_2104-surprise.json?alt=media&token=45f17ed7-be84-478c-930a-2383b4e7b3ca' }));
+        if (this.props.gameConfig.json) {
+            this.props.dispatch(getLottieJson({ url: this.props.gameConfig.json }));
+        }
     }
 
     componentWillReceiveProps = (nextProps) => {
-        if (dataChecking(nextProps, 'videoShowGame', 'lottieJson') !== dataChecking(this.props, 'videoShowGame', 'lottieJson') && nextProps.videoShowGame.lottieJson.success) {
-            if (dataChecking(nextProps.videoShowGame.lottieJson, 'data')) {
-                const lottieJson = nextProps.videoShowGame.lottieJson.data;
-                this.setState({ lottieJson });
-            }
-        }
-
         if (dataChecking(nextProps, 'gamePage', 'gameToken', 'success') !== dataChecking(this.props, 'gamePage', 'gameToken', 'success') && nextProps.gamePage.gameToken.success) {
             this.setState({ gameAccessToken: dataChecking(nextProps.gamePage, 'gameToken', 'data', 'data', 'message', 'token') });
             this.initialiseGame();
         }
 
-        if (dataChecking(nextProps, 'gameResultImagelink') !== dataChecking(this.props, 'gameResultImagelink') && dataChecking(nextProps, 'gameResultImagelink', 'result', 'image', 'mobile')) {
-            this.setState({ gameResultImage: nextProps.gameResultImagelink.result.image.mobile });
+        if (dataChecking(nextProps, 'gameResultImagelink') !== dataChecking(this.props, 'gameResultImagelink') && dataChecking(nextProps, 'gameResultImagelink', 'data', 'message')) {
+            this.setState({ gameResultImage: nextProps.gameResultImagelink.data.message.image });
+        }
+
+        if (dataChecking(nextProps, 'videoShowGame', 'lottieJson') !== dataChecking(this.props, 'videoShowGame', 'lottieJson') && nextProps.videoShowGame.lottieJson.success) {
+            if (dataChecking(nextProps.videoShowGame.lottieJson, 'data')) {
+                const lottieJson = nextProps.videoShowGame.lottieJson.data;
+                this.setState({ lottieJson });
+            }
         }
     }
 
@@ -90,42 +92,50 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
         if (this.props.playMusic) {
             this.state.gameMusic.play();
         }
+
+        if (this.props.gameConfig.duration) {
+            setTimeout(() => {
+                if (!this.state.complete) {
+                    this.setState({ complete: true });
+                    this.props.onGameComplete({
+                        score: null,
+                        game_setup_id: this.props.gameId,
+                        token: this.state.gameAccessToken,
+                    });
+                }
+            }, this.props.gameConfig.duration);
+        }
     }
 
     renderResult = () => (
-        <div className="result-screen-content">
-            <div className="prize-inner-section animated zoomIn">
-                {
-                    this.state.gameResultImage ?
-                        <div
-                            onClick={() => {
-                                if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
-                                    if (window.onCloseWindow) {
-                                        window.onCloseWindow();
-                                    }
-                                    const link = {
-                                        key: '_appLink',
-                                        value: this.props.gameResultImagelink.result._applink,
-                                    };
-                                    const str = JSON.stringify(link);
-                                    window.ReactNativeWebView.postMessage(str);
-                                } else {
-                                    window.parent.postMessage(JSON.stringify(this.props.gameResultImagelink.result._weblink), 'http://hershop.hermo.my');
-                                }
-                            }}
-                        >
-                            <img
-                                draggable="false"
-                                width="100%"
-                                key={1}
-                                src={this.state.gameResultImage}
-                                alt="result background"
-                                className="result-image"
-                            />
-                        </div>
-                        :
-                        null
-                }
+        <div className={`result-screen-content animated ${this.state.complete ? 'fadeIn' : 'opacity-zero'}`}>
+            <div className="prize-inner-section">
+                <div
+                    onClick={() => {
+                        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+                            if (window.onCloseWindow) {
+                                window.onCloseWindow();
+                            }
+                            const link = {
+                                key: '_appLink',
+                                value: this.props.gameResultImagelink.result._applink,
+                            };
+                            const str = JSON.stringify(link);
+                            window.ReactNativeWebView.postMessage(str);
+                        } else if (dataChecking(this.props.gameResultImagelink, 'result', '_weblink')) {
+                            window.parent.postMessage(JSON.stringify(this.props.gameResultImagelink.result._weblink), 'http://hershop.hermo.my');
+                        }
+                    }}
+                >
+                    <img
+                        draggable="false"
+                        width="100%"
+                        key={1}
+                        src={this.state.gameResultImage}
+                        alt=""
+                        className="result-image"
+                    />
+                </div>
                 <span className="result-bottom-content">
                     <div
                         className="menu result-content"
@@ -163,6 +173,10 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                     <div
                         className="replay result-content"
                         onClick={() => {
+                            if (this.props.onReplay) {
+                                this.props.onReplay();
+                            }
+
                             this.props.dispatch(getGameToken({ id: this.props.gameId }));
                             this.setState({
                                 ...initialState,
@@ -181,56 +195,56 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
         </div>
     )
 
-    render = () => {
-        if (false && !dataChecking(this.state.lottieJson, 'data')) {
-            return <div>Loading...</div>;
-        }
-
-        return (
-            <div className="video-game-container">
-                {
-                    this.state.complete ?
-                        <div className="result-screen">
-                            {this.renderResult()}
-                        </div>
-                        :
-                        <div className="game-screen animated fadeIn">
-                            <Lottie
-                                options={{
-                                    loop: false,
-                                    autoplay: true,
-                                    // animationData: this.state.lottieJson.data,
-                                    animationData,
-                                    rendererSettings: {
-                                        preserveAspectRatio: 'xMidYMid slice',
-                                    },
-                                }}
-                                // speed={0.2}
-                                height={400}
-                                width={400}
-                                isStopped={this.state.isStopped}
-                                isPaused={this.state.isPaused}
-                                eventListeners={[
-                                    {
-                                        eventName: 'complete',
-                                        callback: () => {
-                                            if (!this.state.complete) {
-                                                this.setState({ complete: true });
-                                                this.props.onGameComplete({
-                                                    score: null,
-                                                    game_setup_id: this.props.gameId,
-                                                    token: this.state.gameAccessToken,
-                                                });
-                                            }
+    render = () => (
+        <div className="video-game-container" style={{ backgroundImage: `url(${this.props.gameConfig.background_image})` || '' }}>
+            {
+                this.state.complete ?
+                    null
+                    :
+                    <div className="game-screen">
+                        {
+                            this.props.gameConfig.json ?
+                                <div className="animated fadeIn"><Lottie
+                                    className="lottie-video"
+                                    options={{
+                                        loop: false,
+                                        autoplay: true,
+                                        // animationData: this.state.lottieJson.data,
+                                        animationData: this.state.lottieJson,
+                                        rendererSettings: {
+                                            preserveAspectRatio: 'xMidYMid slice',
                                         },
-                                    },
-                                ]}
-                            />
-                        </div>
-                }
-            </div>
-        );
-    };
+                                    }}
+                                    // speed={6}
+                                    height="100%"
+                                    width="100%"
+                                    isStopped={this.state.isStopped}
+                                    isPaused={this.state.isPaused}
+                                    eventListeners={[
+                                        {
+                                            eventName: 'complete',
+                                            callback: () => {
+                                                if (!this.state.complete) {
+                                                    this.setState({ complete: true });
+                                                    this.props.onGameComplete({
+                                                        score: null,
+                                                        game_setup_id: this.props.gameId,
+                                                        token: this.state.gameAccessToken,
+                                                    });
+                                                }
+                                            },
+                                        },
+                                    ]}
+                                />
+                                </div>
+                                :
+                                <div>render video</div>
+                        }
+                    </div>
+            }
+            {this.renderResult()}
+        </div>
+    );
 }
 
 VideoShowGame.propTypes = {

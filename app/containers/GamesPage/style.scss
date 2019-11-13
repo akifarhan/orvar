@@ -91,11 +91,15 @@
         margin: auto;
 
         .page-button-item {
-            width: 10%;
             display: inline-block;
 
             &.to-left { float: left; }
             &.to-right { float: right; }
+
+            i {
+                font-size: 3em;
+                padding: 0.2em 0.4em;
+            }
         }
     }
 

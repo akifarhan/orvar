@@ -123,6 +123,10 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         }
     }
 
+    onPlay = () => {
+        this.setState({ showModal: 'showPlay', gameResultImagelink: null });
+    }
+
     parsePocketFromWeb = (event) => {
         if (event.origin !== 'https://www.hermo.my'
             && event.origin !== 'https://hermo.my'
@@ -194,6 +198,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 onBackToMenu={this.onBackToMenu}
                                 gameResultImagelink={this.state.gameResultImagelink}
                                 gameConfig={this.state.gameInfo.data.config.game}
+                                onReplay={this.onPlay}
                             />
                         );
                     case 'video-show':
@@ -207,6 +212,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 onBackToMenu={this.onBackToMenu}
                                 gameConfig={this.state.gameInfo.data.config.game}
                                 gameResultImagelink={this.state.gameResultImagelink}
+                                onReplay={this.onPlay}
                             />
                         );
 
@@ -277,12 +283,11 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                     className="toggle-back page-button-item"
                                     onClick={() => this.onBackToMenu()}
                                 >
-                                    <img
+                                    <i
+                                        className="fas fa-chevron-left main-menu-button-item animated zoomIn"
+                                        style={{ color: gameData.config.game.icon_color || 'black' }}
                                         draggable="false"
-                                        width="100%"
-                                        src={require('./rsc/icons8-left-3-96.png')}
-                                        alt="play"
-                                        className="main-menu-button-item animated zoomIn"
+                                        alt="back"
                                     />
                                 </div>
                                 :
@@ -297,40 +302,26 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         >
                             {
                                 this.state.playMusic ?
-                                    <img
+                                    <i
+                                        className="fas fa-volume-up main-menu-button-item animated zoomIn"
+                                        style={{ color: gameData.config.game.icon_color || 'black' }}
                                         draggable="false"
-                                        width="100%"
-                                        src={require('./rsc/icons8-sound-100.png')}
                                         alt="play"
-                                        className="main-menu-button-item animated zoomIn"
                                     />
                                     :
-                                    <img
+                                    <i
+                                        className="fas fa-volume-mute main-menu-button-item animated zoomIn"
+                                        style={{ color: gameData.config.game.icon_color || 'black' }}
                                         draggable="false"
-                                        width="100%"
-                                        src={require('./rsc/icons8-mute-100.png')}
                                         alt="play"
-                                        className="main-menu-button-item animated zoomIn"
                                     />
                             }
                         </div>
                     </div>
                     <div className="main-menu-wrapper">
                         <div className="main-menu-content">
-                            {/* <div
-                                className="back-button gotoshop"
-                                onClick={() => {
-                                    console.log('gotoshop', window.goToShop);
-
-                                    if (window.goToShop) {
-                                        window.goToShop();
-                                    }
-                                }}
-                            >
-                                <i className="fas fa-store-alt"></i>
-                            </div> */}
                             <div className="main-menu-bottom-content animated fadeIn">
-                                <div className="game-info">
+                                <div className="game-info" style={{ color: gameData.config.game.icon_color || 'black' }}>
                                     <div className="main-menu-username">
                                         {
                                             dataChecking(globalScope, 'profile', 'name') && dataChecking(globalScope, 'profile', 'username') ?
@@ -356,7 +347,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                                 this.startSound.play();
                                             }
                                             setTimeout(() => {
-                                                this.setState({ showModal: 'showPlay' });
+                                                this.onPlay();
                                             }, 0);
 
                                             return true;
@@ -401,7 +392,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 gameData.token_charge ?
                                     <div className="main-menu-token-indicator">
                                         <span>Token available: </span>
-                                        <span>5</span>
+                                        <span>xxxx</span>
                                     </div>
                                     :
                                     null
