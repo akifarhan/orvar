@@ -28,6 +28,7 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import {
     Button,
     Card,
+    Container,
     Grid,
     Hidden,
     IconButton,
@@ -104,15 +105,23 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
 
     isNextButtonDisabled = () => {
         const allowedFileTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-
-        if (this.state.activeStep === 0 && (allowedFileTypes.indexOf(dataChecking(this.state, 'files', 0, 'type')) < 0)) {
-            return true;
+        switch (this.state.activeStep) {
+            case 0:
+                if (dataChecking(this.state, 'files').length > 0) {
+                    if (allowedFileTypes.indexOf(this.state.files[0].type) !== -1) {
+                        return false;
+                    }
+                }
+                return true;
+            case 1:
+                if (this.state.comment.length > 24) {
+                    return false;
+                }
+                return true;
+            default:
+                break;
         }
-        if (this.state.activeStep === 1 && this.state.comment.length < 25) {
-            return true;
-        }
-
-        return false;
+        return null;
     }
 
     fetchOrderDataByTab = ({ urlParam }) => {
@@ -529,9 +538,9 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
         console.log(this.state.orderStatusConfigs);
         console.log('Tab', this.state.currentConfig);
         return (
-            <div>
+            <Container>
                 {this.renderOrderListCard(this.state.currentConfig)}
-            </div>
+            </Container>
         );
     }
 
@@ -539,6 +548,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
         return (
             <div>
                 <NavTab
+                    className="profile-order-list"
                     data={this.state.orderStatusConfigs}
                     onTabClick={(config) => {
                         this.fetchOrderDataByTab(config);
