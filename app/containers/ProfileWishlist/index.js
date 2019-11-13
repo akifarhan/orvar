@@ -16,6 +16,7 @@ import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import { notifySuccess, notifyError } from 'containers/Notify';
 
+import NotifyMe from 'containers/NotifyMe';
 import PopupDialog from 'components/PopupDialog';
 import ProductCard from 'components/ProductCard';
 
@@ -53,11 +54,12 @@ import './style.scss';
 
 export class ProfileWishlist extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     state = {
-        popup: false,
         addToCartPopup: false,
-        orderID: null,
-
         isExpanded: false,
+        notifyMePopup: false,
+        popup: false,
+        orderID: null,
+        restockID: null,
         selection: [],
         selectionName: [],
         quantity: 1,
@@ -279,6 +281,9 @@ export class ProfileWishlist extends React.PureComponent { // eslint-disable-lin
                                                 orderID: item.product.id,
                                             }));
                                         }}
+                                        notifyMe={() => {
+                                            this.setState({ notifyMePopup: !this.state.notifyMePopup, restockID: item.product.id });
+                                        }}
                                     />
                                 </Grid>
                             ))
@@ -358,6 +363,14 @@ export class ProfileWishlist extends React.PureComponent { // eslint-disable-lin
                                 <Typography variant="overline">Confirm</Typography>
                             </Button>
                         </Dialog>
+                }
+                {
+                    this.state.notifyMePopup &&
+                        <NotifyMe
+                            productID={this.state.restockID}
+                            notifyMePopup={this.state.notifyMePopup}
+                            onClose={() => this.setState({ notifyMePopup: false })}
+                        />
                 }
             </div>
         );

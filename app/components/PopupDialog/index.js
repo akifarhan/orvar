@@ -9,7 +9,6 @@ import React from 'react';
 import {
     Button,
     Dialog,
-    DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
@@ -43,20 +42,30 @@ class PopupDialog extends React.PureComponent {
                     <DialogContent>
                         {this.props.children}
                     </DialogContent>
-                    <DialogActions>
-                        {
-                            this.props.onCancel &&
-                                <Button onClick={this.props.onCancel} color="primary">
-                                    Cancel
-                                </Button>
-                        }
-                        {
-                            this.props.onUpdate &&
-                                <Button onClick={this.props.onUpdate} color="primary">
-                                    Update
-                                </Button>
-                        }
-                    </DialogActions>
+                    {
+                        this.props.onCancel &&
+                            <Button
+                                onClick={this.props.onCancel}
+                                color="primary"
+                                style={{ borderRadius: 2, height: '3.5rem' }}
+                                fullWidth={true}
+                            >
+                                Cancel
+                            </Button>
+                    }
+                    {
+                        this.props.onSubmit &&
+                            <Button
+                                variant="contained"
+                                disabled={!this.props.isComplete}
+                                color={this.props.isComplete ? 'secondary' : 'default'}
+                                style={{ borderRadius: 2, height: '3.5rem' }}
+                                fullWidth={true}
+                                onClick={this.props.onSubmit}
+                            >
+                                Submit
+                            </Button>
+                    }
                 </Dialog>
             </div>
         );
