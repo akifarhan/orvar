@@ -16,9 +16,10 @@ import {
     Events,
 } from 'globalUtils';
 
-import Lottie from './../../assets/react-lottie';
+import Lottie from 'react-lottie';
 
-import * as animationData from './2104-surprise.json';
+import * as animationData from './jetshow.json';
+// import * as animationData from './2104-surprise.json';
 
 import makeSelectVideoShowGame from './selectors';
 import makeSelectGamesPage from '../GamesPage/selectors';
@@ -66,7 +67,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
         }
 
         if (dataChecking(nextProps, 'gamePage', 'gameToken', 'success') !== dataChecking(this.props, 'gamePage', 'gameToken', 'success') && nextProps.gamePage.gameToken.success) {
-            this.setState({ gameAccessToken: dataChecking(nextProps.gamePage, 'gameToken', 'data', 'message', 'token') });
+            this.setState({ gameAccessToken: dataChecking(nextProps.gamePage, 'gameToken', 'data', 'data', 'message', 'token') });
             this.initialiseGame();
         }
 
@@ -204,7 +205,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                                         preserveAspectRatio: 'xMidYMid slice',
                                     },
                                 }}
-                                speed={0.2}
+                                // speed={0.2}
                                 height={400}
                                 width={400}
                                 isStopped={this.state.isStopped}
@@ -217,7 +218,6 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                                                 this.setState({ complete: true });
                                                 this.props.onGameComplete({
                                                     score: null,
-                                                    token_charge: 99999,
                                                     game_setup_id: this.props.gameId,
                                                     token: this.state.gameAccessToken,
                                                 });

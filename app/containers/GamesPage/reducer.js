@@ -85,7 +85,7 @@ function gamesPageReducer(state = initialState, action) {
                 .setIn(['gameToken', 'loading'], false)
                 .setIn(['gameToken', 'error'], true)
                 .setIn(['gameToken', 'success'], false)
-                .setIn(['gameToken', 'data'], action.gameTokenData);
+                .setIn(['gameToken', 'data'], action.payload);
         default:
             return state;
     }

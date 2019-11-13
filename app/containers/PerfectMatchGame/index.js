@@ -237,7 +237,6 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                     });
                                     this.props.onGameLose({
                                         score: 0,
-                                        token_charge: 99999,
                                         game_setup_id: this.props.gameId,
                                         token: this.state.gameAccessToken,
                                     });
@@ -348,7 +347,6 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                             if (result === 'win') {
                                                 this.props.onGameWin({
                                                     score: CARD_PAIR,
-                                                    token_charge: 99999,
                                                     game_setup_id: this.props.gameId,
                                                     token: this.state.gameAccessToken,
                                                 });

@@ -17,7 +17,7 @@ import {
 export function* getResultQuery(action) {
     let err;
     try {
-        const response = yield call(apiRequest, '/game/result', 'put', JSON.stringify(action.payload), process.env.GAMI_API_URL);
+        const response = yield call(apiRequest, '/game/result', 'post', JSON.stringify(action.payload), process.env.GAMI_API_URL);
         if (response && response.ok !== false) {
             yield put(getResultSuccess(response.data));
         } else if (response && response.ok === false) {

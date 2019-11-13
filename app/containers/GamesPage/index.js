@@ -243,6 +243,18 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
     }
 
     render() {
+        if (this.state.requestToken) {
+            return (
+                <div className="games-page" style={{ fontSize: this.state.pageFontSize }}>
+                    <div className="game-container">
+                        <div className="games-login-modal animated fa" style={{ backgroundColor: 'rgba(255,255,255)', overflow: 'auto' }}>
+                            <AuthPage isModal={true} />
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         if (!dataChecking(this.state, 'gameInfo', 'data', 'config')) {
             return (
                 <div>Loading...</div>
@@ -303,106 +315,99 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             }
                         </div>
                     </div>
-                    {
-                        this.state.requestToken ?
-                            <span className="games-login-modal animated fa" style={{ backgroundColor: 'rgba(255,255,255)', overflow: 'auto' }}>
-                                <AuthPage isModal={true} />
-                            </span>
-                            :
-                            <div className="main-menu-wrapper">
-                                <div className="main-menu-content">
-                                    {/* <div
-                                        className="back-button gotoshop"
-                                        onClick={() => {
-                                            console.log('gotoshop', window.goToShop);
+                    <div className="main-menu-wrapper">
+                        <div className="main-menu-content">
+                            {/* <div
+                                className="back-button gotoshop"
+                                onClick={() => {
+                                    console.log('gotoshop', window.goToShop);
 
-                                            if (window.goToShop) {
-                                                window.goToShop();
-                                            }
-                                        }}
-                                    >
-                                        <i className="fas fa-store-alt"></i>
-                                    </div> */}
-                                    <div className="main-menu-bottom-content animated fadeIn">
-                                        <div className="game-info">
-                                            <div className="main-menu-username">
-                                                {
-                                                    dataChecking(globalScope, 'profile', 'name') && dataChecking(globalScope, 'profile', 'username') ?
-                                                        <div className="profile-name animated fadeIn">Welcome, {globalScope.profile.name || globalScope.profile.username}!</div>
-                                                        :
-                                                        <img className="username-loading" src={require('images/preloader-02.gif')} alt="" />
-                                                }
-                                            </div>
-                                            {
-                                                this.state.availableChance !== null ?
-                                                    <div className="main-menu-username animated fadeIn">
-                                                        <div variant="h4">You have {this.state.availableChance || 0} token</div>
-                                                    </div>
-                                                    :
-                                                    null
-
-                                            }
-                                        </div>
-                                        <div
-                                            onClick={
-                                                () => {
-                                                    if (this.state.playMusic) {
-                                                        this.startSound.play();
-                                                    }
-                                                    setTimeout(() => {
-                                                        this.setState({ showModal: 'showPlay' });
-                                                    }, 0);
-
-                                                    return true;
-                                                }
-                                            }
-                                            className="animated fadeIn"
-                                        >
-                                            <img
-                                                draggable="false"
-                                                // src={require('./rsc/D11-Button-image_Play_529x130.png')}
-                                                src={gameData.config.menu.start_button}
-                                                alt="Play"
-                                                className="main-menu-button-item"
-                                            />
-                                        </div>
-                                        <div
-                                            onClick={() => this.setState({ showModal: 'slideShow', slideArray: gameData.config.menu.prize_slider })}
-                                            className="animated fadeIn"
-                                        >
-                                            <img
-                                                draggable="false"
-                                                // src={require('./rsc/D11-Button-image_Prize_529x130.png')}
-                                                src={gameData.config.menu.prizes_button}
-                                                alt="Prizes"
-                                                className="main-menu-button-item"
-                                            />
-                                        </div>
-                                        <div
-                                            onClick={() => this.setState({ showModal: 'slideShow', slideArray: gameData.config.menu.how_to_play_slider })}
-                                            className="animated fadeIn"
-                                        >
-                                            <img
-                                                draggable="false"
-                                                // src={require('./rsc/D11-Button-image_How-to-play_529x130.png')}
-                                                src={gameData.config.menu.how_to_play_button}
-                                                alt="How to Play"
-                                                className="main-menu-button-item"
-                                            />
-                                        </div>
+                                    if (window.goToShop) {
+                                        window.goToShop();
+                                    }
+                                }}
+                            >
+                                <i className="fas fa-store-alt"></i>
+                            </div> */}
+                            <div className="main-menu-bottom-content animated fadeIn">
+                                <div className="game-info">
+                                    <div className="main-menu-username">
+                                        {
+                                            dataChecking(globalScope, 'profile', 'name') && dataChecking(globalScope, 'profile', 'username') ?
+                                                <div className="profile-name animated fadeIn">Welcome, {globalScope.profile.name || globalScope.profile.username}!</div>
+                                                :
+                                                <img className="username-loading" src={require('images/preloader-02.gif')} alt="" />
+                                        }
                                     </div>
                                     {
-                                        gameData.token_charge ?
-                                            <div className="main-menu-token-indicator">
-                                                <span>Token available: </span>
-                                                <span>5</span>
+                                        this.state.availableChance !== null ?
+                                            <div className="main-menu-username animated fadeIn">
+                                                <div variant="h4">You have {this.state.availableChance || 0} token</div>
                                             </div>
                                             :
                                             null
+
                                     }
                                 </div>
+                                <div
+                                    onClick={
+                                        () => {
+                                            if (this.state.playMusic) {
+                                                this.startSound.play();
+                                            }
+                                            setTimeout(() => {
+                                                this.setState({ showModal: 'showPlay' });
+                                            }, 0);
+
+                                            return true;
+                                        }
+                                    }
+                                    className="animated fadeIn"
+                                >
+                                    <img
+                                        draggable="false"
+                                        // src={require('./rsc/D11-Button-image_Play_529x130.png')}
+                                        src={gameData.config.menu.start_button}
+                                        alt="Play"
+                                        className="main-menu-button-item"
+                                    />
+                                </div>
+                                <div
+                                    onClick={() => this.setState({ showModal: 'slideShow', slideArray: gameData.config.menu.prize_slider })}
+                                    className="animated fadeIn"
+                                >
+                                    <img
+                                        draggable="false"
+                                        // src={require('./rsc/D11-Button-image_Prize_529x130.png')}
+                                        src={gameData.config.menu.prizes_button}
+                                        alt="Prizes"
+                                        className="main-menu-button-item"
+                                    />
+                                </div>
+                                <div
+                                    onClick={() => this.setState({ showModal: 'slideShow', slideArray: gameData.config.menu.how_to_play_slider })}
+                                    className="animated fadeIn"
+                                >
+                                    <img
+                                        draggable="false"
+                                        // src={require('./rsc/D11-Button-image_How-to-play_529x130.png')}
+                                        src={gameData.config.menu.how_to_play_button}
+                                        alt="How to Play"
+                                        className="main-menu-button-item"
+                                    />
+                                </div>
                             </div>
-                    }
+                            {
+                                gameData.token_charge ?
+                                    <div className="main-menu-token-indicator">
+                                        <span>Token available: </span>
+                                        <span>5</span>
+                                    </div>
+                                    :
+                                    null
+                            }
+                        </div>
+                    </div>
                     <div
                         className="ppg-version"
                         onClick={() => {
