@@ -1,0 +1,17 @@
+@import 'app/breakpoints';
+
+.notify-me-content {
+    @include media-breakpoint-down(sm) {
+        padding: 8px 10px !important;
+    }
+
+    .notify-me-image {
+        width: 100%;
+        margin: auto;
+        @include media-breakpoint-down(sm) {
+            width: 50%;
+            margin: auto;
+            display: block;
+        }
+    }
+}
