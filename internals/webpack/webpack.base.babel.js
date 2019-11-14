@@ -12,10 +12,12 @@ const Dotenv = require('dotenv-webpack');
 // in the next major version of loader-utils.'
 process.noDeprecation = true;
 
+const buildPath = process.env.NODE_ENV === 'production' ? 'build' : 'buildDev';
+
 module.exports = (options) => ({
     entry: options.entry,
     output: Object.assign({ // Compile into js/build.js
-        path: path.resolve(process.cwd(), 'build'),
+        path: path.resolve(process.cwd(), buildPath),
         publicPath: '/',
     }, options.output), // Merge with env dependent settings
     module: {
