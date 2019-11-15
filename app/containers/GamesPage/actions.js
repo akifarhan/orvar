@@ -14,6 +14,9 @@ import {
     GET_GAME_TOKEN,
     GET_GAME_TOKEN_SUCCESS,
     GET_GAME_TOKEN_FAILED,
+    GET_MEMBER_INFO,
+    GET_MEMBER_INFO_SUCCESS,
+    GET_MEMBER_INFO_FAILED,
 } from './constants';
 
 export function getResult(payload) {
@@ -72,6 +75,25 @@ export function getGameTokenFailed(gameTokenData) {
     return {
         type: GET_GAME_TOKEN_FAILED,
         payload: gameTokenData,
+    };
+}
+
+
+export function getMemberInfo() {
+    return {
+        type: GET_MEMBER_INFO,
+    };
+}
+export function getMemberInfoSuccess(payload) {
+    return {
+        type: GET_MEMBER_INFO_SUCCESS,
+        payload,
+    };
+}
+export function getMemberInfoFailed(payload) {
+    return {
+        type: GET_MEMBER_INFO_FAILED,
+        payload,
     };
 }
 

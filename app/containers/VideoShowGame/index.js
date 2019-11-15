@@ -178,9 +178,11 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                             }
 
                             this.props.dispatch(getGameToken({ id: this.props.gameId }));
-                            this.setState({
-                                ...initialState,
-                            });
+                            setTimeout(() => {
+                                this.setState({
+                                    ...initialState,
+                                });
+                            }, 0);
                         }}
                     >
                         <img
@@ -204,38 +206,43 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                     <div className="game-screen">
                         {
                             this.props.gameConfig.json ?
-                                <div className="animated fadeIn"><Lottie
-                                    className="lottie-video"
-                                    options={{
-                                        loop: false,
-                                        autoplay: true,
-                                        // animationData: this.state.lottieJson.data,
-                                        animationData: this.state.lottieJson,
-                                        rendererSettings: {
-                                            preserveAspectRatio: 'xMidYMid slice',
-                                        },
-                                    }}
-                                    // speed={6}
-                                    height="100%"
-                                    width="100%"
-                                    isStopped={this.state.isStopped}
-                                    isPaused={this.state.isPaused}
-                                    eventListeners={[
-                                        {
-                                            eventName: 'complete',
-                                            callback: () => {
-                                                if (!this.state.complete) {
-                                                    this.setState({ complete: true });
-                                                    this.props.onGameComplete({
-                                                        score: null,
-                                                        game_setup_id: this.props.gameId,
-                                                        token: this.state.gameAccessToken,
-                                                    });
-                                                }
+                                <div className="animated fadeIn">
+                                    <button>
+
+                                    </button>
+                                    <Lottie
+                                        className="lottie-video"
+                                        options={{
+                                            loop: false,
+                                            autoplay: true,
+                                            // animationData: this.state.lottieJson.data,
+                                            animationData: this.state.lottieJson,
+                                            rendererSettings: {
+                                                preserveAspectRatio: 'xMidYMid slice',
                                             },
-                                        },
-                                    ]}
-                                />
+                                        }}
+                                        // speed={6}
+                                        height="100%"
+                                        width="100%"
+                                        isStopped={false}
+                                        isPaused={false}
+                                        onClick={() => { console.log('asdfads'); }}
+                                        eventListeners={[
+                                            {
+                                                eventName: 'complete',
+                                                callback: () => {
+                                                    if (!this.state.complete) {
+                                                        this.setState({ complete: true });
+                                                        this.props.onGameComplete({
+                                                            score: null,
+                                                            game_setup_id: this.props.gameId,
+                                                            token: this.state.gameAccessToken,
+                                                        });
+                                                    }
+                                                },
+                                            },
+                                        ]}
+                                    />
                                 </div>
                                 :
                                 <div>render video</div>

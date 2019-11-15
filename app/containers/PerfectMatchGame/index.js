@@ -470,10 +470,12 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                             }
 
                             this.props.dispatch(getGameToken({ id: this.props.gameId }));
-                            this.setState({
-                                ...initialState,
-                                brandArr: this.shuffleArray(this.getRandomBrands()),
-                            });
+                            setTimeout(() => {
+                                this.setState({
+                                    ...initialState,
+                                    brandArr: this.shuffleArray(this.getRandomBrands()),
+                                });
+                            }, 0);
                         }}
                     >
                         <img
@@ -550,7 +552,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                 />
                 {
                     dataChecking(this.props, 'gamePage', 'gameToken', 'loading') ?
-                        <div>Loading...</div>
+                        <img className="perfect-game-loading" src={require('images/preloader-02.gif')} alt="" />
                         :
                         this.state.complete ?
                             <div className="result-screen animated fadeIn">

@@ -4,6 +4,7 @@ import {
     GET_RESULT,
     GET_GAME_INFO,
     GET_GAME_TOKEN,
+    GET_MEMBER_INFO,
 } from './constants';
 import {
     getResultSuccess,
@@ -12,6 +13,8 @@ import {
     getGameInfoFailed,
     getGameTokenSuccess,
     getGameTokenFailed,
+    getMemberInfoSuccess,
+    getMemberInfoFailed,
 } from './actions';
 
 export function* getResultQuery(action) {
@@ -69,10 +72,29 @@ export function* getGameTokenQuery(action) {
     }
 }
 
+export function* getMemberInfoQuery() {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/members', 'get', null, process.env.GAMI_API_URL);
+        if (response && response.ok !== false) {
+            yield put(getMemberInfoSuccess(response.data));
+        } else if (response && response.ok === false) {
+            yield put(getMemberInfoFailed(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(getMemberInfoFailed(e));
+    }
+}
+
 
 // Individual exports for testing
 export default function* gamesPageSaga() {
     yield takeLatest(GET_RESULT, getResultQuery);
     yield takeLatest(GET_GAME_INFO, getGameInfo);
     yield takeLatest(GET_GAME_TOKEN, getGameTokenQuery);
+    yield takeLatest(GET_MEMBER_INFO, getMemberInfoQuery);
 }

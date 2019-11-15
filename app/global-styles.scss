@@ -147,6 +147,15 @@ body {
     }
 }
 
+.page-loader {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
 .opacity-zero {
     opacity: 0;
 }
@@ -179,6 +188,16 @@ body {
 
         > li.slide {
             padding: 0;
+        }
+
+
+        .slide.selected {
+            max-height: 100vh;
+            overflow: auto;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
         }
     }
 }

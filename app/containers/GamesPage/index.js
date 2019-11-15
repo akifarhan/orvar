@@ -11,7 +11,7 @@ import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import { dataChecking, Events, setCookie } from 'globalUtils';
+import { dataChecking, Events, setCookie, dig } from 'globalUtils';
 import globalScope from 'globalScope';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
@@ -22,6 +22,7 @@ import VideoShowGame from '../VideoShowGame';
 import {
     getGameInfo,
     getResult,
+    getMemberInfo,
 } from './actions';
 import makeSelectGamesPage from './selectors';
 import reducer from './reducer';
@@ -37,7 +38,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         this.state = {
             email: '',
             password: '',
-            availableChance: null,
             showModal: null,
             slideArray: null,
             gameId: dataChecking(this.props, 'match', 'params', 'id'),
@@ -77,6 +77,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         }
 
         this.props.dispatch(getGameInfo({ id: this.state.gameId }));
+        this.props.dispatch(getMemberInfo());
     }
 
     componentWillReceiveProps = (nextProps) => {
@@ -98,6 +99,11 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                     this.startSound = new Audio(gameInfo.data.config.menu.start_sound);
                 }
             }
+        }
+
+        if (dataChecking(nextProps, 'gamesPage', 'memberInfo') !== dataChecking(this.props, 'gamesPage', 'memberInfo') && nextProps.gamesPage.memberInfo.success) {
+            const memberInfo = nextProps.gamesPage.memberInfo.data;
+            this.setState({ memberInfo });
         }
     }
 
@@ -263,7 +269,9 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
 
         if (!dataChecking(this.state, 'gameInfo', 'data', 'config')) {
             return (
-                <div>Loading...</div>
+                <div className="page-loader">
+                    <img className="username-loading" src={require('images/preloader-02.gif')} alt="" />
+                </div>
             );
         } else if (!this.state.gameId) {
             return (
@@ -330,15 +338,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                                 <img className="username-loading" src={require('images/preloader-02.gif')} alt="" />
                                         }
                                     </div>
-                                    {
-                                        this.state.availableChance !== null ?
-                                            <div className="main-menu-username animated fadeIn">
-                                                <div variant="h4">You have {this.state.availableChance || 0} token</div>
-                                            </div>
-                                            :
-                                            null
-
-                                    }
                                 </div>
                                 <div
                                     onClick={
@@ -390,9 +389,17 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             </div>
                             {
                                 gameData.token_charge ?
-                                    <div className="main-menu-token-indicator">
+                                    <div
+                                        className="main-menu-token-indicator"
+                                        style={{ color: gameData.config.game.icon_color || 'black' }}
+                                    >
                                         <span>Token available: </span>
-                                        <span>xxxx</span>
+                                        {
+                                            this.state.memberInfo ?
+                                                <span>{dig(this.state.memberInfo, 'data.token.amount') || 0}</span>
+                                                :
+                                                <img className="available-token-loading" src={require('images/preloader-02.gif')} alt="" />
+                                        }
                                     </div>
                                     :
                                     null
