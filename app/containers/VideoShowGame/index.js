@@ -46,9 +46,11 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
         this.state = {
             ...initialState,
             lottieJson: initialState.lottieJson || null,
-            gameMusic: new Audio(this.props.gameConfig.background_music),
+            gameMusic: this.props.gameConfig.background_music ? new Audio(this.props.gameConfig.background_music) : null,
         };
-        this.state.gameMusic.loop = true;
+        if (this.state.gameMusic) {
+            this.state.gameMusic.loop = true;
+        }
 
         this.props.dispatch(getGameToken({ id: this.props.gameId }));
 
@@ -79,17 +81,19 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
     }
 
     componentWillUpdate = (nextProps) => {
-        if (nextProps.playMusic !== this.props.playMusic) {
+        if (nextProps.playMusic !== this.props.playMusic && this.state.gameMusic) {
             this.state.gameMusic[nextProps.playMusic ? 'play' : 'pause']();
         }
     }
 
     componentWillUnmount() {
-        this.state.gameMusic.pause();
+        if (this.state.gameMusic) {
+            this.state.gameMusic.pause();
+        }
     }
 
     initialiseGame = () => {
-        if (this.props.playMusic) {
+        if (this.props.playMusic && this.state.gameMusic) {
             this.state.gameMusic.play();
         }
 
@@ -204,12 +208,10 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                     null
                     :
                     <div className="game-screen">
+                        <div className="game-running-overlay" />
                         {
                             this.props.gameConfig.json ?
                                 <div className="animated fadeIn">
-                                    <button>
-
-                                    </button>
                                     <Lottie
                                         className="lottie-video"
                                         options={{

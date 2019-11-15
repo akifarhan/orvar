@@ -118,19 +118,33 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
     }
 
     onGameComplete = (payload) => {
+        if (this.state.gameInfo.data.config.game.disableBackOnPlay && this.state.disableBack) {
+            this.setState({ disableBack: false });
+        }
         this.props.dispatch(getResult(payload));
     }
 
     onBackToMenu = () => {
+        if (this.state.disableBack) {
+            return null;
+        }
+
         this.setState({ showModal: null });
-        if (this.state.playMusic && this.state.showModal === 'showPlay') {
+        if (this.state.playMusic && this.state.showModal === 'showPlay' && this.idleMusic) {
             this.idleMusic.currentTime = 0;
             this.idleMusic.play();
         }
+
+        return null;
     }
 
     onPlay = () => {
-        this.setState({ showModal: 'showPlay', gameResultImagelink: null });
+        const obj = {
+            showModal: 'showPlay',
+            gameResultImagelink: null,
+            disableBack: this.state.gameInfo.data.config.game.disableBackOnPlay,
+        };
+        this.setState(obj);
     }
 
     parsePocketFromWeb = (event) => {
@@ -189,7 +203,9 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
 
         if (showModal === 'showPlay' && gameId) {
             if (gameId && dataChecking(this.state.gameInfo, 'data', 'type')) {
-                this.idleMusic.pause();
+                if (this.idleMusic) {
+                    this.idleMusic.pause();
+                }
 
                 switch (this.state.gameInfo.data.type) {
                     case 'mix-and-match':
@@ -288,12 +304,12 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         {
                             this.state.showModal ?
                                 <div
-                                    className="toggle-back page-button-item"
+                                    className={`toggle-back page-button-item ${this.state.disableBack ? 'disabled' : ''}`}
                                     onClick={() => this.onBackToMenu()}
                                 >
                                     <i
                                         className="fas fa-chevron-left main-menu-button-item animated zoomIn"
-                                        style={{ color: gameData.config.game.icon_color || 'black' }}
+                                        style={{ color: gameData.config.game.text_color || 'black' }}
                                         draggable="false"
                                         alt="back"
                                     />
@@ -301,35 +317,42 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 :
                                 null
                         }
-                        <div
-                            className="toggle-music page-button-item to-right"
-                            onClick={() => {
-                                this.setState({ playMusic: !this.state.playMusic });
-                                this.idleMusic[!this.state.playMusic ? 'play' : 'pause']();
-                            }}
-                        >
-                            {
-                                this.state.playMusic ?
-                                    <i
-                                        className="fas fa-volume-up main-menu-button-item animated zoomIn"
-                                        style={{ color: gameData.config.game.icon_color || 'black' }}
-                                        draggable="false"
-                                        alt="play"
-                                    />
-                                    :
-                                    <i
-                                        className="fas fa-volume-mute main-menu-button-item animated zoomIn"
-                                        style={{ color: gameData.config.game.icon_color || 'black' }}
-                                        draggable="false"
-                                        alt="play"
-                                    />
-                            }
-                        </div>
+                        {
+                             gameData.config.menu.background_music || gameData.config.game.background_music ?
+                                <div
+                                    className="toggle-music page-button-item to-right"
+                                    onClick={() => {
+                                        this.setState({ playMusic: !this.state.playMusic });
+                                        if (this.idleMusic) {
+                                            this.idleMusic[!this.state.playMusic ? 'play' : 'pause']();
+                                        }
+                                    }}
+                                >
+                                    {
+                                        this.state.playMusic ?
+                                            <i
+                                                className="fas fa-volume-up main-menu-button-item animated zoomIn"
+                                                style={{ color: gameData.config.game.text_color || 'black' }}
+                                                draggable="false"
+                                                alt="play"
+                                            />
+                                            :
+                                            <i
+                                                className="fas fa-volume-mute main-menu-button-item animated zoomIn"
+                                                style={{ color: gameData.config.game.text_color || 'black' }}
+                                                draggable="false"
+                                                alt="play"
+                                            />
+                                    }
+                                </div>
+                                :
+                                null
+                        }
                     </div>
                     <div className="main-menu-wrapper">
                         <div className="main-menu-content">
                             <div className="main-menu-bottom-content animated fadeIn">
-                                <div className="game-info" style={{ color: gameData.config.game.icon_color || 'black' }}>
+                                <div className="game-info" style={{ color: gameData.config.game.text_color || 'black' }}>
                                     <div className="main-menu-username">
                                         {
                                             dataChecking(globalScope, 'profile', 'name') && dataChecking(globalScope, 'profile', 'username') ?
@@ -391,7 +414,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 gameData.token_charge ?
                                     <div
                                         className="main-menu-token-indicator"
-                                        style={{ color: gameData.config.game.icon_color || 'black' }}
+                                        style={{ color: gameData.config.game.text_color || 'black' }}
                                     >
                                         <span>Token available: </span>
                                         {

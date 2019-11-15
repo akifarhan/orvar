@@ -92,6 +92,12 @@
 
         .page-button-item {
             display: inline-block;
+            cursor: pointer;
+
+            &.disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
 
             &.to-left { float: left; }
             &.to-right { float: right; }
