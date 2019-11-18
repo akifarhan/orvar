@@ -28,6 +28,7 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import {
     Button,
     Card,
+    CircularProgress,
     Container,
     Grid,
     Hidden,
@@ -449,88 +450,58 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
         return <Typography style={{ color: this.renderStatusColor(order.status) }}>{order.status}</Typography>;
     }
 
-    renderOrderListCard = (config) => {
+    renderTableBody = () => {
         if (!this.props.profileOrderList.orderList) {
-            return null;
+            return <div style={{ textAlign: 'center' }}><CircularProgress /></div>;
         }
 
         return (
-            <Card style={{ overflowX: 'auto' }} className="order-tab">
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell><Typography>Order</Typography></TableCell>
+            <TableBody>
+                {
+                    dataChecking(this.props.profileOrderList, 'orderList') &&
+                    this.props.profileOrderList.orderList.map((order, index) => (
+                        <TableRow key={index}>
+                            <TableCell component="th" scope="row">
+                                <NavLink to={`order/${order.id}`} style={{ textDecoration: 'none' }}>
+                                    <Typography color="secondary">
+                                        {order.number}
+                                    </Typography>
+                                    <IconButton size="small">
+                                        <KeyboardArrowRight color="secondary" />
+                                    </IconButton>
+                                </NavLink>
+                            </TableCell>
                             <Hidden xsDown={true}>
-                                <TableCell><Typography>Date Created</Typography></TableCell>
-                                <TableCell><Typography>Courier</Typography></TableCell>
+                                <TableCell>
+                                    <IconButton
+                                        size="small"
+                                        color="primary"
+                                        style={{ marginRight: 5 }}
+                                        onClick={(event) => {
+                                            this.setState({
+                                                anchorEl: event.currentTarget,
+                                                orderDate: order.created_at,
+                                            });
+                                        }}
+                                    >
+                                        <QueryBuilder />
+                                    </IconButton>
+                                    <Typography>{moment(order.created_at).fromNow()}</Typography>
+                                </TableCell>
+                                <TableCell>
+                                    <Typography>{order.courier}</Typography>
+                                </TableCell>
                             </Hidden>
-                            <TableCell><Typography>Amount</Typography></TableCell>
-                            <TableCell><Typography>Status</Typography></TableCell>
+                            <TableCell>
+                                <Typography>{order.currency.symbol} {order.subtotal.toFixed(2)}</Typography>
+                            </TableCell>
+                            <TableCell>
+                                {this.renderStatus(order)}
+                            </TableCell>
                         </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {
-                            dataChecking(this.props.profileOrderList, 'orderList') &&
-                            this.props.profileOrderList.orderList.map((order, index) => (
-                                <TableRow key={index}>
-                                    <TableCell component="th" scope="row">
-                                        <NavLink to={`order/${order.id}`} style={{ textDecoration: 'none' }}>
-                                            <Typography color="secondary">
-                                                {order.number}
-                                            </Typography>
-                                            <IconButton size="small">
-                                                <KeyboardArrowRight color="secondary" />
-                                            </IconButton>
-                                        </NavLink>
-                                    </TableCell>
-                                    <Hidden xsDown={true}>
-                                        <TableCell>
-                                            <IconButton
-                                                size="small"
-                                                color="primary"
-                                                style={{ marginRight: 5 }}
-                                                onClick={(event) => {
-                                                    this.setState({
-                                                        anchorEl: event.currentTarget,
-                                                        orderDate: order.created_at,
-                                                    });
-                                                }}
-                                            >
-                                                <QueryBuilder />
-                                            </IconButton>
-                                            <Typography>{moment(order.created_at).fromNow()}</Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography>{order.courier}</Typography>
-                                        </TableCell>
-                                    </Hidden>
-                                    <TableCell>
-                                        <Typography>{order.currency.symbol} {order.subtotal.toFixed(2)}</Typography>
-                                    </TableCell>
-                                    <TableCell>
-                                        {this.renderStatus(order)}
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        }
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    component="div"
-                    rowsPerPageOptions={[10, 25, 40]}
-                    rowsPerPage={this.state.rowsPerPage}
-                    count={dataChecking(this.props.profileOrderList, 'orderMeta', 'totalCount')}
-                    page={this.state.page}
-                    onChangePage={(event, newPage) => {
-                        this.props.dispatch(actions.getOrderList({ urlParam: config.urlParam, pageCount: (newPage + 1), orderCount: this.state.rowsPerPage }));
-                        this.setState({ page: newPage });
-                    }}
-                    onChangeRowsPerPage={(event) => {
-                        this.props.dispatch(actions.getOrderList({ urlParam: config.urlParam, pageCount: 1, orderCount: event.target.value }));
-                        this.setState({ page: 0, rowsPerPage: event.target.value });
-                    }}
-                />
-            </Card>
+                    ))
+                }
+            </TableBody>
         );
     }
 
@@ -539,7 +510,37 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
         console.log('Tab', this.state.currentConfig);
         return (
             <Container>
-                {this.renderOrderListCard(this.state.currentConfig)}
+                <Card style={{ overflowX: 'auto' }} className="order-tab">
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell><Typography>Order</Typography></TableCell>
+                                <Hidden xsDown={true}>
+                                    <TableCell><Typography>Date Created</Typography></TableCell>
+                                    <TableCell><Typography>Courier</Typography></TableCell>
+                                </Hidden>
+                                <TableCell><Typography>Amount</Typography></TableCell>
+                                <TableCell><Typography>Status</Typography></TableCell>
+                            </TableRow>
+                        </TableHead>
+                        {this.renderTableBody()}
+                    </Table>
+                    <TablePagination
+                        component="div"
+                        rowsPerPageOptions={[10, 25, 40]}
+                        rowsPerPage={this.state.rowsPerPage}
+                        count={dataChecking(this.props.profileOrderList, 'orderMeta', 'totalCount')}
+                        page={this.state.page}
+                        onChangePage={(event, newPage) => {
+                            this.props.dispatch(actions.getOrderList({ urlParam: this.state.currentConfig.urlParam, pageCount: (newPage + 1), orderCount: this.state.rowsPerPage }));
+                            this.setState({ page: newPage });
+                        }}
+                        onChangeRowsPerPage={(event) => {
+                            this.props.dispatch(actions.getOrderList({ urlParam: this.state.currentConfig.urlParam, pageCount: 1, orderCount: event.target.value }));
+                            this.setState({ page: 0, rowsPerPage: event.target.value });
+                        }}
+                    />
+                </Card>
             </Container>
         );
     }
