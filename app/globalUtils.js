@@ -1,7 +1,7 @@
 import 'whatwg-fetch';
 import globalScope from 'globalScope';
 import Cookies from 'universal-cookie';
-import * as digdataFromOska from 'digdata';
+import * as digdataFromOska from 'assets/digdata';
 
 export const apiRequest = (path, type = 'get', body, baseUrl, headerParams) => {
     globalScope.axios.setBaseURL(baseUrl || globalScope.api);

@@ -24,7 +24,7 @@
         "build": "cross-env NODE_ENV=production webpack --config internals/webpack/webpack.prod.babel.js --color -p --progress --hide-modules --display-optimization-bailout",
         "buildDev": "cross-env webpack --config internals/webpack/webpack.prod.babel.js --color -p --progress --hide-modules --display-optimization-bailout",
         "release": "npm run build && aws s3 sync build s3://h.orvar.hermo.my && npm run invalidate:create",
-        "releaseDev": "npm run buildDev && aws s3 sync build s3://orvar.alpha.hermo.my",
+        "releaseDev": "npm run buildDev && aws s3 sync buildDev s3://orvar.alpha.hermo.my",
         "invalidate:create": "aws cloudfront create-invalidation --distribution-id E3V6DRRZJ92IDZ --paths \"/*\"",
         "invalidate:status": "aws cloudfront get-invalidation --distribution-id E3V6DRRZJ92IDZ --id=$ID",
         "build:clean": "rimraf ./build",

@@ -130,12 +130,24 @@
             justify-content: center;
 
             .share-content {
-                padding: 2%;
+                padding: 2% 6%;
+                width: 38%;
+
+                div {
+                    margin: auto;
+                    width: auto !important;
+                    height: auto !important;
+                }
+
+                svg {
+                    width: 100% !important;
+                    height: 100% !important;
+                }
             }
+
             .share-button-item {
                 width: 100%;
                 cursor: pointer;
-                padding: 5%;
 
                 &:hover {
                     transform: scale(1.02);

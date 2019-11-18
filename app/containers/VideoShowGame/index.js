@@ -15,6 +15,22 @@ import {
     dataChecking,
     Events,
 } from 'globalUtils';
+import {
+    IconButton,
+} from '@material-ui/core';
+import {
+    Close,
+} from '@material-ui/icons';
+import {
+    FacebookShareButton,
+    FacebookIcon,
+    TwitterShareButton,
+    TwitterIcon,
+    TelegramShareButton,
+    TelegramIcon,
+    WhatsappShareButton,
+    WhatsappIcon,
+} from 'react-share';
 
 import Lottie from 'react-lottie';
 
@@ -32,6 +48,11 @@ import {
     getGameToken,
 } from '../GamesPage/actions';
 import './style.scss';
+
+const shareUrl = 'https://app.hermo.my/PIyrPGmaI1';
+const shareTitle = '';
+const shareHashtag = '#HERMOchristmas2019';
+const shareVia = '';
 
 const initialState = {
     shareModal: false,
@@ -158,7 +179,12 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                             if (window.takePocket) {
                                 const link = {
                                     key: 'share',
-                                    value: dataChecking(this.props, 'gameResultImagelink', 'share'),
+                                    value: {
+                                        shareUrl,
+                                        shareTitle,
+                                        shareHashtag,
+                                        shareVia,
+                                    },
                                 };
                                 const str = JSON.stringify(link);
                                 window.ReactNativeWebView.postMessage(str);
@@ -201,57 +227,130 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
         </div>
     )
 
+    renderGame = () => {
+        if (this.state.complete) {
+            return null;
+        }
+
+        return (
+            <div className="game-screen">
+                <div className="game-running-overlay" />
+                {
+                    this.props.gameConfig.json ?
+                        <div className="animated fadeIn">
+                            <Lottie
+                                className="lottie-video"
+                                options={{
+                                    loop: false,
+                                    autoplay: true,
+                                    // animationData: this.state.lottieJson.data,
+                                    animationData: this.state.lottieJson,
+                                    rendererSettings: {
+                                        preserveAspectRatio: 'xMidYMid slice',
+                                    },
+                                }}
+                                // speed={6}
+                                height="100%"
+                                width="100%"
+                                isStopped={false}
+                                isPaused={false}
+                                onClick={() => { console.log('asdfads'); }}
+                                eventListeners={[
+                                    {
+                                        eventName: 'complete',
+                                        callback: () => {
+                                            if (!this.state.complete) {
+                                                this.setState({ complete: true });
+                                                this.props.onGameComplete({
+                                                    score: null,
+                                                    game_setup_id: this.props.gameId,
+                                                    token: this.state.gameAccessToken,
+                                                });
+                                            }
+                                        },
+                                    },
+                                ]}
+                            />
+                        </div>
+                        :
+                        <div>render video</div>
+                }
+            </div>
+        );
+    }
+
+    renderShareDialogContent = () => (
+        <div>
+            <div className="share-dialog-title">
+                Share to others!
+            </div>
+            <span className="share-dialog-content">
+                <div className="facebook share-content">
+                    <FacebookShareButton
+                        className="facebook share-button-item"
+                        url={shareUrl}
+                        quote={shareTitle}
+                        hashtag={shareHashtag}
+                    >
+                        <FacebookIcon round={true} />
+                    </FacebookShareButton>
+                </div>
+                <div className="twitter share-content">
+                    <TwitterShareButton
+                        className="twitter share-button-item"
+                        url={shareUrl}
+                        title={shareTitle}
+                        via={shareVia}
+                        hashtag={shareHashtag}
+                    >
+                        <TwitterIcon round={true} />
+                    </TwitterShareButton>
+                </div>
+                <div className="telegram share-content">
+                    <TelegramShareButton
+                        className="telegram share-button-item"
+                        url={shareUrl}
+                        title={shareTitle}
+                    >
+                        <TelegramIcon round={true} />
+                    </TelegramShareButton>
+                </div>
+                <div className="whatsapp share-content">
+                    <WhatsappShareButton
+                        className="whatsapp share-button-item"
+                        url={shareUrl}
+                        title={shareTitle}
+                        separator="\n"
+                    >
+                        <WhatsappIcon round={true} />
+                    </WhatsappShareButton>
+                </div>
+            </span>
+        </div>
+    )
+
     render = () => (
         <div className="video-game-container" style={{ backgroundImage: `url(${this.props.gameConfig.background_image})` || '' }}>
             {
-                this.state.complete ?
-                    null
+                dataChecking(this.props, 'gamePage', 'gameToken', 'loading') ?
+                    <img className="video-show-loading" src={require('images/preloader-02.gif')} alt="" />
                     :
-                    <div className="game-screen">
-                        <div className="game-running-overlay" />
-                        {
-                            this.props.gameConfig.json ?
-                                <div className="animated fadeIn">
-                                    <Lottie
-                                        className="lottie-video"
-                                        options={{
-                                            loop: false,
-                                            autoplay: true,
-                                            // animationData: this.state.lottieJson.data,
-                                            animationData: this.state.lottieJson,
-                                            rendererSettings: {
-                                                preserveAspectRatio: 'xMidYMid slice',
-                                            },
-                                        }}
-                                        // speed={6}
-                                        height="100%"
-                                        width="100%"
-                                        isStopped={false}
-                                        isPaused={false}
-                                        onClick={() => { console.log('asdfads'); }}
-                                        eventListeners={[
-                                            {
-                                                eventName: 'complete',
-                                                callback: () => {
-                                                    if (!this.state.complete) {
-                                                        this.setState({ complete: true });
-                                                        this.props.onGameComplete({
-                                                            score: null,
-                                                            game_setup_id: this.props.gameId,
-                                                            token: this.state.gameAccessToken,
-                                                        });
-                                                    }
-                                                },
-                                            },
-                                        ]}
-                                    />
-                                </div>
-                                :
-                                <div>render video</div>
-                        }
-                    </div>
+                    this.renderGame()
             }
             {this.renderResult()}
+            {
+                this.state.shareModal ?
+                    <div className="video-show-modal">
+                        <div className="modal-inner-div">
+                            <IconButton className="close modal-inner-button" onClick={() => this.setState({ shareModal: false })}>
+                                <Close />
+                            </IconButton>
+                            {this.renderShareDialogContent()}
+                        </div>
+                    </div>
+                    :
+                    null
+            }
         </div>
     );
 }

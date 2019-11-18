@@ -490,7 +490,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
         </div>
     )
 
-    renderDialogContent = () => (
+    renderShareDialogContent = () => (
         <div>
             <div className="share-dialog-title">
                 Share to others!
@@ -570,7 +570,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                 <IconButton className="close modal-inner-button" onClick={() => this.setState({ shareModal: false })}>
                                     <Close />
                                 </IconButton>
-                                {this.renderDialogContent()}
+                                {this.renderShareDialogContent()}
                             </div>
                         </div>
                         :
