@@ -186,7 +186,7 @@ export class HomePage extends React.PureComponent {
      *  MOBILE SHORTCUT - list of buttons
      */
     renderMobileShortcuts = () => {
-        const buttonlink = dataChecking(this.props.homePage, 'store', 'success') && this.props.homePage.store.data.button_link;
+        const buttonlink = dataChecking(this.props.homePage, 'store', 'success') && dataChecking(this, 'props', 'homePage', 'store', 'data', 'button_link');
         let buttonLinks;
         if (this.props.homePage.store.success && buttonlink && buttonlink.items) {
             const buttonIndex = Object.keys(buttonlink.items);
@@ -262,9 +262,9 @@ export class HomePage extends React.PureComponent {
      * THIS WEEK ON HERMO - cards of featured banner
      */
     renderTwoh = () => {
-        const twoh = dataChecking(this.props.homePage, 'twoh', 'success') && this.props.homePage.twoh;
+        const twoh = dataChecking(this.props.homePage, 'twoh', 'success') && dataChecking(this.props, 'homePage', 'twoh');
         let twohBanner;
-        if (twoh && twoh.data) {
+        if (twoh && dataChecking(twoh, 'data')) {
             const section = Object.keys(dataChecking(twoh, 'data', 'result'));
             twohBanner = section.map((container) => (
                 <Grid key={container} item={true} xs={6}>
@@ -332,9 +332,9 @@ export class HomePage extends React.PureComponent {
      * #need update on product cards
      */
     renderNewArrivals = () => {
-        const newArrival = dataChecking(this.props.homePage, 'newArrival', 'success') && this.props.homePage.newArrival;
+        const newArrival = dataChecking(this.props.homePage, 'newArrival', 'success') && dataChecking(this.props, 'homePage', 'newArrival');
         let latestTrends;
-        if (newArrival && newArrival.data) {
+        if (newArrival && dataChecking(newArrival, 'data')) {
             latestTrends = newArrival.data.latest_trends.items.map((product) => (
                 <ProductCard
                     key={product.id}
@@ -444,7 +444,7 @@ export class HomePage extends React.PureComponent {
      * FEATURED - sponsored products
      */
     renderFeaturedBrand = () => {
-        const sponsored = dataChecking(this.props.homePage, 'sponsored', 'success') && this.props.homePage.sponsored;
+        const sponsored = dataChecking(this.props.homePage, 'sponsored', 'success') && dataChecking(this.props, 'homePage', 'sponsored');
         let sponsoredBrands;
         let sponsoredContainer;
         if (sponsored.success && dataChecking(sponsored, 'data', 'result', 'items')) {
@@ -544,7 +544,7 @@ export class HomePage extends React.PureComponent {
      * REVIEW - slider of review cards
      */
     renderReview = () => {
-        const review = dataChecking(this.props.homePage, 'review', 'success') && this.props.homePage.review;
+        const review = dataChecking(this.props.homePage, 'review', 'success') && dataChecking(this.props, 'homePage', 'review');
         let reviewCards;
         if (review.success && dataChecking(review, 'data', 'result', 'items')) {
             const items = dataChecking(review, 'data', 'result', 'items');
@@ -614,7 +614,7 @@ export class HomePage extends React.PureComponent {
      * HOME FOOTER - footer about us and partners
      */
     renderHomeFooter = () => {
-        const partnerFooter = dataChecking(this.props.homePage, 'partnerFooter', 'success') && this.props.homePage.partnerFooter;
+        const partnerFooter = dataChecking(this.props.homePage, 'partnerFooter', 'success') && dataChecking(this.props, 'homePage', 'partnerFooter');
         let partnerLogos;
         if (partnerFooter.success && dataChecking(partnerFooter, 'data', 'items')) {
             const partnerObject = Object.keys(dataChecking(partnerFooter, 'data', 'items'));

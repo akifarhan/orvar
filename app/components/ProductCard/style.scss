@@ -2,10 +2,13 @@
 @import 'app/legacy-styling.scss';
 
 .product-container {
+    position: relative;
     &.no-box-shadow {
         box-shadow: none;
     }
-
+    .product-content {
+        padding-bottom: 3rem;
+    }
     .product-img {
         position: relative;
         width: 10rem;
@@ -76,5 +79,9 @@
                 line-height: 7vw;
             }
         }
+    }
+    .action-button {
+        position: absolute;
+        bottom: 0;
     }
 }

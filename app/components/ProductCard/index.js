@@ -158,9 +158,12 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
     }
 
     render() {
+        const product = dataChecking(this.props, 'product');
+        const inStock = dataChecking(product, 'instock');
+        const notifyMe = dataChecking(product, 'attribute', 'is_notifiable') && !dataChecking(product, '_user', 'notified');
         return (
             <Card className={`product-container ${this.props.disableElevation ? 'no-box-shadow' : ''}`}>
-                <CardContent>
+                <CardContent className="product-content">
                     {
                         this.props.allowDelete &&
                         <CardHeader
@@ -186,14 +189,20 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
                     this.props.addToCart &&
                     <Button
                         variant="contained"
-                        color={dataChecking(this.props.product, 'instock') ? 'secondary' : 'primary'}
+                        color={inStock ? 'secondary' : 'primary'}
+                        disabled={!notifyMe}
                         fullWidth={true}
-                        className="add-to-cart-button"
-                        onClick={dataChecking(this.props.product, 'instock') ? () => this.props.addToCart() : () => this.props.notifyMe()}
+                        className={`action-button adasdas ${inStock ? 'add-to-cart' : 'notify'}`}
+                        onClick={inStock ? () => this.props.addToCart() : () => this.props.notifyMe()}
                     >
-                        {dataChecking(this.props.product, 'instock') ? <AddShoppingCart /> : <NotificationImportant />}
+                        {inStock ? <AddShoppingCart /> : <NotificationImportant />}
                         <Typography variant="overline" className="pl-1">
-                            {dataChecking(this.props.product, 'instock') ? 'Add to cart' : 'Notify Me'}
+                            {
+                                inStock ?
+                                    'Add to cart'
+                                    :
+                                    'Notify Me'
+                            }
                         </Typography>
                     </Button>
                 }

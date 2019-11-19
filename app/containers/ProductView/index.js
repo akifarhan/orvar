@@ -12,6 +12,7 @@ import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
+import { Container } from '@material-ui/core';
 
 import Slider from 'components/Slider';
 import Accordion from 'components/Accordion';
@@ -167,7 +168,7 @@ export class ProductView extends React.PureComponent { // eslint-disable-line re
         }
 
         return (
-            <div className="container">
+            <Container>
                 { this.buildMeta(product.meta) }
                 { this.buildProduct(product) }
 
@@ -232,7 +233,7 @@ export class ProductView extends React.PureComponent { // eslint-disable-line re
                         contents={this.buildCustomerBought()}
                     />
                 </div>
-            </div>
+            </Container>
         );
     }
 }

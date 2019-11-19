@@ -19,6 +19,7 @@ import withWidth from '@material-ui/core/withWidth';
 
 import CircularProgress from '@material-ui/core/CircularProgress';
 import AppBar from '@material-ui/core/AppBar';
+import Container from '@material-ui/core/Container';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
@@ -503,7 +504,7 @@ export class ProfileOrder extends React.PureComponent { // eslint-disable-line r
     render() {
         return (
             <div>
-                <div className="container">
+                <Container>
                     {this.renderTopBar()}
                     <Async promise={this.state.getList}>
                         <Async.Loading><CircularProgress className={this.props.classes.progress} /></Async.Loading>
@@ -519,7 +520,7 @@ export class ProfileOrder extends React.PureComponent { // eslint-disable-line r
                             { console.error }
                         </Async.Rejected>
                     </Async>
-                </div>
+                </Container>
             </div>
         );
     }

@@ -43,7 +43,7 @@ export class LogoutForm extends React.PureComponent { // eslint-disable-line rea
                                     onClick={() => {
                                         removeCookie(process.env.TOKEN_KEY);
                                         removeCookie(process.env.ADMIN_KEY);
-                                        window.location.href = globalScope.previousPage || '/';
+                                        window.location.href = '/';
                                     }}
                                     className="confirm hershop-button"
                                 >

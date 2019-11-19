@@ -22,6 +22,7 @@ import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
+import Container from '@material-ui/core/Container';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -558,7 +559,7 @@ export class ProfileEditInform extends React.PureComponent { // eslint-disable-l
         // const choice = this.props.profileEditInform.data.InformChoiceData;
         return (
             <div>
-                <div className="container" style={{ paddingTop: '0px' }}>
+                <Container>
                     {this.renderTopBar()}
                     {
                         this.state.page1 ?
@@ -581,7 +582,7 @@ export class ProfileEditInform extends React.PureComponent { // eslint-disable-l
                     {/* {this.renderShippingInform()} */}
                     {this.state.editaddress ? this.renderEditShippingForm() : null}
                     {this.state.createAddress ? this.createShippingInform() : null}
-                </div>
+                </Container>
             </div>
         );
     }
