@@ -34,9 +34,6 @@ import {
 
 import Lottie from 'react-lottie';
 
-// import * as animationData from './jetshow.json';
-// import * as animationData from './2104-surprise.json';
-
 import makeSelectVideoShowGame from './selectors';
 import makeSelectGamesPage from '../GamesPage/selectors';
 import reducer from './reducer';
@@ -243,7 +240,6 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                                 options={{
                                     loop: false,
                                     autoplay: true,
-                                    // animationData: this.state.lottieJson.data,
                                     animationData: this.state.lottieJson,
                                     rendererSettings: {
                                         preserveAspectRatio: 'xMidYMid slice',

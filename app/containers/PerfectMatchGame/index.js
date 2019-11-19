@@ -7,7 +7,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-// import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
@@ -181,6 +180,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
         });
         return newArr;
 
+        /* another shuffle algorithm: */
         // let index = null;
         // let temp = null;
         // const newArr = [...array];
@@ -365,7 +365,6 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                     width="100%"
                                     height="100%"
                                     src={this.props.gameConfig.card_cover}
-                                    // src={brandImage}
                                     alt="game card"
                                     className={`
                                         game-card-image
