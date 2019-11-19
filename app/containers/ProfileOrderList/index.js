@@ -27,6 +27,7 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 
 import {
     Button,
+    Box,
     Card,
     CircularProgress,
     Container,
@@ -268,32 +269,36 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                         </Grid>
                         <Grid item={true} lg={12} md={12} xs={12}>
                             <Grid container={true} justify="center" spacing={2}>
-                                <Grid item={true}>
-                                    <Button
-                                        variant="outlined"
-                                        onClick={() => {
-                                            this.setState({ popup: false });
-                                        }}
-                                        style={{ width: 170 }}
-                                    >
-                                        CANCEL
-                                    </Button>
-                                </Grid>
-                                <Grid item={true}>
-                                    <Button
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={() => {
-                                            this.props.dispatch(actions.confirmOrder({
-                                                orderID: this.state.orderID,
-                                                successCallback: this.setState({ dialogType: 'confirmed_receive' }),
-                                            }));
-                                        }}
-                                        style={{ width: 170 }}
-                                    >
-                                        CONFIRM
-                                    </Button>
-                                </Grid>
+                                <Box clone={true} order={{ xs: 2, md: 1 }}>
+                                    <Grid item={true}>
+                                        <Button
+                                            variant="outlined"
+                                            onClick={() => {
+                                                this.setState({ popup: false });
+                                            }}
+                                            style={{ width: 170 }}
+                                        >
+                                            CANCEL
+                                        </Button>
+                                    </Grid>
+                                </Box>
+                                <Box clone={true} order={{ xs: 1, md: 2 }}>
+                                    <Grid item={true}>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => {
+                                                this.props.dispatch(actions.confirmOrder({
+                                                    orderID: this.state.orderID,
+                                                    successCallback: this.setState({ dialogType: 'confirmed_receive' }),
+                                                }));
+                                            }}
+                                            style={{ width: 170 }}
+                                        >
+                                            CONFIRM
+                                        </Button>
+                                    </Grid>
+                                </Box>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -450,64 +455,65 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
         return <Typography style={{ color: this.renderStatusColor(order.status) }}>{order.status}</Typography>;
     }
 
-    renderTableBody = () => {
-        if (!this.props.profileOrderList.orderList) {
-            return <div style={{ textAlign: 'center' }}><CircularProgress /></div>;
-        }
-
-        return (
-            <TableBody>
-                {
-                    dataChecking(this.props.profileOrderList, 'orderList') &&
-                    this.props.profileOrderList.orderList.map((order, index) => (
-                        <TableRow key={index}>
-                            <TableCell component="th" scope="row">
-                                <NavLink to={`order/${order.id}`} style={{ textDecoration: 'none' }}>
-                                    <Typography color="secondary">
-                                        {order.number}
-                                    </Typography>
-                                    <IconButton size="small">
-                                        <KeyboardArrowRight color="secondary" />
-                                    </IconButton>
-                                </NavLink>
-                            </TableCell>
-                            <Hidden xsDown={true}>
-                                <TableCell>
-                                    <IconButton
-                                        size="small"
-                                        color="primary"
-                                        style={{ marginRight: 5 }}
-                                        onClick={(event) => {
-                                            this.setState({
-                                                anchorEl: event.currentTarget,
-                                                orderDate: order.created_at,
-                                            });
-                                        }}
-                                    >
-                                        <QueryBuilder />
-                                    </IconButton>
-                                    <Typography>{moment(order.created_at).fromNow()}</Typography>
-                                </TableCell>
-                                <TableCell>
-                                    <Typography>{order.courier}</Typography>
-                                </TableCell>
-                            </Hidden>
+    renderTableBody = () => (
+        <TableBody>
+            {
+                dataChecking(this.props.profileOrderList, 'orderList') &&
+                this.props.profileOrderList.orderList.map((order, index) => (
+                    <TableRow key={index}>
+                        <TableCell component="th" scope="row">
+                            <NavLink to={`order/${order.id}`} style={{ textDecoration: 'none' }}>
+                                <Typography color="secondary">
+                                    {order.number}
+                                </Typography>
+                                <IconButton size="small">
+                                    <KeyboardArrowRight color="secondary" />
+                                </IconButton>
+                            </NavLink>
+                        </TableCell>
+                        <Hidden xsDown={true}>
                             <TableCell>
-                                <Typography>{order.currency.symbol} {order.subtotal.toFixed(2)}</Typography>
+                                <IconButton
+                                    size="small"
+                                    color="primary"
+                                    style={{ marginRight: 5 }}
+                                    onClick={(event) => {
+                                        this.setState({
+                                            anchorEl: event.currentTarget,
+                                            orderDate: order.created_at,
+                                        });
+                                    }}
+                                >
+                                    <QueryBuilder />
+                                </IconButton>
+                                <Typography>{moment(order.created_at).fromNow()}</Typography>
                             </TableCell>
                             <TableCell>
-                                {this.renderStatus(order)}
+                                <Typography>{order.courier}</Typography>
                             </TableCell>
-                        </TableRow>
-                    ))
-                }
-            </TableBody>
-        );
-    }
+                        </Hidden>
+                        <TableCell>
+                            <Typography>{order.currency.symbol} {order.subtotal.toFixed(2)}</Typography>
+                        </TableCell>
+                        <TableCell>
+                            {this.renderStatus(order)}
+                        </TableCell>
+                    </TableRow>
+                ))
+            }
+        </TableBody>
+    )
 
     renderContents = () => {
         console.log(this.state.orderStatusConfigs);
         console.log('Tab', this.state.currentConfig);
+        if (!this.props.profileOrderList.orderList) {
+            return (
+                <div>
+                    <CircularProgress className="profile-order-loading-content" style={{ 'display': 'block', 'margin': 'auto', 'padding': '4rem' }} />
+                </div>
+            );
+        }
         return (
             <Container>
                 <Card style={{ overflowX: 'auto' }} className="order-tab">
@@ -557,7 +563,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                     }}
                     renderTabID={(tabValue) => this.setState({ tabValue })}
                 />
-                {this.renderContents()}
+                {dataChecking(this.props, 'profileOrderList') && this.renderContents()}
                 <Popover
                     open={Boolean(this.state.anchorEl)}
                     anchorEl={this.state.anchorEl}
