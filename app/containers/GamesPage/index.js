@@ -458,7 +458,9 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                     {
                         this.state.loading ?
                             <div className="token-loading">
-                                <img className="token-loading-gif" src={require('images/preloader-02.gif')} alt="loading" />
+                                <div>
+                                    <img className="token-loading-gif" src={require('images/preloader-02.gif')} alt="loading" />
+                                </div>
                             </div>
                             :
                             null

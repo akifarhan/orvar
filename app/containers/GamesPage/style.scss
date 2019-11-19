@@ -18,14 +18,11 @@
     bottom: 0;
     z-index: 1000;
     background-color:#FFF5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    .token-loading-gif {
-        position: absolute;
-        margin: auto;
-        top: 45%;
-        left: 45%;
-        width: 2.5em;
-    }
+    .token-loading-gif { width: 2.5em; }
 }
 
 .games-page {

@@ -148,7 +148,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                             const str = JSON.stringify(link);
                             window.ReactNativeWebView.postMessage(str);
                         } else if (dataChecking(this.props.gameResultImagelink, 'result', '_weblink')) {
-                            window.parent.postMessage(JSON.stringify(this.props.gameResultImagelink.result._weblink), 'http://hershop.hermo.my');
+                            window.parent.postMessage(JSON.stringify(this.props.gameResultImagelink.result._weblink), 'https://www.hermo.my');
                         }
                     }}
                 >
