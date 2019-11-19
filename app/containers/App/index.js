@@ -54,6 +54,7 @@ export default function App() {
             <Notify></Notify>
             <Header />
             <div
+                className="pb-3"
                 id="hershop-content-container"
             >
                 <Switch>
