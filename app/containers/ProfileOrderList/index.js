@@ -386,7 +386,6 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
             case 'cod delivery failed':
             case 'cod returned':
                 return '#F50000';
-            case 'multiple':
             case 'canceled':
             case 'expired':
             case 'shipment delayed':
@@ -453,8 +452,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                 return null;
             });
         }
-
-        return <Typography style={{ color: this.renderStatusColor(order.status) }}>{order.status}</Typography>;
+        return <Typography style={{ color: this.renderStatusColor(order.status) }} component="div"><Box fontWeight="fontWeightBold">{order.status}</Box></Typography>;
     }
 
     renderTableBody = () => (
@@ -495,9 +493,9 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                             </TableCell>
                         </Hidden>
                         <TableCell>
-                            <Typography>{order.currency.symbol} {order.subtotal.toFixed(2)}</Typography>
+                            <Typography component="div"><Box fontWeight="fontWeightBold">{order.currency.symbol}{order.subtotal.toFixed(2)}</Box></Typography>
                         </TableCell>
-                        <TableCell>
+                        <TableCell align="center">
                             {this.renderStatus(order)}
                         </TableCell>
                     </TableRow>
@@ -510,27 +508,29 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
         if (!this.props.profileOrderList.orderList) {
             return (
                 <div>
-                    <CircularProgress className="profile-order-loading-content" style={{ 'display': 'block', 'margin': 'auto', 'padding': '4rem' }} />
+                    <CircularProgress className="profile-order-loading-content" style={{ display: 'block', margin: 'auto', padding: '4rem' }} />
                 </div>
             );
         }
         return (
             <Container className="profile-order-list-content py-2">
-                <Card style={{ overflowX: 'auto' }} className="order-tab">
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell><Typography>Order</Typography></TableCell>
-                                <Hidden xsDown={true}>
-                                    <TableCell><Typography>Date Created</Typography></TableCell>
-                                    <TableCell><Typography>Courier</Typography></TableCell>
-                                </Hidden>
-                                <TableCell><Typography>Amount</Typography></TableCell>
-                                <TableCell><Typography>Status</Typography></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        {this.renderTableBody()}
-                    </Table>
+                <Card className="order-tab">
+                    <div style={{ overflowX: 'auto' }}>
+                        <Table>
+                            <TableHead className="profile-order-list-table-head">
+                                <TableRow>
+                                    <TableCell className="px-2" style={{ minWidth: '11.4rem' }}><Typography>Order</Typography></TableCell>
+                                    <Hidden xsDown={true}>
+                                        <TableCell className="px-2"><Typography>Date Created</Typography></TableCell>
+                                        <TableCell className="px-2"><Typography>Courier</Typography></TableCell>
+                                    </Hidden>
+                                    <TableCell className="px-2"><Typography>Amount</Typography></TableCell>
+                                    <TableCell align="center" style={{ minWidth: '8rem' }}><Typography>Status</Typography></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            {this.renderTableBody()}
+                        </Table>
+                    </div>
                     <TablePagination
                         component="div"
                         rowsPerPageOptions={[10, 25, 40]}
