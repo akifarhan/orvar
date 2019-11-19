@@ -178,7 +178,7 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
         return null;
     }
 
-    renderTrackingButton = (merchant) => (
+    renderTrackingButton = (merchant, mdUp) => (
         <Button
             variant="outlined"
             color="primary"
@@ -186,7 +186,7 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
             onClick={() => {
                 window.TrackButton.track({ tracking_no: merchant.summary.shipping.tracking_number });
             }}
-            style={{ float: 'right' }}
+            style={mdUp ? { float: 'right' } : null}
         >
             {
                 merchant.summary.shipping.tracking_number !== null ?
@@ -217,12 +217,14 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
                     }}
                 />
             </div>
-            <Typography color="textSecondary" variant="body2">{merchant.logo.brief} ({merchant.shipping.estimate_arrival})</Typography>
             <Hidden lgUp={true}>
                 <div className="pt-1">
                     {this.renderTrackingButton(merchant)}
                 </div>
             </Hidden>
+            <div className="pt-1">
+                <Typography color="textSecondary" variant="body2">{merchant.logo.brief} ({merchant.shipping.estimate_arrival})</Typography>
+            </div>
         </div>
     )
 
@@ -346,7 +348,9 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
                                                 <Grid item={true} lg={3} md={12} xs={12}>
                                                     <div className="order-detail-container">
                                                         <div className="order-detail-info track">
-                                                            {this.renderTrackingButton(merchant)}
+                                                            <Hidden mdDown={true}>
+                                                                {this.renderTrackingButton(merchant, true)}
+                                                            </Hidden>
                                                         </div>
                                                         <div className="order-detail-info courier">
                                                             {
@@ -365,29 +369,6 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
                                                             }
                                                         </div>
                                                     </div>
-                                                    {/* <Grid container={true}>
-                                                        <Hidden mdDown={true}>
-                                                            <Grid item={true} lg={12} md={12} xs={12} className="mt-2">
-                                                                {this.renderTrackingButton(merchant)}
-                                                            </Grid>
-                                                        </Hidden>
-                                                        <Grid item={true} lg={12} md={12} xs={12} className="mt-3">
-                                                            {
-                                                                this.renderOrderInfo([
-                                                                    { label: 'Courier', dataPath: merchant.summary.shipping.name },
-                                                                    { label: 'Tracking Number', dataPath: merchant.summary.shipping.tracking_number !== null ? merchant.summary.shipping.tracking_number : 'Not Available' },
-                                                                ])
-                                                            }
-                                                        </Grid>
-                                                        <Grid item={true} lg={12} md={12} xs={12} className="mt-2">
-                                                            {
-                                                                this.renderOrderInfo([
-                                                                    { label: 'Subtotal', dataPath: <span style={{ color: '#660033', fontWeight: 'bold' }}>{order.currency.symbol}{merchant.summary.subtotal.toFixed(2)}</span> },
-                                                                    { label: 'Shipping Fee', dataPath: `${order.currency.symbol}${merchant.summary.shipping.value.toFixed(2)}` },
-                                                                ])
-                                                            }
-                                                        </Grid>
-                                                    </Grid> */}
                                                 </Grid>
                                             </Grid>
                                         </div>
