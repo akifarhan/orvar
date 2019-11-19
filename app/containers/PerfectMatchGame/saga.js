@@ -8,6 +8,6 @@ export function* defaultWorker(action) {
 }
 
 // Individual exports for testing
-export default function* exampleSaga() {
+export default function* perfectMatchGameSaga() {
     yield takeLatest(DEFAULT_ACTION, defaultWorker);
 }

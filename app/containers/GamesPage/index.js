@@ -29,8 +29,6 @@ import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
 
-// import mockData from './mockDataReturnFromAPI';
-
 export class GamesPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     constructor(props) {
         super(props);
@@ -240,7 +238,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
 
                     default:
                         return (
-                            <div>Invalid Game<span>{this.state.gameInfo.data.type}</span></div>
+                            <div>Invalid Game <span>{this.state.gameInfo.data.type}</span></div>
                         );
                 }
             }
@@ -379,7 +377,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 >
                                     <img
                                         draggable="false"
-                                        // src={require('./rsc/D11-Button-image_Play_529x130.png')}
                                         src={gameData.config.menu.start_button}
                                         alt="Play"
                                         className="main-menu-button-item"
@@ -391,7 +388,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 >
                                     <img
                                         draggable="false"
-                                        // src={require('./rsc/D11-Button-image_Prize_529x130.png')}
                                         src={gameData.config.menu.prizes_button}
                                         alt="Prizes"
                                         className="main-menu-button-item"
@@ -403,7 +399,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 >
                                     <img
                                         draggable="false"
-                                        // src={require('./rsc/D11-Button-image_How-to-play_529x130.png')}
                                         src={gameData.config.menu.how_to_play_button}
                                         alt="How to Play"
                                         className="main-menu-button-item"
