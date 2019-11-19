@@ -66,6 +66,8 @@ registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, F
 export class ProfileOrderList extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     state = {
         currentConfig: { title: 'All Orders', urlParam: '' },
+
+        value: 0,
         orderStatusConfigs: [
             { title: 'All Orders', urlParam: '' },
             { title: 'To Pay', urlParam: '/to-paid' },
@@ -505,8 +507,6 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
     )
 
     renderContents = () => {
-        console.log(this.state.orderStatusConfigs);
-        console.log('Tab', this.state.currentConfig);
         if (!this.props.profileOrderList.orderList) {
             return (
                 <div>
@@ -515,7 +515,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
             );
         }
         return (
-            <Container>
+            <Container className="profile-order-list-content py-2">
                 <Card style={{ overflowX: 'auto' }} className="order-tab">
                     <Table>
                         <TableHead>
@@ -555,7 +555,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
         return (
             <div>
                 <NavTab
-                    className="profile-order-list"
+                    className="profile-order-list-navtab"
                     data={this.state.orderStatusConfigs}
                     onTabClick={(config) => {
                         this.fetchOrderDataByTab(config);

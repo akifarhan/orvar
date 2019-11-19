@@ -5,7 +5,14 @@
 */
 
 import React from 'react';
-import { AppBar, Tabs, Tab, Grid, Container } from '@material-ui/core';
+import {
+    AppBar,
+    Container,
+    Hidden,
+    IconButton,
+    Tab,
+    Tabs,
+} from '@material-ui/core';
 import { KeyboardArrowLeft } from '@material-ui/icons';
 import { NavLink } from 'react-router-dom';
 
@@ -33,33 +40,34 @@ class NavigationTab extends React.PureComponent { // eslint-disable-line react/p
             <div>
                 <AppBar position="static" color="default">
                     <Container>
-                        <Grid container={true}>
-                            <Grid item={true}>
-                                <NavLink to="/profile">
-                                    <div className="pt-1">
-                                        <KeyboardArrowLeft />
-                                    </div>
-                                </NavLink>
-                            </Grid>
-                            <Grid item={true}>
-                                <Tabs value={this.state.value} onChange={(event, value) => this.renderTabID(event, value)}>
-                                    {
-                                        this.props.data.map((data) => (
-                                            <Tab
-                                                className="text-capitalize"
-                                                key={data.title}
-                                                label={data.title}
-                                                onClick={() => {
-                                                    if (this.props.onTabClick) {
-                                                        this.props.onTabClick(data);
-                                                    }
-                                                }}
-                                            />
-                                        ))
-                                    }
-                                </Tabs>
-                            </Grid>
-                        </Grid>
+                        <Hidden xsDown={true}>
+                            <NavLink to="/profile" style={{ 'float': 'left' }}>
+                                <IconButton className="pt-1">
+                                    <KeyboardArrowLeft />
+                                </IconButton>
+                            </NavLink>
+                        </Hidden>
+                        <Tabs
+                            value={this.state.value}
+                            onChange={(event, value) => this.renderTabID(event, value)}
+                            variant="scrollable"
+                            scrollButtons="on"
+                        >
+                            {
+                                this.props.data.map((data) => (
+                                    <Tab
+                                        className="text-capitalize"
+                                        key={data.title}
+                                        label={data.title}
+                                        onClick={() => {
+                                            if (this.props.onTabClick) {
+                                                this.props.onTabClick(data);
+                                            }
+                                        }}
+                                    />
+                                ))
+                            }
+                        </Tabs>
                     </Container>
                 </AppBar>
             </div>
