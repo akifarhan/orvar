@@ -442,7 +442,7 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
 
     render() {
         return (
-            <Container className="profile-order-details py-1">
+            <Container className="profile-order-details pt-1 pb-3">
                 {
                     this.props.profileOrderDetail.loading ?
                         <div style={{ textAlign: 'center' }}><CircularProgress /></div>

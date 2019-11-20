@@ -553,7 +553,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
 
     render() {
         return (
-            <div>
+            <div className="pb-3">
                 <NavTab
                     className="profile-order-list-navtab"
                     data={this.state.orderStatusConfigs}
