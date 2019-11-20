@@ -1,6 +1,8 @@
 # Developing
 - Fork this repo
 - Clone it with `git clone git@github.com:<your_github_username>/orvar`
+- Duplicate `env-example` file and fill in with your local enviroment value
+- npm i && npm start
 - Start developing
 ## Linux 
 ```
