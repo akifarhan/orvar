@@ -107,6 +107,19 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
         }
     }
 
+    onCloseDialog = () => {
+        switch (this.state.dialogType) {
+            case 'confirmed_review':
+            case 'confirmed_receive':
+                this.fetchOrderDataByTab(this.state.currentConfig);
+                this.setState({ popup: false, activeStep: 0, files: [], comment: '' });
+                break;
+            default:
+                this.setState({ popup: false, activeStep: 0, files: [], comment: '' });
+                break;
+        }
+        return null;
+    }
     isNextButtonDisabled = () => {
         const allowedFileTypes = ['image/png', 'image/jpeg', 'image/jpg'];
         switch (this.state.activeStep) {
@@ -315,12 +328,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                             <Typography variant="h6" display="block" gutterBottom={true}>Thank you for confirming the receipt of order.</Typography>
                             <Typography display="block" gutterBottom={true}>Snap a photo and beauty experiences on our wall.</Typography>
                             <Typography display="block" gutterBottom={true}><span style={{ fontStyle: 'bold' }}>50</span> credits will be rewarded for an approved review.</Typography>
-                            <Link
-                                onClick={() => {
-                                    this.setState({ popup: false });
-                                    this.fetchOrderDataByTab(this.state.currentConfig);
-                                }}
-                            >
+                            <Link onClick={() => this.onCloseDialog()}>
                                 <Typography color="secondary">Ok, I got it</Typography>
                             </Link>
                         </Grid>
@@ -351,12 +359,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                         <Grid item={true} lg={12} md={12} xs={12}>
                             <Typography fontWeight="fontWeightBold" display="block" gutterBottom={true}>Thank you very much for your Beauty review,</Typography>
                             <Typography fontWeight="fontWeightBold" display="block" gutterBottom={true}>and it is currently under review.</Typography>
-                            <Link
-                                onClick={() => {
-                                    this.setState({ popup: false });
-                                    this.fetchOrderDataByTab(this.state.currentConfig);
-                                }}
-                            >
+                            <Link onClick={() => this.onCloseDialog()}>
                                 <Typography color="secondary">Awesome, I&apos;m done here!</Typography>
                             </Link>
                         </Grid>
@@ -583,9 +586,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                 </Popover>
                 <PopupDialog
                     display={this.state.popup}
-                    onClose={() => {
-                        this.setState({ popup: false, activeStep: 0, files: [], comment: '' });
-                    }}
+                    onClose={() => this.onCloseDialog()}
                 >
                     {this.renderDialogContent()}
                 </PopupDialog>
