@@ -386,7 +386,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
             case 'cod delivery failed':
             case 'cod returned':
                 return '#F50000';
-            case 'canceled':
+            case 'cancelled':
             case 'expired':
             case 'shipment delayed':
             case 'deleted':
