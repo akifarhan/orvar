@@ -483,7 +483,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             //     }
                             // }
                         }}
-                    >1.0.1</div>
+                    >1.1.0</div>
                     <img
                         draggable="false"
                         onLoad={this.onBgImageLoaded}
