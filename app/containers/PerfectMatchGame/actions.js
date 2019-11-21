@@ -5,26 +5,11 @@
  */
 
 import {
-    GET_GAME_TOKEN,
-    GET_GAME_TOKEN_SUCCESS,
-    GET_GAME_TOKEN_FAILED,
+    DEFAULT_ACTION,
 } from './constants';
 
-
-export function getGameToken() {
+export function defaultAction() {
     return {
-        type: GET_GAME_TOKEN,
-    };
-}
-export function getGameTokenSuccess(gameTokenData) {
-    return {
-        type: GET_GAME_TOKEN_SUCCESS,
-        gameTokenData,
-    };
-}
-export function getGameTokenFailed(gameTokenData) {
-    return {
-        type: GET_GAME_TOKEN_FAILED,
-        gameTokenData,
+        type: DEFAULT_ACTION,
     };
 }

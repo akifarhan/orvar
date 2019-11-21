@@ -5,9 +5,8 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-// import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
@@ -31,9 +30,6 @@ import {
 import {
     Close,
 } from '@material-ui/icons';
-import {
-    getGameToken,
-} from './actions';
 import makeSelectPerfectMatchGame from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -55,14 +51,12 @@ const initialState = {
     shareModal: false,
     tips: '',
     countingDown: null,
-    preparationDone: false,
     correct: 0,
     correctMatch: {},
     wrongMatch: {},
     onHand1: null,
     onHand2: null,
     complete: null,
-    gameAccessToken: null,
     brandArr: [],
     gameResultImage: null,
 };
@@ -84,24 +78,24 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
             clickSound: new Audio(this.props.gameConfig.flip_sound),
         };
         this.state.gameMusic.loop = true;
-        this.props.dispatch(getGameToken());
 
         let counter = 0;
         while (counter < CARD_PAIR) {
             this.state[`flipped_${counter}`] = false;
             counter++;
         }
+        this.initialiseGame();
     }
 
     componentWillReceiveProps = (nextProps) => {
-        if (dataChecking(nextProps, 'perfectMatchGame', 'gameToken', 'success') !== dataChecking(this.props, 'perfectMatchGame', 'gameToken', 'success') && nextProps.perfectMatchGame.gameToken.success) {
-            this.setState({ gameAccessToken: nextProps.perfectMatchGame.gameToken.data.token });
+        if (nextProps.gameAccessToken && (dataChecking(nextProps, 'gameAccessToken') !== dataChecking(this.props, 'gameAccessToken'))) {
+            this.setState({
+                ...initialState,
+                brandArr: this.shuffleArray(this.getRandomBrands()),
+            });
             this.initialiseGame();
         }
-        if (dataChecking(nextProps, 'perfectMatchGame', 'gameToken', 'error') !== dataChecking(this.props, 'perfectMatchGame', 'gameToken', 'error') && nextProps.perfectMatchGame.gameToken.error) {
-            alert(nextProps.perfectMatchGame.gameToken.data.messages[0].text);
-            this.props.onBackToMenu();
-        }
+
         if (dataChecking(nextProps, 'gameResultImagelink') !== dataChecking(this.props, 'gameResultImagelink') && dataChecking(nextProps, 'gameResultImagelink', 'result', 'image', 'mobile')) {
             this.setState({ gameResultImage: nextProps.gameResultImagelink.result.image.mobile });
         }
@@ -180,6 +174,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
         });
         return newArr;
 
+        /* another shuffle algorithm: */
         // let index = null;
         // let temp = null;
         // const newArr = [...array];
@@ -234,7 +229,9 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                     this.setState({
                                         complete: 'lose',
                                     });
-                                    this.props.onGameLose({ score: 0, token: this.state.gameAccessToken });
+                                    this.props.onGameLose({
+                                        score: 0,
+                                    });
                                 }
                                 return <span className="countdown-timer">{seconds}s</span>;
                             }}
@@ -340,7 +337,9 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                             complete: result || this.state.complete,
                                         }, () => {
                                             if (result === 'win') {
-                                                this.props.onGameWin({ score: 6, token: this.state.gameAccessToken });
+                                                this.props.onGameWin({
+                                                    score: CARD_PAIR,
+                                                });
                                             }
                                         });
                                     }, 2 * TIME_UNIT);
@@ -356,7 +355,6 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                     width="100%"
                                     height="100%"
                                     src={this.props.gameConfig.card_cover}
-                                    // src={brandImage}
                                     alt="game card"
                                     className={`
                                         game-card-image
@@ -456,11 +454,9 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                     <div
                         className="replay result-content"
                         onClick={() => {
-                            this.props.dispatch(getGameToken());
-                            this.setState({
-                                ...initialState,
-                                brandArr: this.shuffleArray(this.getRandomBrands()),
-                            });
+                            if (this.props.onReplay) {
+                                this.props.onReplay();
+                            }
                         }}
                     >
                         <img
@@ -475,7 +471,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
         </div>
     )
 
-    renderDialogContent = () => (
+    renderShareDialogContent = () => (
         <div>
             <div className="share-dialog-title">
                 Share to others!
@@ -536,17 +532,14 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                     className="game-background"
                 />
                 {
-                    dataChecking(this.props, 'perfectMatchGame', 'gameToken', 'loading') ?
-                        <div>Loading...</div>
+                    this.state.complete ?
+                        <div className="result-screen animated fadeIn">
+                            {this.renderResult()}
+                        </div>
                         :
-                        this.state.complete ?
-                            <div className="result-screen">
-                                {this.renderResult()}
-                            </div>
-                            :
-                            <div className="game-screen animated fadeIn">
-                                {this.renderGame()}
-                            </div>
+                        <div className="game-screen animated fadeIn">
+                            {this.renderGame()}
+                        </div>
                 }
                 {
                     this.state.shareModal ?
@@ -555,7 +548,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                 <IconButton className="close modal-inner-button" onClick={() => this.setState({ shareModal: false })}>
                                     <Close />
                                 </IconButton>
-                                {this.renderDialogContent()}
+                                {this.renderShareDialogContent()}
                             </div>
                         </div>
                         :
@@ -567,7 +560,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
 }
 
 PerfectMatchGame.propTypes = {
-    dispatch: PropTypes.func.isRequired,
+    // dispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
