@@ -23,6 +23,7 @@ import {
     getGameInfo,
     getResult,
     getMemberInfo,
+    getGameToken,
 } from './actions';
 import makeSelectGamesPage from './selectors';
 import reducer from './reducer';
@@ -79,8 +80,50 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
     }
 
     componentWillReceiveProps = (nextProps) => {
+        let token_balance = null;
+
         if (dataChecking(nextProps, 'gamesPage', 'result') !== dataChecking(this.props, 'gamesPage', 'result') && nextProps.gamesPage.result.success) {
             this.setState({ gameResultImagelink: nextProps.gamesPage.result.data });
+        }
+
+        if (dig(nextProps, 'gamesPage.gameToken.data') && (dig(nextProps, 'gamesPage.gameToken.data') !== dig(this.props, 'gamesPage.gameToken.data'))) {
+            if (nextProps.gamesPage.gameToken.success) {
+                const obj = {
+                    showModal: 'showPlay',
+                    gameResultImagelink: null,
+                    disableAction: this.state.gameInfo.data.config.game.disableActionOnPlay,
+                    gameAccessToken: dig(nextProps.gamesPage, 'gameToken.data.data.message.token'),
+                };
+
+                if (this.state.gameInfo.data.type === 'video-show') {
+                    this.props.dispatch(getResult({
+                        score: null,
+                        game_setup_id: this.state.gameId,
+                        token: obj.gameAccessToken,
+                    }));
+                }
+
+                const memberInfo = { ...this.state.memberInfo };
+                if (dig(memberInfo, 'data.token.amount')) {
+                    obj.deductToken = dig(this.state, 'gameInfo.data.token_charge');
+
+                    setTimeout(() => {
+                        this.setState({ deductTokenFadeOut: true });
+
+                        setTimeout(() => {
+                            token_balance = dig(nextProps, 'gamesPage.gameToken.data.data.message.token_balance');
+                            memberInfo.data.token.amount = token_balance || (dig(memberInfo, 'data.token.amount') - dig(this.state, 'gameInfo.data.token_charge'));
+                            this.setState({ deductTokenFadeOut: false, deductToken: null, memberInfo });
+                        }, 700);
+                    }, 1200);
+                }
+
+                this.setState(obj);
+            } else {
+                this.setState({
+                    popupMessage: nextProps.gamesPage.gameToken.data.errors.message,
+                });
+            }
         }
 
         if (dataChecking(nextProps, 'gamesPage', 'gameInfo') !== dataChecking(this.props, 'gamesPage', 'gameInfo') && nextProps.gamesPage.gameInfo.success) {
@@ -115,15 +158,8 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         });
     }
 
-    onGameComplete = (payload) => {
-        if (this.state.gameInfo.data.config.game.disableBackOnPlay && this.state.disableBack) {
-            this.setState({ disableBack: false });
-        }
-        this.props.dispatch(getResult(payload));
-    }
-
     onBackToMenu = () => {
-        if (this.state.disableBack) {
+        if (this.state.disableAction) {
             return null;
         }
 
@@ -137,12 +173,13 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
     }
 
     onPlay = () => {
-        const obj = {
-            showModal: 'showPlay',
-            gameResultImagelink: null,
-            disableBack: this.state.gameInfo.data.config.game.disableBackOnPlay,
-        };
-        this.setState(obj);
+        if ((dig(this.state.memberInfo, 'data.token.amount') >= dig(this.state.gameInfo, 'data.token_charge'))) {
+            this.props.dispatch(getGameToken({ id: this.state.gameId, token_charge: this.state.gameInfo.data.token_charge }));
+        } else {
+            this.setState({
+                popupMessage: 'Insufficient token amount.',
+            });
+        }
     }
 
     parsePocketFromWeb = (event) => {
@@ -212,9 +249,27 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 props={{ smth: true }}
                                 gameId={this.state.gameId}
                                 playMusic={this.state.playMusic}
-                                onGameStart={() => alert('gamestart')}
-                                onGameWin={(payload) => this.onGameComplete(payload)}
-                                onGameLose={(payload) => this.onGameComplete(payload)}
+                                gameAccessToken={this.state.gameAccessToken}
+                                onGameWin={(payload) => {
+                                    if (this.state.gameInfo.data.config.game.disableActionOnPlay && this.state.disableAction) {
+                                        this.setState({ disableAction: false });
+                                    }
+                                    this.props.dispatch(getResult({
+                                        ...payload,
+                                        game_setup_id: this.state.gameId,
+                                        token: this.state.gameAccessToken,
+                                    }));
+                                }}
+                                onGameLose={(payload) => {
+                                    if (this.state.gameInfo.data.config.game.disableActionOnPlay && this.state.disableAction) {
+                                        this.setState({ disableAction: false });
+                                    }
+                                    this.props.dispatch(getResult({
+                                        ...payload,
+                                        game_setup_id: this.state.gameId,
+                                        token: this.state.gameAccessToken,
+                                    }));
+                                }}
                                 onBackToMenu={this.onBackToMenu}
                                 gameResultImagelink={this.state.gameResultImagelink}
                                 gameConfig={this.state.gameInfo.data.config.game}
@@ -227,8 +282,12 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 props={{ smth: true }}
                                 gameId={this.state.gameId}
                                 playMusic={this.state.playMusic}
-                                onGameStart={() => alert('gamestart')}
-                                onGameComplete={(payload) => this.onGameComplete(payload)}
+                                gameAccessToken={this.state.gameAccessToken}
+                                onGameComplete={() => {
+                                    if (this.state.gameInfo.data.config.game.disableActionOnPlay && this.state.disableAction) {
+                                        this.setState({ disableAction: false, deductTokenFadeOut: false, deductToken: null });
+                                    }
+                                }}
                                 onBackToMenu={this.onBackToMenu}
                                 gameConfig={this.state.gameInfo.data.config.game}
                                 gameResultImagelink={this.state.gameResultImagelink}
@@ -302,7 +361,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         {
                             this.state.showModal ?
                                 <div
-                                    className={`toggle-back page-button-item ${this.state.disableBack ? 'disabled' : ''}`}
+                                    className={`toggle-back page-button-item ${this.state.disableAction ? 'disabled' : ''}`}
                                     onClick={() => this.onBackToMenu()}
                                 >
                                     <i
@@ -316,7 +375,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 null
                         }
                         {
-                             gameData.config.menu.background_music || gameData.config.game.background_music ?
+                            gameData.config.menu.background_music || gameData.config.game.background_music ?
                                 <div
                                     className="toggle-music page-button-item to-right"
                                     onClick={() => {
@@ -405,23 +464,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                     />
                                 </div>
                             </div>
-                            {
-                                gameData.token_charge ?
-                                    <div
-                                        className="main-menu-token-indicator"
-                                        style={{ color: gameData.config.game.text_color || 'black' }}
-                                    >
-                                        <span>Token available: </span>
-                                        {
-                                            this.state.memberInfo ?
-                                                <span>{dig(this.state.memberInfo, 'data.token.amount') || 0}</span>
-                                                :
-                                                <img className="available-token-loading" src={require('images/preloader-02.gif')} alt="" />
-                                        }
-                                    </div>
-                                    :
-                                    null
-                            }
                         </div>
                     </div>
                     <div
@@ -466,6 +508,61 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             >
                                 <div className="modal-inner-div">
                                     {this.renderModalContent(this.state.slideArray)}
+                                </div>
+                            </div>
+                            :
+                            null
+                    }
+                    {
+                        gameData.token_charge && (!this.state.showModal || this.state.showModal === 'showPlay') ?
+                            <div
+                                className="main-menu-token-indicator"
+                                style={{ color: gameData.config.game.text_color || 'black' }}
+                            >
+                                <span className={`${this.state.disableAction ? 'disabled' : ''}`}>
+                                    {'Token available: '}
+                                </span>
+                                {
+                                    this.state.memberInfo ?
+                                        <span
+                                            className="token-value-container"
+                                        >
+                                            <span className={`token-amount pl-1 ${this.state.disableAction ? 'disabled' : ''} animated ${this.state.deductTokenFadeOut ? 'bounceOut' : ''}`}>
+                                                {dig(this.state.memberInfo, 'data.token.amount') || 0}
+                                            </span>
+                                            {
+                                                this.state.deductToken ?
+                                                    <div
+                                                        className={`deducting-token animated animated ${this.state.deductTokenFadeOut ? 'bounceOutDown' : 'rubberBand'}`}
+                                                    >{` - ${gameData.token_charge}`}</div>
+                                                    :
+                                                    null
+                                            }
+                                        </span>
+                                        :
+                                        <img className="available-token-loading" src={require('images/preloader-02.gif')} alt="" />
+                                }
+                            </div>
+                            :
+                            null
+                    }
+                    {
+                        this.state.popupMessage ?
+                            <div
+                                className={`games-page-popupMessage animated ${this.state.isRendered ? 'fadeIn' : 'opacity-zero'}`}
+                            >
+                                <div className="modal-inner-div">
+                                    <div className="modal-dialog">
+                                        <div className="modal-content">
+                                            {this.state.popupMessage}
+                                        </div>
+                                        <div
+                                            className="modal-dialog-confirm hermo-pink"
+                                            onClick={() => {
+                                                this.setState({ popupMessage: null });
+                                            }}
+                                        >OK</div>
+                                    </div>
                                 </div>
                             </div>
                             :

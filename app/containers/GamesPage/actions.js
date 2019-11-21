@@ -71,10 +71,10 @@ export function getGameTokenSuccess(gameTokenData) {
         gameTokenData,
     };
 }
-export function getGameTokenFailed(gameTokenData) {
+export function getGameTokenFailed(payload) {
     return {
         type: GET_GAME_TOKEN_FAILED,
-        payload: gameTokenData,
+        payload,
     };
 }
 

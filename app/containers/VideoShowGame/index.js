@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
@@ -35,15 +35,11 @@ import {
 import Lottie from 'react-lottie';
 
 import makeSelectVideoShowGame from './selectors';
-import makeSelectGamesPage from '../GamesPage/selectors';
 import reducer from './reducer';
 import saga from './saga';
 import {
     getLottieJson,
 } from './actions';
-import {
-    getGameToken,
-} from '../GamesPage/actions';
 import './style.scss';
 
 const shareUrl = 'https://app.hermo.my/PIyrPGmaI1';
@@ -54,7 +50,6 @@ const shareVia = '';
 const initialState = {
     shareModal: false,
     complete: null,
-    gameAccessToken: null,
     gameResultImage: null,
 };
 
@@ -66,14 +61,14 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
             lottieJson: initialState.lottieJson || null,
             gameMusic: this.props.gameConfig.background_music ? new Audio(this.props.gameConfig.background_music) : null,
         };
+
         if (this.state.gameMusic) {
             this.state.gameMusic.loop = true;
         }
 
-        this.props.dispatch(getGameToken({ id: this.props.gameId }));
-
         document.ondragstart = () => null;
         Events.trigger('hideHeader', {});
+        this.initialiseGame();
 
         if (this.props.gameConfig.json) {
             this.props.dispatch(getLottieJson({ url: this.props.gameConfig.json }));
@@ -81,8 +76,10 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
     }
 
     componentWillReceiveProps = (nextProps) => {
-        if (dataChecking(nextProps, 'gamePage', 'gameToken', 'success') !== dataChecking(this.props, 'gamePage', 'gameToken', 'success') && nextProps.gamePage.gameToken.success) {
-            this.setState({ gameAccessToken: dataChecking(nextProps.gamePage, 'gameToken', 'data', 'data', 'message', 'token') });
+        if (nextProps.gameAccessToken && (dataChecking(nextProps, 'gameAccessToken') !== dataChecking(this.props, 'gameAccessToken'))) {
+            this.setState({
+                ...initialState,
+            });
             this.initialiseGame();
         }
 
@@ -119,12 +116,8 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
             setTimeout(() => {
                 if (!this.state.complete) {
                     this.setState({ complete: true });
-                    this.props.onGameComplete({
-                        score: null,
-                        game_setup_id: this.props.gameId,
-                        token: this.state.gameAccessToken,
-                    });
                 }
+                this.props.onGameComplete();
             }, this.props.gameConfig.duration);
         }
     }
@@ -203,13 +196,6 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                             if (this.props.onReplay) {
                                 this.props.onReplay();
                             }
-
-                            this.props.dispatch(getGameToken({ id: this.props.gameId }));
-                            setTimeout(() => {
-                                this.setState({
-                                    ...initialState,
-                                });
-                            }, 0);
                         }}
                     >
                         <img
@@ -257,12 +243,8 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                                         callback: () => {
                                             if (!this.state.complete) {
                                                 this.setState({ complete: true });
-                                                this.props.onGameComplete({
-                                                    score: null,
-                                                    game_setup_id: this.props.gameId,
-                                                    token: this.state.gameAccessToken,
-                                                });
                                             }
+                                            this.props.onGameComplete();
                                         },
                                     },
                                 ]}
@@ -327,12 +309,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
 
     render = () => (
         <div className="video-game-container" style={{ backgroundImage: `url(${this.props.gameConfig.background_image})` || '' }}>
-            {
-                dataChecking(this.props, 'gamePage', 'gameToken', 'loading') ?
-                    <img className="video-show-loading" src={require('images/preloader-02.gif')} alt="" />
-                    :
-                    this.renderGame()
-            }
+            {this.renderGame()}
             {this.renderResult()}
             {
                 this.state.shareModal ?
@@ -352,12 +329,11 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
 }
 
 VideoShowGame.propTypes = {
-    // dispatch: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
     videoShowGame: makeSelectVideoShowGame(),
-    gamePage: makeSelectGamesPage(),
 });
 
 function mapDispatchToProps(dispatch) {

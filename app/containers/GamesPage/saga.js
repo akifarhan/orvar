@@ -57,11 +57,15 @@ export function* getGameInfo(action) {
 export function* getGameTokenQuery(action) {
     let err;
     try { // Trying the HTTP Request
-        const response = yield call(apiRequest, '/game/play', 'post', { game_setup_id: action.gameParams.id }, process.env.GAMI_API_URL);
-        if (response && response.ok !== false) {
-            yield put(getGameTokenSuccess(response.data));
-        } else if (response && response.ok === false) {
+        const response = yield call(apiRequest, '/game/play', 'post', {
+            game_setup_id: action.gameParams.id,
+            token_charge: action.gameParams.token_charge,
+        }, process.env.GAMI_API_URL);
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
             yield put(getGameTokenFailed(response.data));
+        } else if (response && response.ok !== false) {
+            yield put(getGameTokenSuccess(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;

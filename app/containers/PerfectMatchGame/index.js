@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
@@ -30,11 +30,7 @@ import {
 import {
     Close,
 } from '@material-ui/icons';
-import {
-    getGameToken,
-} from '../GamesPage/actions';
 import makeSelectPerfectMatchGame from './selectors';
-import makeSelectGamesPage from '../GamesPage/selectors';
 import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
@@ -63,7 +59,6 @@ const initialState = {
     complete: null,
     brandArr: [],
     gameResultImage: null,
-    gameAccessToken: null,
 };
 
 export class PerfectMatchGame extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
@@ -84,24 +79,23 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
         };
         this.state.gameMusic.loop = true;
 
-        this.props.dispatch(getGameToken({ id: this.props.gameId }));
-
         let counter = 0;
         while (counter < CARD_PAIR) {
             this.state[`flipped_${counter}`] = false;
             counter++;
         }
+        this.initialiseGame();
     }
 
     componentWillReceiveProps = (nextProps) => {
-        if (dataChecking(nextProps, 'gamePage', 'gameToken', 'success') !== dataChecking(this.props, 'gamePage', 'gameToken', 'success') && nextProps.gamePage.gameToken.success) {
-            this.setState({ gameAccessToken: dataChecking(nextProps.gamePage, 'gameToken', 'data', 'message', 'token') });
+        if (nextProps.gameAccessToken && (dataChecking(nextProps, 'gameAccessToken') !== dataChecking(this.props, 'gameAccessToken'))) {
+            this.setState({
+                ...initialState,
+                brandArr: this.shuffleArray(this.getRandomBrands()),
+            });
             this.initialiseGame();
         }
-        if (dataChecking(nextProps, 'perfectMatchGame', 'gameToken', 'error') !== dataChecking(this.props, 'perfectMatchGame', 'gameToken', 'error') && nextProps.perfectMatchGame.gameToken.error) {
-            alert(nextProps.perfectMatchGame.gameToken.data.messages[0].text);
-            this.props.onBackToMenu();
-        }
+
         if (dataChecking(nextProps, 'gameResultImagelink') !== dataChecking(this.props, 'gameResultImagelink') && dataChecking(nextProps, 'gameResultImagelink', 'result', 'image', 'mobile')) {
             this.setState({ gameResultImage: nextProps.gameResultImagelink.result.image.mobile });
         }
@@ -237,8 +231,6 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                     });
                                     this.props.onGameLose({
                                         score: 0,
-                                        game_setup_id: this.props.gameId,
-                                        token: this.state.gameAccessToken,
                                     });
                                 }
                                 return <span className="countdown-timer">{seconds}s</span>;
@@ -347,8 +339,6 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                             if (result === 'win') {
                                                 this.props.onGameWin({
                                                     score: CARD_PAIR,
-                                                    game_setup_id: this.props.gameId,
-                                                    token: this.state.gameAccessToken,
                                                 });
                                             }
                                         });
@@ -467,14 +457,6 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                             if (this.props.onReplay) {
                                 this.props.onReplay();
                             }
-
-                            this.props.dispatch(getGameToken({ id: this.props.gameId }));
-                            setTimeout(() => {
-                                this.setState({
-                                    ...initialState,
-                                    brandArr: this.shuffleArray(this.getRandomBrands()),
-                                });
-                            }, 0);
                         }}
                     >
                         <img
@@ -550,17 +532,14 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                     className="game-background"
                 />
                 {
-                    dataChecking(this.props, 'gamePage', 'gameToken', 'loading') ?
-                        <img className="perfect-game-loading" src={require('images/preloader-02.gif')} alt="" />
+                    this.state.complete ?
+                        <div className="result-screen animated fadeIn">
+                            {this.renderResult()}
+                        </div>
                         :
-                        this.state.complete ?
-                            <div className="result-screen animated fadeIn">
-                                {this.renderResult()}
-                            </div>
-                            :
-                            <div className="game-screen animated fadeIn">
-                                {this.renderGame()}
-                            </div>
+                        <div className="game-screen animated fadeIn">
+                            {this.renderGame()}
+                        </div>
                 }
                 {
                     this.state.shareModal ?
@@ -581,12 +560,11 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
 }
 
 PerfectMatchGame.propTypes = {
-    dispatch: PropTypes.func.isRequired,
+    // dispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
     perfectMatchGame: makeSelectPerfectMatchGame(),
-    gamePage: makeSelectGamesPage(),
 });
 
 function mapDispatchToProps(dispatch) {
