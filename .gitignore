@@ -5,6 +5,7 @@ buildDev
 node_modules
 stats.json
 .firebase/
+.env
 
 # Cruft
 .DS_Store
