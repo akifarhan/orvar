@@ -170,10 +170,9 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
                                 const link = {
                                     key: 'share',
                                     value: {
-                                        shareUrl,
-                                        shareTitle,
-                                        shareHashtag,
-                                        shareVia,
+                                        share: {
+                                            deep_link: shareUrl,
+                                        },
                                     },
                                 };
                                 const str = JSON.stringify(link);
