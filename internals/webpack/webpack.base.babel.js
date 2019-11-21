@@ -108,9 +108,7 @@ module.exports = (options) => ({
         }),
         new webpack.NamedModulesPlugin(),
         new Dotenv({
-            path: (process.env.NODE_ENV === 'production')
-                ? path.resolve(process.cwd(), '.env')
-                : path.resolve(process.cwd(), '.env-local'),
+            path: path.resolve(process.cwd(), '.env'),
         }),
     ]),
     resolve: {
