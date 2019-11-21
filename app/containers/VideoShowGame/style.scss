@@ -1,0 +1,91 @@
+.video-game-container {
+    height: 100%;
+    width: 100%;
+    background-size: contain;
+
+    .result-screen-content {
+        position: relative;
+        height: 100%;
+
+        &.opacity-zero {
+            height: 0;
+        }
+    }
+
+    .game-screen {
+        height: 100%;
+        width: 100%;
+
+        .game-running-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+        }
+    }
+
+    .video-show-modal  {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+        background-color: #000A;
+
+        .modal-inner-div {
+            margin: auto;
+            width: 50%;
+            height: auto;
+            border-radius: 5px;
+            background-color: white;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .modal-inner-button {
+            position: absolute;
+            right: 0;
+        }
+        .share-dialog-title {
+            padding: 17% 5% 5% 5%;
+            font-size: 1.5em;
+            text-align: center;
+            height: 5%;
+        }
+        .share-dialog-content {
+            display: flex;
+            padding: 5% 20%;
+            flex-wrap: wrap;
+            justify-content: center;
+
+            .share-content {
+                padding: 2% 6%;
+                width: 38%;
+
+                div {
+                    margin: auto;
+                    width: auto !important;
+                    height: auto !important;
+                }
+
+                svg {
+                    width: 100% !important;
+                    height: 100% !important;
+                }
+            }
+            .share-button-item {
+                width: 100%;
+                cursor: pointer;
+
+                &:hover {
+                    transform: scale(1.02);
+                    background-color: #0002;
+                    border-radius: 50%;
+                }
+            }
+        }
+    }
+}

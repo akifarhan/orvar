@@ -1,6 +1,7 @@
 import 'whatwg-fetch';
 import globalScope from 'globalScope';
 import Cookies from 'universal-cookie';
+import * as digdataFromOska from 'assets/digdata';
 import * as copy from 'copy-to-clipboard';
 
 export const apiRequest = (path, type = 'get', body, baseUrl, headerParams) => {
@@ -35,6 +36,7 @@ export const getXdp = (percent) => `${percent}vw`;
 // eg: getYdp(50)
 export const getYdp = (percent) => `${percent}vw`;
 
+export const dig = digdataFromOska.dig;
 export function dataChecking(object, ...argsArr) {
     if (!argsArr || !argsArr.length) {
         return object;
