@@ -36,6 +36,18 @@ class HtmlParser extends React.PureComponent { // eslint-disable-line react/pref
                     }
                     return null;
                 }
+                if (name === 'iframe') {
+                    return (
+                        <iframe
+                            title="video"
+                            align={attribs.align}
+                            frameBorder={attribs.frameborder}
+                            scrolling={attribs.scrolling}
+                            src={attribs.src}
+                            width="100%"
+                        />
+                    );
+                }
                 return null;
             },
         };
