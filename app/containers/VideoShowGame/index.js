@@ -312,7 +312,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
             {this.renderResult()}
             {
                 this.state.shareModal ?
-                    <div className="video-show-modal">
+                    <div className="video-show-share-modal">
                         <div className="modal-inner-div">
                             <IconButton className="close modal-inner-button" onClick={() => this.setState({ shareModal: false })}>
                                 <Close />

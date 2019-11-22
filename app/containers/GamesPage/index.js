@@ -118,6 +118,9 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                     }, 1200);
                 }
 
+                if (this.state.playMusic && this.startSound) {
+                    this.startSound.play();
+                }
                 this.setState(obj);
             } else {
                 this.setState({
@@ -375,7 +378,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 null
                         }
                         {
-                            gameData.config.menu.background_music || gameData.config.game.background_music ?
+                            gameData.config.enableSound ?
                                 <div
                                     className="toggle-music page-button-item to-right"
                                     onClick={() => {
@@ -422,9 +425,6 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 <div
                                     onClick={
                                         () => {
-                                            if (this.state.playMusic) {
-                                                this.startSound.play();
-                                            }
                                             setTimeout(() => {
                                                 this.onPlay();
                                             }, 0);
@@ -483,7 +483,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             //     }
                             // }
                         }}
-                    >1.0.1</div>
+                    >1.1.0</div>
                     <img
                         draggable="false"
                         onLoad={this.onBgImageLoaded}

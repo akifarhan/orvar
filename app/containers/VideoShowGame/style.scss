@@ -26,7 +26,7 @@
         }
     }
 
-    .video-show-modal  {
+    .video-show-share-modal  {
         position: absolute;
         top: 0;
         left: 0;
@@ -38,12 +38,13 @@
         .modal-inner-div {
             margin: auto;
             width: 50%;
-            height: auto;
+            height: auto !important;
             border-radius: 5px;
             background-color: white;
             position: relative;
             top: 50%;
             transform: translateY(-50%);
+            padding-bottom: 5%;
         }
         .modal-inner-button {
             position: absolute;
