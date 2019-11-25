@@ -24,7 +24,8 @@ function profileOrderListReducer(state = initialState, action) {
         case GET_ORDER_LIST:
             return state
                 .set('error', false)
-                .set('loading', true);
+                .set('loading', true)
+                .set('orderList', null);
         case GET_ORDER_LIST_SUCCESS:
             return state
                 .set('error', false)

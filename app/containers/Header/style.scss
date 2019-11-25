@@ -1,12 +1,15 @@
 @import 'app/breakpoints';
 
 .header-wrapper {
+    @include media-breakpoint-only(xl) {
+        padding-top: 0.5rem;
+    }
     @include media-breakpoint-only(lg) {
         padding-top: 5.3rem;
     }
 
-    @include media-breakpoint-only(sm) {
-        padding-top: 5.3rem;
+    @include media-breakpoint-only(md) {
+        padding-top: 5.6rem;
     }
 
     @include media-breakpoint-only(sm) {

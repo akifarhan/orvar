@@ -1012,12 +1012,7 @@ export class Header extends React.PureComponent {
                                             }}
                                         >
                                             <span className={this.props.classes.arrow} ref={(node) => this.setState({ arrowRef: node })} />
-                                            {/* {
-                                                this.state.cartOpen ?
-                                                    <CartSection />
-                                                    :
-                                                    null
-                                            } */}
+                                            {this.renderCartSection()}
                                         </Popper>
                                     </Container>
                             }

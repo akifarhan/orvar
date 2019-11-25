@@ -212,7 +212,7 @@ export class ProfileWallet extends React.PureComponent { // eslint-disable-line 
                     dataChecking(vouchers, 'length') === 0 ?
                         <Paper className="empty-voucher-container text-xs-center my-1 p-3">
                             <img
-                                src={require('resources/wallet/empty_illustration.png')}
+                                src={require('Resources/wallet/empty_illustration.png')}
                                 alt="empty_voucher"
                                 width="100%"
                                 style={{ width: '25rem' }}
@@ -392,7 +392,7 @@ export class ProfileWallet extends React.PureComponent { // eslint-disable-line 
                         dataChecking(points, 'length') === 0 ?
                             <div className="p-3">
                                 <img
-                                    src={require('resources/wallet/empty_illustration.png')}
+                                    src={require('Resources/wallet/empty_illustration.png')}
                                     alt="empty_voucher"
                                     width="100%"
                                     style={{ width: '25rem' }}
@@ -494,7 +494,7 @@ export class ProfileWallet extends React.PureComponent { // eslint-disable-line 
                         dataChecking(balances, 'length') === 0 ?
                             <div className="p-3">
                                 <img
-                                    src={require('resources/wallet/empty_illustration.png')}
+                                    src={require('Resources/wallet/empty_illustration.png')}
                                     alt="empty_voucher"
                                     width="100%"
                                     style={{ width: '25rem' }}

@@ -27,7 +27,10 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 
 import {
     Button,
+    Box,
     Card,
+    CircularProgress,
+    Container,
     Grid,
     Hidden,
     IconButton,
@@ -63,6 +66,8 @@ registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview, F
 export class ProfileOrderList extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     state = {
         currentConfig: { title: 'All Orders', urlParam: '' },
+
+        value: 0,
         orderStatusConfigs: [
             { title: 'All Orders', urlParam: '' },
             { title: 'To Pay', urlParam: '/to-paid' },
@@ -102,17 +107,38 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
         }
     }
 
+    onCloseDialog = () => {
+        switch (this.state.dialogType) {
+            case 'confirmed_review':
+            case 'confirmed_receive':
+                this.fetchOrderDataByTab(this.state.currentConfig);
+                this.setState({ popup: false, activeStep: 0, files: [], comment: '' });
+                break;
+            default:
+                this.setState({ popup: false, activeStep: 0, files: [], comment: '' });
+                break;
+        }
+        return null;
+    }
     isNextButtonDisabled = () => {
         const allowedFileTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-
-        if (this.state.activeStep === 0 && (allowedFileTypes.indexOf(dataChecking(this.state, 'files', 0, 'type')) < 0)) {
-            return true;
+        switch (this.state.activeStep) {
+            case 0:
+                if (dataChecking(this.state, 'files').length > 0) {
+                    if (allowedFileTypes.indexOf(this.state.files[0].type) !== -1) {
+                        return false;
+                    }
+                }
+                return true;
+            case 1:
+                if (this.state.comment.length > 24) {
+                    return false;
+                }
+                return true;
+            default:
+                break;
         }
-        if (this.state.activeStep === 1 && this.state.comment.length < 25) {
-            return true;
-        }
-
-        return false;
+        return null;
     }
 
     fetchOrderDataByTab = ({ urlParam }) => {
@@ -258,32 +284,36 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                         </Grid>
                         <Grid item={true} lg={12} md={12} xs={12}>
                             <Grid container={true} justify="center" spacing={2}>
-                                <Grid item={true}>
-                                    <Button
-                                        variant="outlined"
-                                        onClick={() => {
-                                            this.setState({ popup: false });
-                                        }}
-                                        style={{ width: 170 }}
-                                    >
-                                        CANCEL
-                                    </Button>
-                                </Grid>
-                                <Grid item={true}>
-                                    <Button
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={() => {
-                                            this.props.dispatch(actions.confirmOrder({
-                                                orderID: this.state.orderID,
-                                                successCallback: this.setState({ dialogType: 'confirmed_receive' }),
-                                            }));
-                                        }}
-                                        style={{ width: 170 }}
-                                    >
-                                        CONFIRM
-                                    </Button>
-                                </Grid>
+                                <Box clone={true} order={{ xs: 2, md: 1 }}>
+                                    <Grid item={true}>
+                                        <Button
+                                            variant="outlined"
+                                            onClick={() => {
+                                                this.setState({ popup: false });
+                                            }}
+                                            style={{ width: 170 }}
+                                        >
+                                            CANCEL
+                                        </Button>
+                                    </Grid>
+                                </Box>
+                                <Box clone={true} order={{ xs: 1, md: 2 }}>
+                                    <Grid item={true}>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => {
+                                                this.props.dispatch(actions.confirmOrder({
+                                                    orderID: this.state.orderID,
+                                                    successCallback: this.setState({ dialogType: 'confirmed_receive' }),
+                                                }));
+                                            }}
+                                            style={{ width: 170 }}
+                                        >
+                                            CONFIRM
+                                        </Button>
+                                    </Grid>
+                                </Box>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -298,12 +328,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                             <Typography variant="h6" display="block" gutterBottom={true}>Thank you for confirming the receipt of order.</Typography>
                             <Typography display="block" gutterBottom={true}>Snap a photo and beauty experiences on our wall.</Typography>
                             <Typography display="block" gutterBottom={true}><span style={{ fontStyle: 'bold' }}>50</span> credits will be rewarded for an approved review.</Typography>
-                            <Link
-                                onClick={() => {
-                                    this.setState({ popup: false });
-                                    this.fetchOrderDataByTab(this.state.currentConfig);
-                                }}
-                            >
+                            <Link onClick={() => this.onCloseDialog()}>
                                 <Typography color="secondary">Ok, I got it</Typography>
                             </Link>
                         </Grid>
@@ -334,12 +359,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                         <Grid item={true} lg={12} md={12} xs={12}>
                             <Typography fontWeight="fontWeightBold" display="block" gutterBottom={true}>Thank you very much for your Beauty review,</Typography>
                             <Typography fontWeight="fontWeightBold" display="block" gutterBottom={true}>and it is currently under review.</Typography>
-                            <Link
-                                onClick={() => {
-                                    this.setState({ popup: false });
-                                    this.fetchOrderDataByTab(this.state.currentConfig);
-                                }}
-                            >
+                            <Link onClick={() => this.onCloseDialog()}>
                                 <Typography color="secondary">Awesome, I&apos;m done here!</Typography>
                             </Link>
                         </Grid>
@@ -369,8 +389,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
             case 'cod delivery failed':
             case 'cod returned':
                 return '#F50000';
-            case 'multiple':
-            case 'canceled':
+            case 'cancelled':
             case 'expired':
             case 'shipment delayed':
             case 'deleted':
@@ -436,109 +455,110 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                 return null;
             });
         }
-
-        return <Typography style={{ color: this.renderStatusColor(order.status) }}>{order.status}</Typography>;
+        return <Typography style={{ color: this.renderStatusColor(order.status) }} component="div"><Box fontWeight="fontWeightBold">{order.status}</Box></Typography>;
     }
 
-    renderOrderListCard = (config) => {
-        if (!this.props.profileOrderList.orderList) {
-            return null;
-        }
-
-        return (
-            <Card style={{ overflowX: 'auto' }} className="order-tab">
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell><Typography>Order</Typography></TableCell>
-                            <Hidden xsDown={true}>
-                                <TableCell><Typography>Date Created</Typography></TableCell>
-                                <TableCell><Typography>Courier</Typography></TableCell>
-                            </Hidden>
-                            <TableCell><Typography>Amount</Typography></TableCell>
-                            <TableCell><Typography>Status</Typography></TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {
-                            dataChecking(this.props.profileOrderList, 'orderList') &&
-                            this.props.profileOrderList.orderList.map((order, index) => (
-                                <TableRow key={index}>
-                                    <TableCell component="th" scope="row">
-                                        <NavLink to={`order/${order.id}`} style={{ textDecoration: 'none' }}>
-                                            <Typography color="secondary">
-                                                {order.number}
-                                            </Typography>
-                                            <IconButton size="small">
-                                                <KeyboardArrowRight color="secondary" />
-                                            </IconButton>
-                                        </NavLink>
-                                    </TableCell>
-                                    <Hidden xsDown={true}>
-                                        <TableCell>
-                                            <IconButton
-                                                size="small"
-                                                color="primary"
-                                                style={{ marginRight: 5 }}
-                                                onClick={(event) => {
-                                                    this.setState({
-                                                        anchorEl: event.currentTarget,
-                                                        orderDate: order.created_at,
-                                                    });
-                                                }}
-                                            >
-                                                <QueryBuilder />
-                                            </IconButton>
-                                            <Typography>{moment(order.created_at).fromNow()}</Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography>{order.courier}</Typography>
-                                        </TableCell>
-                                    </Hidden>
-                                    <TableCell>
-                                        <Typography>{order.currency.symbol} {order.subtotal.toFixed(2)}</Typography>
-                                    </TableCell>
-                                    <TableCell>
-                                        {this.renderStatus(order)}
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        }
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    component="div"
-                    rowsPerPageOptions={[10, 25, 40]}
-                    rowsPerPage={this.state.rowsPerPage}
-                    count={dataChecking(this.props.profileOrderList, 'orderMeta', 'totalCount')}
-                    page={this.state.page}
-                    onChangePage={(event, newPage) => {
-                        this.props.dispatch(actions.getOrderList({ urlParam: config.urlParam, pageCount: (newPage + 1), orderCount: this.state.rowsPerPage }));
-                        this.setState({ page: newPage });
-                    }}
-                    onChangeRowsPerPage={(event) => {
-                        this.props.dispatch(actions.getOrderList({ urlParam: config.urlParam, pageCount: 1, orderCount: event.target.value }));
-                        this.setState({ page: 0, rowsPerPage: event.target.value });
-                    }}
-                />
-            </Card>
-        );
-    }
+    renderTableBody = () => (
+        <TableBody>
+            {
+                dataChecking(this.props.profileOrderList, 'orderList') &&
+                this.props.profileOrderList.orderList.map((order, index) => (
+                    <TableRow key={index}>
+                        <TableCell component="th" scope="row">
+                            <NavLink to={`order/${order.id}`} style={{ textDecoration: 'none' }}>
+                                <Typography color="secondary">
+                                    {order.number}
+                                </Typography>
+                                <IconButton size="small">
+                                    <KeyboardArrowRight color="secondary" />
+                                </IconButton>
+                            </NavLink>
+                        </TableCell>
+                        <Hidden xsDown={true}>
+                            <TableCell>
+                                <IconButton
+                                    size="small"
+                                    color="primary"
+                                    style={{ marginRight: 5 }}
+                                    onClick={(event) => {
+                                        this.setState({
+                                            anchorEl: event.currentTarget,
+                                            orderDate: order.created_at,
+                                        });
+                                    }}
+                                >
+                                    <QueryBuilder />
+                                </IconButton>
+                                <Typography>{moment(order.created_at).fromNow()}</Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography>{order.courier}</Typography>
+                            </TableCell>
+                        </Hidden>
+                        <TableCell>
+                            <Typography component="div"><Box fontWeight="fontWeightBold">{order.currency.symbol}{order.subtotal.toFixed(2)}</Box></Typography>
+                        </TableCell>
+                        <TableCell align="center">
+                            {this.renderStatus(order)}
+                        </TableCell>
+                    </TableRow>
+                ))
+            }
+        </TableBody>
+    )
 
     renderContents = () => {
-        console.log(this.state.orderStatusConfigs);
-        console.log('Tab', this.state.currentConfig);
+        if (!this.props.profileOrderList.orderList) {
+            return (
+                <div>
+                    <CircularProgress className="profile-order-loading-content" style={{ display: 'block', margin: 'auto', padding: '4rem' }} />
+                </div>
+            );
+        }
         return (
-            <div>
-                {this.renderOrderListCard(this.state.currentConfig)}
-            </div>
+            <Container className="profile-order-list-content py-2">
+                <Card className="order-tab">
+                    <div style={{ overflowX: 'auto' }}>
+                        <Table>
+                            <TableHead className="profile-order-list-table-head">
+                                <TableRow>
+                                    <TableCell className="px-2" style={{ minWidth: '11.4rem' }}><Typography>Order</Typography></TableCell>
+                                    <Hidden xsDown={true}>
+                                        <TableCell className="px-2"><Typography>Date Created</Typography></TableCell>
+                                        <TableCell className="px-2"><Typography>Courier</Typography></TableCell>
+                                    </Hidden>
+                                    <TableCell className="px-2"><Typography>Amount</Typography></TableCell>
+                                    <TableCell align="center" style={{ minWidth: '8rem' }}><Typography>Status</Typography></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            {this.renderTableBody()}
+                        </Table>
+                    </div>
+                    <TablePagination
+                        component="div"
+                        rowsPerPageOptions={[10, 25, 40]}
+                        rowsPerPage={this.state.rowsPerPage}
+                        count={dataChecking(this.props.profileOrderList, 'orderMeta', 'totalCount')}
+                        page={this.state.page}
+                        onChangePage={(event, newPage) => {
+                            this.props.dispatch(actions.getOrderList({ urlParam: this.state.currentConfig.urlParam, pageCount: (newPage + 1), orderCount: this.state.rowsPerPage }));
+                            this.setState({ page: newPage });
+                        }}
+                        onChangeRowsPerPage={(event) => {
+                            this.props.dispatch(actions.getOrderList({ urlParam: this.state.currentConfig.urlParam, pageCount: 1, orderCount: event.target.value }));
+                            this.setState({ page: 0, rowsPerPage: event.target.value });
+                        }}
+                    />
+                </Card>
+            </Container>
         );
     }
 
     render() {
         return (
-            <div>
+            <div className="pb-3">
                 <NavTab
+                    className="profile-order-list-navtab"
                     data={this.state.orderStatusConfigs}
                     onTabClick={(config) => {
                         this.fetchOrderDataByTab(config);
@@ -546,7 +566,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                     }}
                     renderTabID={(tabValue) => this.setState({ tabValue })}
                 />
-                {this.renderContents()}
+                {dataChecking(this.props, 'profileOrderList') && this.renderContents()}
                 <Popover
                     open={Boolean(this.state.anchorEl)}
                     anchorEl={this.state.anchorEl}
@@ -566,9 +586,7 @@ export class ProfileOrderList extends React.PureComponent { // eslint-disable-li
                 </Popover>
                 <PopupDialog
                     display={this.state.popup}
-                    onClose={() => {
-                        this.setState({ popup: false, activeStep: 0, files: [], comment: '' });
-                    }}
+                    onClose={() => this.onCloseDialog()}
                 >
                     {this.renderDialogContent()}
                 </PopupDialog>

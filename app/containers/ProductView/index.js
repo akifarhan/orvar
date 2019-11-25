@@ -7,12 +7,13 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
+import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import { Container } from '@material-ui/core';
+import { Container, Button } from '@material-ui/core';
 
 import Slider from 'components/Slider';
 import Accordion from 'components/Accordion';
@@ -27,12 +28,14 @@ import saga from './saga';
 import './style.scss';
 import { getProductById, getProductReview, addToCart } from './actions';
 
+let productID;
 export class ProductView extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
     componentWillMount() {
         const productId = dataChecking(this.props, 'match', 'params', 'productId');
         if (productId) {
             const id = _.split(productId, '-', 2)[0];
+            productID = id;
             this.props.dispatch(getProductById(id));
             this.props.dispatch(getProductReview(id));
         }
@@ -156,7 +159,20 @@ export class ProductView extends React.PureComponent { // eslint-disable-line re
             <i className="fas fa-spinner fa-pulse"></i>
         );
     }
-
+    renderProductInfoButton = () => (
+        <div>
+            <NavLink to={`/mall/${productID}/description`}>
+                <Button>
+                    Product Description
+                </Button>
+            </NavLink>
+            <NavLink to={`/mall/${productID}/info`}>
+                <Button>
+                    Product Usage
+                </Button>
+            </NavLink>
+        </div>
+    )
     render() {
         if (dataChecking(this.props, 'productview', 'loading')) {
             return <h1>Loading</h1>;
@@ -171,6 +187,7 @@ export class ProductView extends React.PureComponent { // eslint-disable-line re
             <Container>
                 { this.buildMeta(product.meta) }
                 { this.buildProduct(product) }
+                { this.renderProductInfoButton()}
 
                 <Accordion
                     className="accordion-panel"
