@@ -43,10 +43,10 @@
         .games-page-popup-modal {
             position: absolute;
             background-color: #FFFD;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0%;
+            left: 0%;
+            right: 0%;
+            bottom: 0%;
             z-index: 100;
 
             .modal-inner-div {
@@ -55,7 +55,8 @@
             }
         }
 
-        .games-page-popupMessage {
+        .games-page-popupMessage,
+        .games-page-popupImage {
             position: absolute;
             background-color: #0007;
             top: 0;
@@ -68,6 +69,17 @@
                 position: relative;
                 height: 100%;
 
+                .modal-dialog-back {
+                    position: absolute;
+                    top: 2%;
+                    left: 3%;
+                    z-index: 100;
+                    font-size: 3em;
+                    padding: 0.2em 0.4em;
+                }
+            }
+
+            &.games-page-popupMessage {
                 .modal-dialog {
                     text-align: center;
                     position: absolute;
@@ -97,6 +109,13 @@
                             background-color: #F2F2F2;
                         }
                     }
+                }
+            }
+
+            &.games-page-popupImage {
+                img {
+                    height: 100%;
+                    width: 100%;
                 }
             }
         }
@@ -164,42 +183,38 @@
                         width: 1.5em;
                     }
                 }
+            }
+        }
 
-                .main-menu-button-item {
-                    width: 50%;
-                    max-width: 300px;
-                    cursor: pointer;
-                    background-color: #AAA0;
-                    transition: transform .5s, background-color.5s;
+        .main-menu-button-item {
+            width: 50%;
+            max-width: 300px;
+            cursor: pointer;
+            background-color: #AAA0;
+            transition: transform .5s, background-color.5s;
 
-                    &:hover {
-                        transform: scale(1.05);
-                        // background-color: #0002;
-                    }
-                }
+            &:hover {
+                transform: scale(1.05);
+                // background-color: #0002;
             }
         }
 
         .page-buttons {
-            color: black;
-            position: absolute;
-            top: 2%;
-            left: 0;
-            right: 0;
-            width: 94%;
-            z-index: 500;
-            margin: auto;
-
             .page-button-item {
                 display: inline-block;
                 cursor: pointer;
+                color: black;
+                position: absolute;
+                top: 2%;
+                z-index: 500;
+                margin: auto;
 
                 &.disabled {
                     cursor: not-allowed;
                 }
 
-                &.to-left { float: left; }
-                &.to-right { float: right; }
+                &.to-left { left: 3%; }
+                &.to-right { left: auto; right: 3%; }
 
                 i {
                     font-size: 3em;
