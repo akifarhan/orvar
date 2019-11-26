@@ -153,6 +153,11 @@
             .carousel-slider {
                 height: 100vh;
             }
+
+            img {
+                max-height: 100%;
+                max-width: 100%;
+            }
         }
 
         .main-menu-wrapper {
@@ -248,9 +253,11 @@
 
             .token-value-container {
                 position: relative;
+                font-size: 120%;
 
                 .token-amount {
                     position: absolute;
+                    left: 0;
                 }
 
                 .deducting-token {

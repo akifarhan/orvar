@@ -399,7 +399,14 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         if (showModal === 'slideShow' && slideArray) {
             return (
                 <div className="prize-inner-section">
-                    <Carousel showThumbs={false} showStatus={false} showIndicators={slideArray.length > 1} emulateTouch={true}>
+                    <Carousel
+                        showThumbs={false}
+                        showStatus={false}
+                        showIndicators={slideArray.length > 1}
+                        emulateTouch={true}
+                        verticalSwipe="natural"
+                        swipeable={false}
+                    >
                         {
                             slideArray.map((item, index) => (
                                 <img
@@ -501,7 +508,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                     <div className="main-menu-username">
                                         {
                                             dataChecking(globalScope, 'profile', 'name') && dataChecking(globalScope, 'profile', 'username') ?
-                                                <div className="profile-name animated fadeIn">Welcome, {globalScope.profile.name || globalScope.profile.username}!</div>
+                                                <div className="profile-name animated fadeIn">Welcome, {globalScope.profile.first_name || globalScope.profile.name || globalScope.profile.username}!</div>
                                                 :
                                                 <img className="username-loading" src={require('images/preloader-02.gif')} alt="" />
                                         }
@@ -604,29 +611,33 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 className="main-menu-token-indicator"
                                 style={{ color: gameData.config.game.text_color || 'black' }}
                             >
-                                <span className={`${this.state.disableAction ? 'disabled' : ''}`}>
-                                    {'Token available: '}
-                                </span>
-                                {
-                                    this.state.memberInfo ?
-                                        <span
-                                            className="token-value-container"
-                                        >
-                                            <span className={`token-amount pl-1 ${this.state.disableAction ? 'disabled' : ''} animated ${this.state.deductTokenFadeOut ? 'bounceOut' : ''}`}>
-                                                {dig(this.state.memberInfo, 'data.token.amount') || 0}
+                                <span >
+                                    <span className={`${this.state.disableAction ? 'disabled' : ''}`}>{'You Have '}</span>
+                                    {
+                                        this.state.memberInfo ?
+                                            <span
+                                                className="token-value-container"
+                                            >
+                                                <span className="placeholder opacity-zero">
+                                                    {dig(this.state.memberInfo, 'data.token.amount') || 0}
+                                                </span>
+                                                <span className={`token-amount animated ${this.state.deductTokenFadeOut ? 'bounceOut' : ''} ${this.state.disableAction && !this.state.deductToken ? 'disabled' : ''}`}>
+                                                    {dig(this.state.memberInfo, 'data.token.amount') || 0}
+                                                </span>
+                                                {
+                                                    this.state.deductToken ?
+                                                        <div
+                                                            className={`deducting-token animated animated ${this.state.deductTokenFadeOut ? 'bounceOutDown' : 'rubberBand'}`}
+                                                        >{` - ${gameData.token_charge}`}</div>
+                                                        :
+                                                        null
+                                                }
                                             </span>
-                                            {
-                                                this.state.deductToken ?
-                                                    <div
-                                                        className={`deducting-token animated animated ${this.state.deductTokenFadeOut ? 'bounceOutDown' : 'rubberBand'}`}
-                                                    >{` - ${gameData.token_charge}`}</div>
-                                                    :
-                                                    null
-                                            }
-                                        </span>
-                                        :
-                                        <img className="available-token-loading" src={require('images/preloader-02.gif')} alt="" />
-                                }
+                                            :
+                                            <img className="available-token-loading" src={require('images/preloader-02.gif')} alt="" />
+                                    }
+                                    <span className={`${this.state.disableAction ? 'disabled' : ''}`}>{' Spin Left '}</span>
+                                </span>
                             </div>
                             :
                             null
