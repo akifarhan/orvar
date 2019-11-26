@@ -94,18 +94,18 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
 
         if (dig(nextProps, 'gamesPage.gameToken.data') && (dig(nextProps, 'gamesPage.gameToken.data') !== dig(this.props, 'gamesPage.gameToken.data'))) {
             if (nextProps.gamesPage.gameToken.success) {
-                if (dig(nextProps, 'gamesPage.gameToken.data.message.gift_finish') || dig(nextProps, 'gamesPage.gameToken.data.message.expired')) {
-                    if (dig(nextProps, 'gamesPage.gameToken.data.message.image')) {
+                if (dig(nextProps, 'gamesPage.gameToken.data.data.message.gift_finish') || dig(nextProps, 'gamesPage.gameToken.data.data.message.expired')) {
+                    if (dig(nextProps, 'gamesPage.gameToken.data.data.message.image')) {
                         this.setState({
                             popupImage: {
-                                image: this.state.gamesPage.gameToken.data.message.image,
-                                _applink: this.state.gameToken.data.message._applink,
-                                _weblink: this.state.gameToken.data.message._weblink,
+                                image: this.state.gamesPage.gameToken.data.data.message.image,
+                                _applink: this.state.gameToken.data.data.message._applink,
+                                _weblink: this.state.gameToken.data.data.message._weblink,
                             },
                         });
                     } else {
                         this.setState({
-                            popupMessage: dig(nextProps, 'gamesPage.gameToken.data.message.message') || 'Opps, the party is over.',
+                            popupMessage: dig(nextProps, 'gamesPage.gameToken.data.data.message.message') || 'Opps, the party is over.',
                         });
                     }
                 } else {
