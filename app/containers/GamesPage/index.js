@@ -16,9 +16,10 @@ import globalScope from 'globalScope';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import 'assets/animate.min.scss';
-import AuthPage from '../AuthPage';
-import PerfectMatchGame from '../PerfectMatchGame';
-import VideoShowGame from '../VideoShowGame';
+import HtmlParser from 'components/HtmlParser';
+import AuthPage from 'containers/AuthPage';
+import PerfectMatchGame from 'containers/PerfectMatchGame';
+import VideoShowGame from 'containers/VideoShowGame';
 import {
     getGameInfo,
     getResult,
@@ -94,7 +95,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
 
         if (dig(nextProps, 'gamesPage.gameToken.data') && (dig(nextProps, 'gamesPage.gameToken.data') !== dig(this.props, 'gamesPage.gameToken.data'))) {
             if (nextProps.gamesPage.gameToken.success) {
-                if (dig(nextProps, 'gamesPage.gameToken.data.data.message.gift_finish') || dig(nextProps, 'gamesPage.gameToken.data.data.message.expired')) {
+                if (dig(nextProps, 'gamesPage.gameToken.data.data.message.gift_finished') || dig(nextProps, 'gamesPage.gameToken.data.data.message.expired')) {
                     if (dig(nextProps, 'gamesPage.gameToken.data.data.message.image')) {
                         this.setState({
                             popupImage: {
@@ -575,7 +576,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             //     }
                             // }
                         }}
-                    >1.1.3</div>
+                    >1.1.4</div>
                     <img
                         draggable="false"
                         onLoad={this.onBgImageLoaded}
@@ -650,7 +651,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 <div className="modal-inner-div">
                                     <div className="modal-dialog">
                                         <div className="modal-content">
-                                            {this.state.popupMessage}
+                                            <HtmlParser html={this.state.popupMessage} />
                                         </div>
                                         <div
                                             className="modal-dialog-confirm hermo-pink"

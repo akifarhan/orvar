@@ -292,4 +292,19 @@
     .disabled {
         opacity: 0.4;
     }
+
+    .carousel.carousel-slider {
+        .control-arrow {
+            right: 2% !important;
+            transform: scale(2.8);
+            background-color: transparent;
+            top: calc(50% - 56px);
+            animation: flashing 2s infinite;
+            @keyframes flashing {
+                0% { opacity: 0.1; }
+                50% { opacity: 0.9; }
+                100% { opacity: 0.1; }
+            }
+        }
+    }
 }

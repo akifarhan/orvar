@@ -164,6 +164,7 @@ body {
     .control-arrow {
         position: absolute;
         top: 40%;
+        top: calc(50% - 50px);
         height: 100px;
         width: 7%;
         border-radius: 10%;
