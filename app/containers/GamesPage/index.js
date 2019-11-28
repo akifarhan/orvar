@@ -16,9 +16,10 @@ import globalScope from 'globalScope';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import 'assets/animate.min.scss';
-import AuthPage from '../AuthPage';
-import PerfectMatchGame from '../PerfectMatchGame';
-import VideoShowGame from '../VideoShowGame';
+import HtmlParser from 'components/HtmlParser';
+import AuthPage from 'containers/AuthPage';
+import PerfectMatchGame from 'containers/PerfectMatchGame';
+import VideoShowGame from 'containers/VideoShowGame';
 import {
     getGameInfo,
     getResult,
@@ -83,45 +84,67 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         let token_balance = null;
 
         if (dataChecking(nextProps, 'gamesPage', 'result') !== dataChecking(this.props, 'gamesPage', 'result') && nextProps.gamesPage.result.success) {
-            this.setState({ gameResultImagelink: nextProps.gamesPage.result.data });
+            if (nextProps.gamesPage.result.data.success) {
+                this.setState({ gameResultImagelink: nextProps.gamesPage.result.data });
+            } else {
+                this.setState({
+                    popupMessage: nextProps.gamesPage.result.data.errors.message,
+                });
+            }
         }
 
         if (dig(nextProps, 'gamesPage.gameToken.data') && (dig(nextProps, 'gamesPage.gameToken.data') !== dig(this.props, 'gamesPage.gameToken.data'))) {
             if (nextProps.gamesPage.gameToken.success) {
-                const obj = {
-                    showModal: 'showPlay',
-                    gameResultImagelink: null,
-                    disableAction: this.state.gameInfo.data.config.game.disableActionOnPlay,
-                    gameAccessToken: dig(nextProps.gamesPage, 'gameToken.data.data.message.token'),
-                };
+                if (dig(nextProps, 'gamesPage.gameToken.data.data.message.gift_finished') || dig(nextProps, 'gamesPage.gameToken.data.data.message.expired')) {
+                    if (dig(nextProps, 'gamesPage.gameToken.data.data.message.image')) {
+                        this.setState({
+                            popupImage: {
+                                image: this.state.gamesPage.gameToken.data.data.message.image,
+                                _applink: this.state.gameToken.data.data.message._applink,
+                                _weblink: this.state.gameToken.data.data.message._weblink,
+                            },
+                        });
+                    } else {
+                        this.setState({
+                            popupMessage: dig(nextProps, 'gamesPage.gameToken.data.data.message.message') || 'Opps, the party is over.',
+                        });
+                    }
+                } else {
+                    const obj = {
+                        showModal: 'showPlay',
+                        gameResultImagelink: null,
+                        disableAction: this.state.gameInfo.data.config.game.disableActionOnPlay,
+                        gameAccessToken: dig(nextProps.gamesPage, 'gameToken.data.data.message.token'),
+                    };
 
-                if (this.state.gameInfo.data.type === 'video-show') {
-                    this.props.dispatch(getResult({
-                        score: null,
-                        game_setup_id: this.state.gameId,
-                        token: obj.gameAccessToken,
-                    }));
-                }
+                    if (this.state.gameInfo.data.type === 'video-show') {
+                        this.props.dispatch(getResult({
+                            score: null,
+                            game_setup_id: this.state.gameId,
+                            token: obj.gameAccessToken,
+                        }));
+                    }
 
-                const memberInfo = { ...this.state.memberInfo };
-                if (dig(memberInfo, 'data.token.amount')) {
-                    obj.deductToken = dig(this.state, 'gameInfo.data.token_charge');
-
-                    setTimeout(() => {
-                        this.setState({ deductTokenFadeOut: true });
+                    const memberInfo = { ...this.state.memberInfo };
+                    if (dig(memberInfo, 'data.token.amount')) {
+                        obj.deductToken = dig(this.state, 'gameInfo.data.token_charge');
 
                         setTimeout(() => {
-                            token_balance = dig(nextProps, 'gamesPage.gameToken.data.data.message.token_balance');
-                            memberInfo.data.token.amount = token_balance || (dig(memberInfo, 'data.token.amount') - dig(this.state, 'gameInfo.data.token_charge'));
-                            this.setState({ deductTokenFadeOut: false, deductToken: null, memberInfo });
-                        }, 700);
-                    }, 1200);
-                }
+                            this.setState({ deductTokenFadeOut: true });
 
-                if (this.state.playMusic && this.startSound) {
-                    this.startSound.play();
+                            setTimeout(() => {
+                                token_balance = dig(nextProps, 'gamesPage.gameToken.data.data.message.token_balance');
+                                memberInfo.data.token.amount = token_balance || (dig(memberInfo, 'data.token.amount') - dig(this.state, 'gameInfo.data.token_charge'));
+                                this.setState({ deductTokenFadeOut: false, deductToken: null, memberInfo });
+                            }, 700);
+                        }, 1200);
+                    }
+
+                    if (this.state.playMusic && this.startSound) {
+                        this.startSound.play();
+                    }
+                    this.setState(obj);
                 }
-                this.setState(obj);
             } else {
                 this.setState({
                     popupMessage: nextProps.gamesPage.gameToken.data.errors.message,
@@ -134,12 +157,12 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                 const gameInfo = nextProps.gamesPage.gameInfo.data;
                 this.setState({ gameInfo });
 
-                if (dataChecking(gameInfo, 'data', 'config', 'menu', 'background_music')) {
+                if (dataChecking(gameInfo, 'data', 'config', 'menu', 'background_music') && !this.idleMusic) {
                     this.idleMusic = new Audio(gameInfo.data.config.menu.background_music);
                     this.idleMusic.loop = true;
                 }
 
-                if (dataChecking(gameInfo, 'data', 'config', 'menu', 'start_sound')) {
+                if (dataChecking(gameInfo, 'data', 'config', 'menu', 'start_sound') && !this.startSound) {
                     this.startSound = new Audio(gameInfo.data.config.menu.start_sound);
                 }
             }
@@ -167,20 +190,78 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         }
 
         this.setState({ showModal: null });
-        if (this.state.playMusic && this.state.showModal === 'showPlay' && this.idleMusic) {
-            this.idleMusic.currentTime = 0;
-            this.idleMusic.play();
+        if (this.state.playMusic && this.state.showModal === 'showPlay') {
+            if (this.idleMusic && dig(this.state.gameInfo, 'data.config.game.background_music')) {
+                this.idleMusic.currentTime = 0;
+                this.idleMusic.play();
+            }
+
+            if (this.startSound) {
+                this.startSound.pause();
+                this.startSound.currentTime = 0;
+            }
         }
 
         return null;
     }
 
+    onToggleMusic = () => {
+        if (this.idleMusic) {
+            if (this.state.showModal === 'showPlay' && dig(this.state.gameInfo, 'data.config.game.background_music')) {
+                return;
+            }
+            this.idleMusic[!this.state.playMusic ? 'play' : 'pause']();
+        }
+        if (this.startSound) {
+            this.startSound.pause();
+        }
+        this.setState({ playMusic: !this.state.playMusic });
+
+
+        // const newStatus = !this.state.playMusic;
+        // if (newStatus) {
+        //     if (this.state.showModal === 'showPlay' && dig(this.state.gameInfo, 'data.config.game.background_music')) {
+        //         return;
+        //     }
+
+        //     if (this.idleMusic) {
+        //         this.idleMusic.play();
+        //     }
+
+        //     if (this.state.showModal !== 'showPlay' && this.startSound) {
+        //         this.startSound.pause();
+        //     }
+        // } else {
+        //     this.idleMusic.pause();
+        // }
+
+        // this.setState({ playMusic: newStatus });
+    }
+
     onPlay = () => {
+        if (this.startSound) {
+            this.startSound.pause();
+            this.startSound.currentTime = 0;
+        }
+
+        if (dig(this.state.gameInfo, 'data.config.game.background_music')) {
+            this.idleMusic.pause();
+            this.idleMusic.currentTime = 0;
+        }
+
         if ((dig(this.state.memberInfo, 'data.token.amount') >= dig(this.state.gameInfo, 'data.token_charge'))) {
             this.props.dispatch(getGameToken({ id: this.state.gameId, token_charge: this.state.gameInfo.data.token_charge }));
+        } else if (dig(this.state.gameInfo, 'data.config.menu.no_token.image')) {
+            this.setState({
+                popupImage: {
+                    image: this.state.gameInfo.data.config.menu.no_token.image,
+                    _applink: this.state.gameInfo.data.config.menu.no_token._applink,
+                    _weblink: this.state.gameInfo.data.config.menu.no_token._weblink,
+                },
+            });
         } else {
             this.setState({
-                popupMessage: 'Insufficient token amount.',
+                popupMessage: dig(this.state.gameInfo, 'data.config.menu.no_token.message') || 'Insufficient token amount.',
             });
         }
     }
@@ -241,9 +322,10 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
 
         if (showModal === 'showPlay' && gameId) {
             if (gameId && dataChecking(this.state.gameInfo, 'data', 'type')) {
-                if (this.idleMusic) {
-                    this.idleMusic.pause();
-                }
+                // if (this.idleMusic) {
+                //     this.idleMusic.pause();
+                //     this.idleMusic.currentTime = 0;
+                // }
 
                 switch (this.state.gameInfo.data.type) {
                     case 'mix-and-match':
@@ -280,6 +362,15 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             />
                         );
                     case 'video-show':
+                        // return (
+                        //     <div
+                        //         style={{ height: '100%' }}
+                        //         onClick={() => {
+                        //             this.state.disableAction = false;
+                        //             this.onBackToMenu();
+                        //         }}
+                        //     ></div>
+                        // );
                         return (
                             <VideoShowGame
                                 props={{ smth: true }}
@@ -309,7 +400,14 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         if (showModal === 'slideShow' && slideArray) {
             return (
                 <div className="prize-inner-section">
-                    <Carousel showThumbs={false} showStatus={false} showIndicators={slideArray.length > 1} emulateTouch={true}>
+                    <Carousel
+                        showThumbs={false}
+                        showStatus={false}
+                        showIndicators={slideArray.length > 1}
+                        emulateTouch={true}
+                        verticalSwipe="natural"
+                        swipeable={false}
+                    >
                         {
                             slideArray.map((item, index) => (
                                 <img
@@ -364,7 +462,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         {
                             this.state.showModal ?
                                 <div
-                                    className={`toggle-back page-button-item ${this.state.disableAction ? 'disabled' : ''}`}
+                                    className={`toggle-back page-button-item to-left ${this.state.disableAction ? 'disabled' : ''}`}
                                     onClick={() => this.onBackToMenu()}
                                 >
                                     <i
@@ -381,12 +479,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             gameData.config.enableSound ?
                                 <div
                                     className="toggle-music page-button-item to-right"
-                                    onClick={() => {
-                                        this.setState({ playMusic: !this.state.playMusic });
-                                        if (this.idleMusic) {
-                                            this.idleMusic[!this.state.playMusic ? 'play' : 'pause']();
-                                        }
-                                    }}
+                                    onClick={this.onToggleMusic}
                                 >
                                     {
                                         this.state.playMusic ?
@@ -416,7 +509,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                     <div className="main-menu-username">
                                         {
                                             dataChecking(globalScope, 'profile', 'name') && dataChecking(globalScope, 'profile', 'username') ?
-                                                <div className="profile-name animated fadeIn">Welcome, {globalScope.profile.name || globalScope.profile.username}!</div>
+                                                <div className="profile-name animated fadeIn">Welcome, {globalScope.profile.first_name || globalScope.profile.name || globalScope.profile.username}!</div>
                                                 :
                                                 <img className="username-loading" src={require('images/preloader-02.gif')} alt="" />
                                         }
@@ -483,7 +576,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             //     }
                             // }
                         }}
-                    >1.1.0</div>
+                    >1.1.4</div>
                     <img
                         draggable="false"
                         onLoad={this.onBgImageLoaded}
@@ -519,29 +612,33 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 className="main-menu-token-indicator"
                                 style={{ color: gameData.config.game.text_color || 'black' }}
                             >
-                                <span className={`${this.state.disableAction ? 'disabled' : ''}`}>
-                                    {'Token available: '}
-                                </span>
-                                {
-                                    this.state.memberInfo ?
-                                        <span
-                                            className="token-value-container"
-                                        >
-                                            <span className={`token-amount pl-1 ${this.state.disableAction ? 'disabled' : ''} animated ${this.state.deductTokenFadeOut ? 'bounceOut' : ''}`}>
-                                                {dig(this.state.memberInfo, 'data.token.amount') || 0}
+                                <span >
+                                    <span className={`${this.state.disableAction ? 'disabled' : ''}`}>{'You Have '}</span>
+                                    {
+                                        this.state.memberInfo ?
+                                            <span
+                                                className="token-value-container"
+                                            >
+                                                <span className="placeholder opacity-zero">
+                                                    {dig(this.state.memberInfo, 'data.token.amount') || 0}
+                                                </span>
+                                                <span className={`token-amount animated ${this.state.deductTokenFadeOut ? 'bounceOut' : ''} ${this.state.disableAction && !this.state.deductToken ? 'disabled' : ''}`}>
+                                                    {dig(this.state.memberInfo, 'data.token.amount') || 0}
+                                                </span>
+                                                {
+                                                    this.state.deductToken ?
+                                                        <div
+                                                            className={`deducting-token animated animated ${this.state.deductTokenFadeOut ? 'bounceOutDown' : 'rubberBand'}`}
+                                                        >{` - ${gameData.token_charge}`}</div>
+                                                        :
+                                                        null
+                                                }
                                             </span>
-                                            {
-                                                this.state.deductToken ?
-                                                    <div
-                                                        className={`deducting-token animated animated ${this.state.deductTokenFadeOut ? 'bounceOutDown' : 'rubberBand'}`}
-                                                    >{` - ${gameData.token_charge}`}</div>
-                                                    :
-                                                    null
-                                            }
-                                        </span>
-                                        :
-                                        <img className="available-token-loading" src={require('images/preloader-02.gif')} alt="" />
-                                }
+                                            :
+                                            <img className="available-token-loading" src={require('images/preloader-02.gif')} alt="" />
+                                    }
+                                    <span className={`${this.state.disableAction ? 'disabled' : ''}`}>{' Spin Left '}</span>
+                                </span>
                             </div>
                             :
                             null
@@ -554,7 +651,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                 <div className="modal-inner-div">
                                     <div className="modal-dialog">
                                         <div className="modal-content">
-                                            {this.state.popupMessage}
+                                            <HtmlParser html={this.state.popupMessage} />
                                         </div>
                                         <div
                                             className="modal-dialog-confirm hermo-pink"
@@ -562,6 +659,35 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                                                 this.setState({ popupMessage: null });
                                             }}
                                         >OK</div>
+                                    </div>
+                                </div>
+                            </div>
+                            :
+                            null
+                    }
+                    {
+                        this.state.popupImage ?
+                            <div
+                                className={`games-page-popupImage animated ${this.state.isRendered ? 'fadeIn' : 'opacity-zero'}`}
+                            >
+                                <div className="modal-inner-div">
+                                    <div className="modal-dialog">
+                                        <div className="modal-content">
+                                            <img src={this.state.popupImage.image} alt="popup-message" />
+                                        </div>
+                                        <div
+                                            className="modal-dialog-back"
+                                            onClick={() => {
+                                                this.setState({ popupImage: null });
+                                            }}
+                                        >
+                                            <i
+                                                className="fas fa-chevron-left main-menu-button-item animated zoomIn"
+                                                style={{ color: gameData.config.game.text_color || 'black' }}
+                                                draggable="false"
+                                                alt="close dialog"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

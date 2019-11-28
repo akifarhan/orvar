@@ -164,6 +164,7 @@ body {
     .control-arrow {
         position: absolute;
         top: 40%;
+        top: calc(50% - 50px);
         height: 100px;
         width: 7%;
         border-radius: 10%;
@@ -206,4 +207,8 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active  {
     box-shadow: 0 0 0 30px white inset !important;
+}
+
+.hidden {
+    display: none !important;
 }
