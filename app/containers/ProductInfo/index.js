@@ -66,18 +66,11 @@ export class ProductInfo extends React.PureComponent { // eslint-disable-line re
         const product = dataChecking(this.props, 'productInfo', 'product', 'data');
 
         return (
-            <div>
+            <div className="product-info">
                 {
                     this.props.productInfo.product.loading ?
-                        <div>
-                            <CircularProgress
-                                className="product-description-loader"
-                                style={{
-                                    display: 'block',
-                                    margin: 'auto',
-                                    padding: '4rem',
-                                }}
-                            />
+                        <div className="product-info-loader">
+                            <CircularProgress className="loader" />
                         </div>
                         :
                         dataChecking(product) &&

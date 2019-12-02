@@ -5,13 +5,40 @@
 */
 
 import React from 'react';
-// import styled from 'styled-components';
 import parse, { domToReact } from 'html-react-parser';
 
 import './style.scss';
 
 class HtmlParser extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     render() {
+        const tableStyle = {
+            flex: 1,
+            justifyContent: 'flex-start',
+        };
+
+        const thStyle = {
+            ...tdStyle,
+            backgroundColor: '#CCCCCC',
+            alignItems: 'center',
+        };
+
+        const tColumnStyle = {
+            ...tableStyle,
+            flexDirection: 'column',
+            alignItems: 'stretch',
+        };
+
+        const tRowStyle = {
+            ...tableStyle,
+            flexDirection: 'row',
+            alignItems: 'stretch',
+        };
+
+        const tdStyle = {
+            ...tableStyle,
+            padding: 2,
+        };
+
         const options = {
             replace: ({ name, attribs, children, parent }) => {
                 if (name === 'img') {
@@ -46,6 +73,41 @@ class HtmlParser extends React.PureComponent { // eslint-disable-line react/pref
                             src={attribs.src}
                             width="100%"
                         />
+                    );
+                }
+                if (name === 'table') {
+                    return (
+                        <div style={tableStyle}>
+                            {domToReact(children, options)}
+                        </div>
+                    );
+                }
+                if (name === 'tbody') {
+                    return (
+                        <div style={tColumnStyle}>
+                            {domToReact(children, options)}
+                        </div>
+                    );
+                }
+                if (name === 'tr') {
+                    return (
+                        <div style={tRowStyle}>
+                            {domToReact(children, options)}
+                        </div>
+                    );
+                }
+                if (name === 'td') {
+                    return (
+                        <div style={tdStyle}>
+                            {domToReact(children, options)}
+                        </div>
+                    );
+                }
+                if (name === 'th') {
+                    return (
+                        <div style={thStyle}>
+                            {domToReact(children, options)}
+                        </div>
                     );
                 }
                 return null;

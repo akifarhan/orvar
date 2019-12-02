@@ -39,18 +39,11 @@ export class ProductDescription extends React.PureComponent { // eslint-disable-
         const product = dataChecking(this.props, 'productDescription', 'product', 'data');
 
         return (
-            <div>
+            <div className="product-description">
                 {
                     this.props.productDescription.product.loading ?
-                        <div className="loader">
-                            <CircularProgress
-                                className="product-description-loader"
-                                style={{
-                                    display: 'block',
-                                    margin: 'auto',
-                                    padding: '4rem',
-                                }}
-                            />
+                        <div className="product-description-loader">
+                            <CircularProgress className="loader" />
                         </div>
                         :
                         <Container>
