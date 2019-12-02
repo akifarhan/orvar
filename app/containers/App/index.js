@@ -45,8 +45,8 @@ import ProfileWallet from 'containers/ProfileWallet';
 import ProfileWishlist from 'containers/ProfileWishlist';
 import SignUp from 'containers/SignUpPage';
 
-import Header from 'containers/Header';
-import Footer from 'containers/Footer';
+// import Header from 'containers/Header';
+// import Footer from 'containers/Footer';
 import './style.scss';
 
 export default function App() {
@@ -54,7 +54,7 @@ export default function App() {
     return (
         <section className="main-content">
             <Notify></Notify>
-            <Header />
+            {/* <Header /> */}
             <div
                 id="hershop-content-container"
             >
@@ -121,7 +121,7 @@ export default function App() {
                     <Route component={NotFoundPage} />
                 </Switch>
             </div>
-            <Footer />
+            {/* <Footer /> */}
         </section>
     );
 }

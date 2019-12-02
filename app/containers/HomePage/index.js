@@ -12,8 +12,11 @@ import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
+import Box from '@material-ui/core/Box';
+// import Container from '@material-ui/core/Container';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 
-import { Box, Container, Typography, Button } from '@material-ui/core';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 
@@ -132,10 +135,10 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                 <Box className="mb-1">
                     {this.homeBanner()}
                 </Box>
-                <Container maxWidth="lg">
+                {/* <Container maxWidth="lg">
                     {this.flagship()}
                     {this.twoh()}
-                </Container>
+                </Container> */}
             </Box>
         </div>
     );
