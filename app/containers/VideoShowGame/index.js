@@ -124,7 +124,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
 
     renderResult = () => (
         <div className={`result-screen-content animated ${this.state.complete ? 'fadeIn' : 'opacity-zero'}`}>
-            <div className="prize-inner-section">
+            <div className="inner-section">
                 <div
                     onClick={() => {
                         if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
@@ -312,7 +312,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
             {this.renderResult()}
             {
                 this.state.shareModal ?
-                    <div className="video-show-modal">
+                    <div className="video-show-share-modal">
                         <div className="modal-inner-div">
                             <IconButton className="close modal-inner-button" onClick={() => this.setState({ shareModal: false })}>
                                 <Close />

@@ -178,7 +178,7 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
         return null;
     }
 
-    renderTrackingButton = (merchant) => (
+    renderTrackingButton = (merchant, mdUp) => (
         <Button
             variant="outlined"
             color="primary"
@@ -186,6 +186,7 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
             onClick={() => {
                 window.TrackButton.track({ tracking_no: merchant.summary.shipping.tracking_number });
             }}
+            style={mdUp ? { float: 'right' } : null}
         >
             {
                 merchant.summary.shipping.tracking_number !== null ?
@@ -216,12 +217,14 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
                     }}
                 />
             </div>
-            <Typography color="textSecondary" variant="body2">{merchant.logo.brief} ({merchant.shipping.estimate_arrival})</Typography>
             <Hidden lgUp={true}>
                 <div className="pt-1">
                     {this.renderTrackingButton(merchant)}
                 </div>
             </Hidden>
+            <div className="pt-1">
+                <Typography color="textSecondary" variant="body2">{merchant.logo.brief} ({merchant.shipping.estimate_arrival})</Typography>
+            </div>
         </div>
     )
 
@@ -343,29 +346,29 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
                                                     </Grid>
                                                 </Grid>
                                                 <Grid item={true} lg={3} md={12} xs={12}>
-                                                    <Grid container={true}>
-                                                        <Hidden mdDown={true}>
-                                                            <Grid item={true} lg={12} md={12} xs={12} className="mt-2">
-                                                                {this.renderTrackingButton(merchant)}
-                                                            </Grid>
-                                                        </Hidden>
-                                                        <Grid item={true} lg={12} md={12} xs={12} className="mt-3">
+                                                    <div className="order-detail-container">
+                                                        <div className="order-detail-info track">
+                                                            <Hidden mdDown={true}>
+                                                                {this.renderTrackingButton(merchant, true)}
+                                                            </Hidden>
+                                                        </div>
+                                                        <div className="order-detail-info courier">
                                                             {
                                                                 this.renderOrderInfo([
                                                                     { label: 'Courier', dataPath: merchant.summary.shipping.name },
                                                                     { label: 'Tracking Number', dataPath: merchant.summary.shipping.tracking_number !== null ? merchant.summary.shipping.tracking_number : 'Not Available' },
                                                                 ])
                                                             }
-                                                        </Grid>
-                                                        <Grid item={true} lg={12} md={12} xs={12} className="mt-2">
+                                                        </div>
+                                                        <div className="order-detail-info price">
                                                             {
                                                                 this.renderOrderInfo([
-                                                                    { label: 'Subtotal', dataPath: <span style={{ color: '#660033' }}>{order.currency.symbol} {merchant.summary.subtotal.toFixed(2)}</span> },
-                                                                    { label: 'Shipping Fee', dataPath: `${order.currency.symbol} ${merchant.summary.shipping.value.toFixed(2)}` },
+                                                                    { label: 'Shipping Fee', dataPath: `${order.currency.symbol}${merchant.summary.shipping.value.toFixed(2)}` },
+                                                                    { label: 'Subtotal', dataPath: <span style={{ color: '#660033', fontWeight: 'bold' }}>{order.currency.symbol}{merchant.summary.subtotal.toFixed(2)}</span> },
                                                                 ])
                                                             }
-                                                        </Grid>
-                                                    </Grid>
+                                                        </div>
+                                                    </div>
                                                 </Grid>
                                             </Grid>
                                         </div>
@@ -381,8 +384,8 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
                                             {
                                                 dataChecking(this.props.profileOrderDetail, 'orderData') &&
                                                     this.renderOrderInfo([
-                                                        { label: <span style={{ color: '#FF4081' }}>Promotional Discount</span>, dataPath: <span style={{ color: '#FF4081' }}>- {order.currency.symbol} {order.summary.discount.total.toFixed(2)}</span> },
-                                                        { label: 'Total', dataPath: <span style={{ color: '#660033' }}>{order.currency.symbol} {order.summary.grand_total.toFixed(2)}</span> },
+                                                        { label: <span style={{ color: '#FF4081' }}>Promotional Discount</span>, dataPath: <span style={{ color: '#FF4081', fontWeight: 'bold' }}>- {order.currency.symbol}{order.summary.discount.total.toFixed(2)}</span> },
+                                                        { label: 'Total', dataPath: <span style={{ color: '#660033', fontWeight: 'bold' }}>{order.currency.symbol}{order.summary.grand_total.toFixed(2)}</span> },
                                                     ])
                                             }
                                         </Grid>
@@ -399,16 +402,16 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
                                 {
                                     dataChecking(this.props.profileOrderDetail, 'orderData', 'merchants').map((merchant) => (
                                         this.renderOrderInfo([
-                                            { label: merchant.name, dataPath: `${order.currency.symbol} ${merchant.summary.subtotal.toFixed(2)}` },
+                                            { label: merchant.name, dataPath: `${order.currency.symbol}${merchant.summary.subtotal.toFixed(2)}` },
                                         ])
                                     ))
                                 }
                                 {
                                     dataChecking(this.props.profileOrderDetail, 'orderData') &&
                                         this.renderOrderInfo([
-                                            { label: 'Shipping Fee', dataPath: `${order.currency.symbol} ${order.summary.shipping.total.toFixed(2)}` },
-                                            { label: <span style={{ color: '#FF4081' }}>Promotional Discount</span>, dataPath: <span style={{ color: '#FF4081' }}>- {order.currency.symbol} {order.summary.discount.total.toFixed(2)}</span> },
-                                            { label: 'Total', dataPath: <span style={{ color: '#660033' }}>{order.currency.symbol} {order.summary.grand_total.toFixed(2)}</span> },
+                                            { label: 'Shipping Fee', dataPath: `${order.currency.symbol}${order.summary.shipping.total.toFixed(2)}` },
+                                            { label: <span style={{ color: '#FF4081' }}>Promotional Discount</span>, dataPath: <span style={{ color: '#FF4081', fontWeight: 'bold' }}>- {order.currency.symbol}{order.summary.discount.total.toFixed(2)}</span> },
+                                            { label: 'Total', dataPath: <span style={{ color: '#660033', fontWeight: 'bold' }}>{order.currency.symbol}{order.summary.grand_total.toFixed(2)}</span> },
                                         ])
                                 }
                                 <div align="center" className="mt-3">
@@ -439,7 +442,7 @@ export class ProfileOrderDetail extends React.PureComponent { // eslint-disable-
 
     render() {
         return (
-            <Container>
+            <Container className="profile-order-details pt-1 pb-3">
                 {
                     this.props.profileOrderDetail.loading ?
                         <div style={{ textAlign: 'center' }}><CircularProgress /></div>

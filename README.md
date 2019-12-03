@@ -14,13 +14,18 @@ npm i && npm start
 Orvar
 ----------
 
-Documentation:
-Type of enzyme test coverage:
-* functions: check if the return value from function matches expectation
-* branches: every outcome from a code module is tested. For example, if the outcomes are binary, you need to test both True and False outcomes. (if else)
-* Statement: Statement coverage is a white box test design technique which involves execution of all the executable statements in the source code at least once
-* lines: Make sure every line is run without error
-
+Documentation:  
+Type of enzyme test coverage:  
+- functions: check if the return value from function matches expectation  
+- branches: every outcome from a code module is tested. For example, if the outcomes are binary, you need to test both True and False outcomes. (if else)  
+- Statement: Statement coverage is a white box test design technique which involves execution of all the executable statements in the source code at least once  
+- lines: Make sure every line is run without error  
+  
+Disable https:  
+1. Open file `server/index.js`.  
+2. Change ` https.createServer({ key: fs.readFileSync('./server/ssl/server.key'), cert: fs.readFileSync('./server/ssl/server.crt'),}, app).listen(port, host, (err) => { `  to ` app.listen(port, host, (err) => {` in `line 31`.  
+3. Delete `line 3` and `line 4`.
+     
 Assummed TDD flow:
 1. Come our with basic MVP wireframe
 2. Function test:

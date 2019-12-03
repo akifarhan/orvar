@@ -15,33 +15,35 @@ import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import globalScope from 'globalScope';
 
-import Notify from 'containers/Notify';
-import ProductView from 'containers/ProductView';
+import AboutUs from 'containers/AboutUs';
+import AuthPage from 'containers/AuthPage';
+import BeautyWall from 'containers/BeautyWall';
+import BrandPage from 'containers/BrandPage';
+import CartPage from 'containers/CartPage';
+import CheckoutPage from 'containers/CheckoutPage';
+import FeedbackPage from 'containers/FeedbackPage';
+import GamesPage from 'containers/GamesPage';
 import HomePage from 'containers/HomePage';
+import LogIn from 'containers/LoginForm';
 import LogoutForm from 'containers/LogoutForm';
 import MallPage from 'containers/MallPage';
-import BrandPage from 'containers/BrandPage';
 import NotFoundPage from 'containers/NotFoundPage';
+import Notify from 'containers/Notify';
 import OnboardingPage from 'containers/OnboardingPage';
-import ProfilePage from 'components/ProfilePage';
-import CartPage from 'containers/CartPage';
 import PrivateRoute from 'containers/App/PrivateRoute';
-import CheckoutPage from 'containers/CheckoutPage';
-import ProfileOrderList from 'containers/ProfileOrderList';
-import ProfileOrderDetail from 'containers/ProfileOrderDetail';
-import ProfileEditInfo from 'containers/ProfileEditInfo';
-import ProfileWishlist from 'containers/ProfileWishlist';
-import ProfileReview from 'containers/ProfileReview';
-import ProfileWallet from 'containers/ProfileWallet';
-import AboutUs from 'containers/AboutUs';
-import FeedbackPage from 'containers/FeedbackPage';
-import AuthPage from 'containers/AuthPage';
-import SignUp from 'containers/SignUpPage';
-import LogIn from 'containers/LoginForm';
+import ProductDescription from 'containers/ProductDescription';
+import ProductInfo from 'containers/ProductInfo';
+import ProductView from 'containers/ProductView';
 import ProfileAddress from 'containers/ProfileAddress';
+import ProfileEditInfo from 'containers/ProfileEditInfo';
+import ProfileOrderDetail from 'containers/ProfileOrderDetail';
+import ProfileOrderList from 'containers/ProfileOrderList';
+import ProfilePage from 'components/ProfilePage';
+import ProfileReview from 'containers/ProfileReview';
 import ProfileRewards from 'containers/ProfileRewards';
-import BeautyWall from 'containers/BeautyWall';
-import GamesPage from 'containers/GamesPage';
+import ProfileWallet from 'containers/ProfileWallet';
+import ProfileWishlist from 'containers/ProfileWishlist';
+import SignUp from 'containers/SignUpPage';
 
 import Header from 'containers/Header';
 import Footer from 'containers/Footer';
@@ -92,6 +94,8 @@ export default function App() {
                         component={MallPage}
                     />
                     <Route exact={true} path="/mall/:productId" component={ProductView} />
+                    <Route exact={true} path="/mall/:productId/description" component={ProductDescription} />
+                    <Route exact={true} path="/mall/:productId/info" component={ProductInfo} />
                     <Route
                         exact={true}
                         path="/about/:abouthermo(joinus|contactus|shippinginfo|returnpolicy|membership|privacypolicy|termandcondition|faq|userterm|hermobankaccount)?"

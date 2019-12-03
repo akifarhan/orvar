@@ -39,7 +39,26 @@
         }
     }
 }
-
+.order-detail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 100%;
+    .order-detail-info {
+        width: 100%;
+    }
+    .track {
+        padding-top: 1rem;
+        flex-grow: 1;
+    }
+    .courier {
+        flex-grow: 5;
+    }
+    .price {
+        padding-bottom: 1rem;
+    }
+}
 .dialog-item-image {
     width: 8rem;
     margin-left: auto;

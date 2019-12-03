@@ -136,15 +136,15 @@ export class NotifyMe extends React.PureComponent { // eslint-disable-line react
                 return (
                     <div className="notify-me-content">
                         <form>
-                            <Grid container="true" spacing={1} justify="center" alignItems="center">
-                                <Grid item="true" xs={12} sm={4}>
+                            <Grid container={true} spacing={1} justify="center" alignItems="center">
+                                <Grid item={true} xs={12} sm={4}>
                                     <img
                                         src={dataChecking(product, 'image', 'small')}
                                         alt="product_image"
                                         className="notify-me-image"
                                     />
                                 </Grid>
-                                <Grid item="true" xs={12} sm={8}>
+                                <Grid item={true} xs={12} sm={8}>
                                     <ProductCard
                                         product={product}
                                         url={dataChecking(product, 'url')}
