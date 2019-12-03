@@ -124,7 +124,7 @@ export class VideoShowGame extends React.PureComponent { // eslint-disable-line 
 
     renderResult = () => (
         <div className={`result-screen-content animated ${this.state.complete ? 'fadeIn' : 'opacity-zero'}`}>
-            <div className="prize-inner-section">
+            <div className="inner-section">
                 <div
                     onClick={() => {
                         if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {

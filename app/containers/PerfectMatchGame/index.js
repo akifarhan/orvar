@@ -385,7 +385,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
 
     renderResult = () => (
         <div className="result-screen-content">
-            <div className="prize-inner-section animated zoomIn">
+            <div className="inner-section animated zoomIn">
                 {
                     this.state.gameResultImage ?
                         <div

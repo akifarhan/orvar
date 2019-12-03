@@ -54,6 +54,13 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
     }
 
     componentDidMount = () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+        document.addEventListener('touchmove', (event) => {
+            if (event.scale !== 1) { event.preventDefault(); }
+        }, false);
+
         document.ondragstart = () => null;
         Events.trigger('hideHeader', {});
         Events.trigger('hideFooter', {});
@@ -399,7 +406,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
 
         if (showModal === 'slideShow' && slideArray) {
             return (
-                <div className="prize-inner-section">
+                <div className="inner-section">
                     <Carousel
                         showThumbs={false}
                         showStatus={false}
@@ -407,6 +414,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         emulateTouch={true}
                         verticalSwipe="natural"
                         swipeable={false}
+                        className="inner-section-carousel"
                     >
                         {
                             slideArray.map((item, index) => (

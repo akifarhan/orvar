@@ -3,7 +3,7 @@
 
 .games-page {
     min-height: 300px;
-    max-height: 100vh;
+    max-height: calc(var(--vh, 1vh) * 100);
     margin: auto;
     overflow: hidden;
     display: flex;
@@ -12,8 +12,7 @@
 
     .game-container {
         position: relative;
-        height: 100%;
-        max-height: 100vh;
+        height: 100%;max-height: calc(var(--vh, 1vh) * 100);
         max-width: 100%;
 
         .games-login-modal {
@@ -120,7 +119,25 @@
             }
         }
 
-        .prize-inner-section {
+        .inner-section {
+            height: 100%;
+
+            .inner-section-carousel {
+                height: 100%;
+
+                .carousel.carousel-slider {
+                    max-height: 100%;
+
+                    .slider-wrapper {
+                        height: 100%;
+
+                        .slider {
+                            max-height: 100%;
+                        }
+                    }
+                }
+            }
+
             .result-bottom-content {
                 position: absolute;
                 z-index: 10;
@@ -155,7 +172,6 @@
             }
 
             img {
-                max-height: 100%;
                 max-width: 100%;
             }
         }
@@ -237,8 +253,8 @@
         }
 
         .main-menu-bg {
-            max-width: 100vw;
-            max-height: 100vh;
+            max-width: 100%;
+            max-height: calc(var(--vh, 1vh) * 100);
         }
 
         .main-menu-token-indicator {
@@ -294,6 +310,10 @@
     }
 
     .carousel.carousel-slider {
+        .slider .slide.selected {
+            max-height: calc(var(--vh, 1vh) * 100);
+        }
+
         .control-arrow {
             right: 2% !important;
             transform: scale(2.8);
