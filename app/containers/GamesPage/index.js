@@ -100,10 +100,10 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
             }
         }
 
-        if (dig(nextProps, 'gamesPage.gameToken.data') && (dig(nextProps, 'gamesPage.gameToken.data') !== dig(this.props, 'gamesPage.gameToken.data'))) {
+        if (dataChecking(nextProps, 'gamesPage', 'gameToken', 'data') && (dataChecking(nextProps, 'gamesPage', 'gameToken', 'data') !== dataChecking(this.props, 'gamesPage', 'gameToken', 'data'))) {
             if (nextProps.gamesPage.gameToken.success) {
-                if (dig(nextProps, 'gamesPage.gameToken.data.data.message.gift_finished') || dig(nextProps, 'gamesPage.gameToken.data.data.message.expired')) {
-                    if (dig(nextProps, 'gamesPage.gameToken.data.data.message.image')) {
+                if (dataChecking(nextProps, 'gamesPage', 'gameToken', 'data', 'data', 'message', 'gift_finished') || dataChecking(nextProps, 'gamesPage', 'gameToken', 'data', 'data', 'message', 'expired')) {
+                    if (dataChecking(nextProps, 'gamesPage', 'gameToken', 'data', 'data', 'message', 'image')) {
                         this.setState({
                             popupImage: {
                                 image: this.state.gamesPage.gameToken.data.data.message.image,
