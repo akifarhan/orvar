@@ -37,6 +37,12 @@ export const getXdp = (percent) => `${percent}vw`;
 export const getYdp = (percent) => `${percent}vw`;
 
 export const dig = digdataFromOska.dig;
+
+export function dataDig(object, dataString) {
+    const dataArr = dataString.split('.');
+    return dataChecking(object, dataArr);
+}
+
 export function dataChecking(object, ...argsArr) {
     if (!argsArr || !argsArr.length) {
         return object;
