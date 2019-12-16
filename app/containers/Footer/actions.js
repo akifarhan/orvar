@@ -5,26 +5,11 @@
  */
 
 import {
-    GET_LAYOUT_FOOTER,
-    GET_LAYOUT_FOOTER_SUCCESS,
-    GET_LAYOUT_FOOTER_FAILED,
+    DEFAULT_ACTION,
 } from './constants';
 
-export function getLayoutFooter() {
+export function defaultAction() {
     return {
-        type: GET_LAYOUT_FOOTER,
-    };
-}
-
-export function getLayoutFooterSuccess(layoutFooterData) {
-    return {
-        type: GET_LAYOUT_FOOTER_SUCCESS,
-        layoutFooterData,
-    };
-}
-export function getLayoutFooterFailed(layoutFooterData) {
-    return {
-        type: GET_LAYOUT_FOOTER_FAILED,
-        layoutFooterData,
+        type: DEFAULT_ACTION,
     };
 }
