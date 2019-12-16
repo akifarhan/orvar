@@ -45,6 +45,8 @@ import ProfileWallet from 'containers/ProfileWallet';
 import ProfileWishlist from 'containers/ProfileWishlist';
 import SignUp from 'containers/SignUpPage';
 
+import Example from 'containers/Example';
+
 import Header from 'containers/Header';
 import Footer from 'containers/Footer';
 import './style.scss';
@@ -117,6 +119,7 @@ export default function App() {
                     <PrivateRoute exact={true} path="/cart" component={CartPage} />
 
                     <Route exact={true} path="/games/:id" component={GamesPage} />
+                    <Route exact={true} path="/test" component={Example} />
 
                     <Route component={NotFoundPage} />
                 </Switch>
