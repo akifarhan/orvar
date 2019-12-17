@@ -6,699 +6,570 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import { NavLink } from 'react-router-dom';
-import OwlCarousel from 'react-owl-carousel2';
-import 'assets/react-owl-carousel2.style.scss';
-import { withStyles } from '@material-ui/core/styles';
+
+import Avatar from '@material-ui/core/Avatar';
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardContent from '@material-ui/core/CardContent';
+import CardHeader from '@material-ui/core/CardHeader';
+import Container from '@material-ui/core/Container';
+import Divider from '@material-ui/core/Divider';
+import Grid from '@material-ui/core/Grid';
+import Hidden from '@material-ui/core/Hidden';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+
+import Favorite from '@material-ui/icons/Favorite';
+
+import Carousel from 'components/Carousel';
+import HtmlParser from 'components/HtmlParser';
 import ProductCard from 'components/ProductCard';
-import parse from 'html-react-parser';
 
-import {
-    Avatar,
-    Box,
-    Button,
-    Card,
-    CardActionArea,
-    CardContent,
-    CardHeader,
-    Container,
-    Divider,
-    Grid,
-    Hidden,
-    Paper,
-    Typography,
-} from '@material-ui/core';
-import {
-    Favorite,
-} from '@material-ui/icons';
-
-import { dataChecking } from 'globalUtils';
+import { dig } from 'globalUtils';
+import globalScope from 'globalScope';
+import makeSelectHomePage from './selectors';
 import {
     getHomeBanner,
     getFlagship,
     getTwoh,
     getNewArrival,
-    getExtension,
     getTrending,
     getSponsored,
+    // getExtension,
+    getPersonalisation,
     getReview,
-    getStore,
-    getLayoutFooter,
-    getImageFooter,
-    getPartnerFooter,
+    getFooterLayout,
+    getFooterImage,
+    getFooterPartner,
 } from './actions';
-import makeSelectHomePage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
-import styles from './materialStyle';
 
 
-export class HomePage extends React.PureComponent {
-    constructor(props) {
-        super(props);
-        this.state = {
-            a: true,
-        };
-    }
+export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     componentDidMount() {
         this.props.dispatch(getHomeBanner());
         this.props.dispatch(getFlagship());
         this.props.dispatch(getTwoh());
         this.props.dispatch(getNewArrival());
-        this.props.dispatch(getExtension());
         this.props.dispatch(getTrending());
         this.props.dispatch(getSponsored());
+        // this.props.dispatch(getExtension());
+        this.props.dispatch(getPersonalisation());
         this.props.dispatch(getReview());
-        this.props.dispatch(getStore());
-        this.props.dispatch(getLayoutFooter());
-        this.props.dispatch(getImageFooter());
-        this.props.dispatch(getPartnerFooter());
+        this.props.dispatch(getFooterLayout());
+        this.props.dispatch(getFooterImage());
+        this.props.dispatch(getFooterPartner());
     }
 
-    sectionHeader = (title, description) => (
-        <Container className="container section-header py-half" style={{ textAlign: 'center' }}>
-            <Box className="text-uppercase">
-                <Typography variant="h5">
-                    {title}
-                </Typography><br />
-                <Typography variant="subtitle1">
-                    {description}
-                </Typography>
+    /**
+     * display header for each section
+     */
+    sectionHeader = (section) => (
+        <Box className={`section-title mb-1 ${dig(section, 'data.cta') && section.data.cta.color === 'light' ? 'light-cta' : 'dark-cta'}`}>
+            <Typography className="text-uppercase" align="center" variant="h4">{section.title}</Typography>
+            <Typography className="text-capitalize" align="center" variant="subtitle1">{section.description}</Typography>
+        </Box>
+    )
+
+    homeBanner = () => {
+        const settings = {
+            dots: true,
+            autoplay: true,
+            autoplaySpeed: 5000,
+        };
+        const homeBanner = this.props.homePage.homeBanner.data.result.items.map((item, index) => (
+            <Box key={index}>
+                <img
+                    src={item.image.desktop}
+                    alt={item.name}
+                    srcSet={`
+                        ${item.image.desktop} 2000w,
+                        ${item.image.mobile} 1000w,
+                    `}
+                    width="100%"
+                    height="100%"
+                />
             </Box>
-        </Container>
-    )
+        ));
 
-    /**
-     * HOT STUFF - display slider of product cards for BACK IN STOCK AND HIGHLY RATED
-     */
-    sectionHotStuff = (title, description, products) => (
-        <Card className={this.props.classes.card}>
-            {this.sectionHeader(title, description)}
-            <Divider />
-            <CardContent>
-                <OwlCarousel
-                    options={{
-                        items: 2,
-                        loop: true,
-                        nav: true,
-                        navText: ['&lt;', '&gt;'],
-                    }}
-                >
-                    {
-                        products.map((product) => (
-                            <ProductCard
-                                key={product.id}
-                                product={product}
-                                url={product.url}
-                                image={true}
-                                className="product-card animated fadeIn"
-                            />
-                        ))
-                    }
-                </OwlCarousel>
-            </CardContent>
-        </Card>
-    )
-
-    /**
-     *  HOME BANNER - slider of banner
-     */
-    renderHomeBanner = () => (
-        <div className="div home-top-banner">
-            {
-                dataChecking(this.props.homePage, 'banner', 'data', 'data', 'result', 'items') &&
-                    <div>
-                        <Hidden className="home-banner-desktop carousel animated fadeIn" smDown={true}>
-                            <OwlCarousel
-                                options={{
-                                    items: 1,
-                                    loop: true,
-                                    nav: true,
-                                    dots: true,
-                                    navText: ['&lt;', '&gt;'],
-                                    autoplay: true,
-                                    autoplayHoverPause: true,
-                                    center: true,
-                                }}
-                            >
-                                {
-                                    dataChecking(this.props.homePage, 'banner', 'data', 'data', 'result', 'items').map((banner) => (
-                                        (banner.visibility.desktop) &&
-                                            <NavLink key={banner.id} to={banner.url} className="home-banner-item">
-                                                <img src={banner.image.desktop} alt={`banner ${banner.caption}`} />
-                                            </NavLink>
-                                    ))
-                                }
-                            </OwlCarousel>
-                        </Hidden>
-                        <Hidden className="carousel home-banner-mobile" mdUp={true}>
-                            <OwlCarousel
-                                options={{
-                                    items: 1,
-                                    loop: true,
-                                    autoplay: true,
-                                    dots: true,
-                                    autoplayHoverPause: true,
-                                }}
-                            >
-                                {
-                                    dataChecking(this.props.homePage, 'banner', 'data', 'data', 'result', 'items').map((banner) => (
-                                        (banner.visibility.mobile) &&
-                                            <NavLink key={banner.id} to={banner.url}>
-                                                <img src={banner.image.mobile} alt={`banner ${banner.caption}`} />
-                                            </NavLink>
-                                    ))
-                                }
-                            </OwlCarousel>
-                        </Hidden>
-                    </div>
-            }
-        </div>
-    )
-
-    /**
-     *  MOBILE SHORTCUT - list of buttons
-     */
-    renderMobileShortcuts = () => {
-        const buttonlink = dataChecking(this.props.homePage, 'store', 'success') && dataChecking(this, 'props', 'homePage', 'store', 'data', 'button_link');
-        let buttonLinks;
-        if (this.props.homePage.store.success && buttonlink && buttonlink.items) {
-            const buttonIndex = Object.keys(buttonlink.items);
-            buttonLinks = buttonIndex.map((index) => (
-                <Grid key={buttonlink.items[index].id}item={true} xs={3}>
-                    {
-                        buttonlink.items[index].id === 4987 ?
-                            <div style={{ textAlign: 'center' }}>
-                                <img src={buttonlink.items[index].image.app} alt={`${buttonlink.items[index].name} button`} />
-                                <Typography>{buttonlink.items[index].title}</Typography>
-                            </div>
-                        :
-                            <NavLink to={buttonlink.items[index].url}>
-                                <div style={{ textAlign: 'center' }}>
-                                    <img src={buttonlink.items[index].image.app} alt={`${buttonlink.items[index].name} button`} />
-                                    <Typography>{buttonlink.items[index].title}</Typography>
-                                </div>
-                            </NavLink>
-                    }
-                </Grid>
-            ));
-        }
         return (
-            <Container>
-                <Grid container={true}>
-                    {buttonLinks}
-                </Grid>
+            <Box className="home-banner-content">
+                {
+                    homeBanner &&
+                    <Carousel settings={settings}>
+                        { homeBanner }
+                    </Carousel>
+                }
+            </Box>
+        );
+    }
+
+    flagship = () => {
+        const settings = {
+            centerMode: true,
+            slidesToShow: 5,
+            responsive: [
+                {
+                    breakpoint: 600,
+                    settings: {
+                        slidesToShow: 1,
+                    },
+                },
+            ],
+        };
+        const homeFlagship = this.props.homePage.flagship.data.items.map((item, index) => (
+            <Box key={index}>
+                <img
+                    src={item.brand.logo}
+                    alt={item.name}
+                    width="100%"
+                    height="100%"
+                />
+            </Box>
+        ));
+
+        return (
+            <Container className="home-section flagship-content">
+                {this.sectionHeader({ title: 'official flagships stores', description: 'authorised & authentic' })}
+                {
+                    homeFlagship &&
+                    <Carousel settings={settings}>
+                        {homeFlagship}
+                    </Carousel>
+                }
+                <Box className="text-xs-center mb-1">
+                    <Button variant="contained" color="primary">
+                        view all flagships
+                    </Button>
+                </Box>
             </Container>
         );
     }
 
-    /**
-     *  FLAGSHIP - slider of flagship brands logo
-     */
-    renderFlagship = () => (
-        <Container className="container home-flagship py-1"style={{ textAlign: 'center' }}>
-            {this.sectionHeader('official flagships stores', 'authorised & authentic')}
-            {dataChecking(this.props.homePage, 'flagship', 'data', 'data', 'items') &&
-                <div>
-                    <OwlCarousel
-                        options={{
-                            items: 2,
-                            loop: true,
-                            center: true,
-                            navText: ['&lt;', '&gt;'],
-                            stagePadding: 50,
-                            responsive: {
-                                700: {
-                                    items: 6,
-                                    nav: true,
-                                },
-                            },
-                        }}
-                    >
+    twoh = () => {
+        const twohData = dig(this.props.homePage, 'twoh.data');
+
+        const homeTwoh = twohData.result.map((column, index) => (
+            <Grid key={index} item={true} xs={6}>
+                <Grid container={true} direction="column" spacing={2}>
+                    <Grid item={true} xs={12}>
                         {
-                            dataChecking(this.props.homePage, 'flagship', 'data', 'data', 'items').map((flagship) => (
-                                <NavLink key={flagship.id} to={flagship.url}>
-                                    <img src={flagship.brand.logo} alt={`flagship brand ${flagship.brand.name} logo`} />
-                                </NavLink>
+                            dig(column, 'primary.items.length') && column.primary.items.map((primary) => (
+                                <Card key={primary.id}>
+                                    <NavLink to={primary.url} style={{ textDecoration: 'none' }}>
+                                        <CardActionArea>
+                                            <img
+                                                src={primary.image.desktop}
+                                                alt={primary.name}
+                                                srcSet={`
+                                                    ${primary.image.desktop} 2000w,
+                                                    ${primary.image.mobile} 1000w,
+                                                `}
+                                                width="100%"
+                                                height="100%"
+                                            />
+                                            <Box className="p-1">
+                                                <Typography className="twoh-card-title text-uppercase" variant="body1">{primary.title}</Typography>
+                                                <Typography className="twoh-card-brief" variant="body2">{primary.brief}</Typography>
+                                            </Box>
+                                        </CardActionArea>
+                                    </NavLink>
+                                </Card>
                             ))
                         }
-                    </OwlCarousel>
-                    {/* BUTTON NAVLINK TO FLAGSHIP PAGE */}
-                    <Button variant="contained">
-                        View All Flagships
-                    </Button>
-                </div>
-            }
-        </Container>
-    )
-
-    /**
-     * THIS WEEK ON HERMO - cards of featured banner
-     */
-    renderTwoh = () => {
-        const twoh = dataChecking(this.props.homePage, 'twoh', 'success') && dataChecking(this.props, 'homePage', 'twoh');
-        let twohBanner;
-        if (twoh && dataChecking(twoh, 'data')) {
-            const section = Object.keys(dataChecking(twoh, 'data', 'result'));
-            twohBanner = section.map((container) => (
-                <Grid key={container} item={true} xs={6}>
-                    {
-                        <Grid container={true}>
-                            <Grid item={true}>
-                                {
-                                    dataChecking(twoh, 'data', 'result') && twoh.data.result[container].primary.items.map((banner) => (
-                                        <Card key={banner.id} className={this.props.classes.card}>
-                                            <CardActionArea>
-                                                <img src={banner.image.desktop} alt={`${banner.name} feature banner`} />
-                                            </CardActionArea>
-                                            <CardContent>
-                                                <Typography className="text-uppercase" variant="body2">
-                                                    {banner.title}
-                                                </Typography><br />
-                                                <Typography className="text-uppercase" variant="caption">
-                                                    {banner.brief}
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                    ))
-                                }
-                            </Grid>
+                    </Grid>
+                    <Grid item={true} xs={12}>
+                        <Grid container={true} spacing={2}>
                             {
-                                dataChecking(twoh, 'data', 'result') && twoh.data.result[container].secondary.items.map((banner) => (
-                                    <Grid key={banner.id} item={true}>
-                                        <Card className={this.props.classes.card2}>
-                                            <CardActionArea>
-                                                <img src={banner.image.desktop} alt={`${banner.name} feature banner`} />
-                                            </CardActionArea>
-                                            <CardContent>
-                                                <Typography className="text-uppercase" variant="body2">
-                                                    {banner.title}
-                                                </Typography><br />
-                                                <Typography className="text-uppercase" variant="caption">
-                                                    {banner.brief}
-                                                </Typography>
-                                            </CardContent>
+                                dig(column, 'secondary.items.length') && column.secondary.items.map((secondary) => (
+                                    <Grid key={secondary.id} item={true} xs={6}>
+                                        <Card>
+                                            <NavLink to={secondary.url} style={{ textDecoration: 'none' }}>
+                                                <CardActionArea>
+                                                    <img
+                                                        src={secondary.image.desktop}
+                                                        alt={secondary.name}
+                                                        srcSet={`
+                                                            ${secondary.image.desktop} 2000w,
+                                                            ${secondary.image.mobile} 1000w,
+                                                        `}
+                                                        width="100%"
+                                                        height="100%"
+                                                    />
+                                                    <Box className="p-1">
+                                                        <Typography className="twoh-card-title text-uppercase" variant="body1">{secondary.title}</Typography>
+                                                        <Typography className="twoh-card-brief" variant="body2">{secondary.brief}</Typography>
+                                                    </Box>
+                                                </CardActionArea>
+                                            </NavLink>
                                         </Card>
                                     </Grid>
                                 ))
                             }
                         </Grid>
-                    }
+                    </Grid>
                 </Grid>
-            ));
-        }
+            </Grid>
+        ));
+
+
         return (
-            <Container className="container home-twoh py-1">
-                <div className="div home-twoh-header">
-                    {
-                        this.sectionHeader(dataChecking(twoh, 'data', 'title') || 'this week on hermo', dataChecking(twoh, 'data', 'description') || '')
-                    }
-                </div>
-                <Grid container={true}>
-                    {twohBanner}
+            <Container className="home-section twoh-content">
+                {this.sectionHeader({ title: dig(twohData, 'title') || 'this week on hermo', description: dig(twohData, 'description') || '' })}
+                <Grid className="twoh-container" container={true} spacing={2}>
+                    {homeTwoh}
                 </Grid>
             </Container>
         );
     }
 
-    /**
-     * NEW ARRIVALS - cards of new arrival products
-     * #need update on product cards
-     */
-    renderNewArrivals = () => {
-        const newArrival = dataChecking(this.props.homePage, 'newArrival', 'success') && dataChecking(this.props, 'homePage', 'newArrival');
-        let latestTrends;
-        if (newArrival && dataChecking(newArrival, 'data')) {
-            latestTrends = newArrival.data.latest_trends.items.map((product) => (
+    newArrival = () => {
+        const newArrivalData = dig(this.props.homePage, 'newArrival.data');
+        const latestTrends = newArrivalData.latest_trends.items.map((product) => (
+            <Box className="p-half" key={product.id}>
                 <ProductCard
                     key={product.id}
                     product={product}
                     url={product.url}
                     image={true}
                 />
-            ));
-        }
-        return (
-            <Container className="container home-new-arrival py-1">
+            </Box>
+        ));
+
+        const settings = {
+            slidesToShow: 5,
+            responsive: [
                 {
-                    dataChecking(this.props.homePage, 'newArrival', 'success') &&
-                    <div>
-                        {this.sectionHeader(dataChecking(newArrival, 'data', 'title') || 'New Arrivals', 'checkout the latest and hottest')}
-                        {
-                            dataChecking(newArrival, 'data', 'latest_trends', 'items') &&
-                                <OwlCarousel
-                                    options={{
-                                        items: 2,
-                                        center: true,
-                                        responsive: {
-                                            700: {
-                                                items: 5,
-                                                nav: true,
-                                                navText: ['&lt;', '&gt;'],
-                                                startPosition: 3,
-                                            },
-                                        },
-                                    }}
-                                >
-                                    {latestTrends}
-                                </OwlCarousel>
-                        }
-                    </div>
-                }
+                    breakpoint: 600,
+                    settings: {
+                        slidesToShow: 1,
+                        centerMode: true,
+                    },
+                },
+            ],
+        };
+
+        return (
+            <Container className="home-section new-arrival-content">
+                {this.sectionHeader({ title: dig(newArrivalData, 'title') || 'new arrivals', description: 'checkout the latest and hottest!' })}
+                <Carousel settings={settings}>
+                    {latestTrends}
+                </Carousel>
             </Container>
         );
     }
 
-    /**
-     * EXTENSION ZONE - campaign viewer
-     * #need campaign viewer component
-     */
-    renderExtensionZone = () => (
-        <Container className=" container home-extension p-1">
+    hotStuff = (title, description, products) => {
+        const settings = {
+            slidesToShow: 2,
+            responsive: [
+                {
+                    breakpoint: 600,
+                    settings: {
+                        slidesToShow: 1,
+                        centerMode: true,
+                    },
+                },
+            ],
+        };
+        return (
+            <Grid item={true} xs={12} md={6}>
+                <Card>
+                    <Box className="p-1">
+                        {this.sectionHeader({ title, description })}
+                        <Divider />
+                        <CardContent>
+                            <Carousel settings={settings}>
+                                {
+                                    products.map((product) => (
+                                        <Box className="p-1" key={product.id}>
+                                            <ProductCard
+                                                product={product}
+                                                url={product.url}
+                                                image={true}
+                                            />
+                                        </Box>
+                                    ))
+                                }
+                            </Carousel>
+                        </CardContent>
+                    </Box>
+                </Card>
+            </Grid>
+        );
+    }
+
+    sponsor = () => (
+        <Box className="home-section sponsored-content">
             {
-                dataChecking(this.props.homePage, 'extension', 'data') &&
-                <Grid container={true}>
-                    {
-                        console.log(this.props.homePage.extension.data.items[0].banner)
-                    }
-                    {/* <Grid item={true} xs={12} md={6}>
-                        <Hidden className="banner home-extension-desktop" smDown={true}>
-                            <img src={this.props.homePage.extension.data.items.banner} alt="banner" />
-                        </Hidden>
-                    </Grid>
-                    <Grid item={true} xs={12} md={6}>
-                        <Hidden>
-                            <img src={require('images/hermo-logo-image.png')} alt="logo" />
-                        </Hidden>
-                    </Grid> */}
-                </Grid>
+                this.props.homePage.sponsored.data.result.items.map((item) => {
+                    const settings = {
+                        slidesToShow: 3,
+                        responsive: [
+                            {
+                                breakpoint: 600,
+                                settings: {
+                                    slidesToShow: 1,
+                                },
+                            },
+                        ],
+                    };
+                    const content = (
+                        <Container>
+                            <Box className={`pb-1 sponsor-label text-uppercase text-xs-center ${item.cta.color === 'light' ? 'dark-cta light-bg' : 'light-cta dark-bg'}`}>
+                                <Typography variant="h6">Featured Brand</Typography>
+                            </Box>
+                            {this.sectionHeader({ title: item.cta.button_text, data: item })}
+                            <Paper className="p-1 my-1">
+                                <Carousel settings={settings} disableArrow={item._product.items.length < settings.slidesToShow + 1}>
+                                    {
+                                        item._product.items.map((product) => (
+                                            <Box className="p-1" key={product.id}>
+                                                <ProductCard
+                                                    product={product}
+                                                    url={product.url}
+                                                    image={true}
+                                                />
+                                            </Box>
+                                        ))
+                                    }
+                                </Carousel>
+                            </Paper>
+                            <NavLink to={item.url} style={{ textDecoration: 'none' }}>
+                                <Button variant="contained" color="primary">Shop now</Button>
+                            </NavLink>
+                        </Container>
+                    );
+
+                    return (
+                        <Box className="home-sponsored-item" key={item.id}>
+                            <Hidden smDown={true}>
+                                <Box className="px-2 pb-2 sponsored-item-desktop" style={{ backgroundImage: `url(${item.image.desktop})`, textAlign: 'center', backgroundSize: 'cover' }}>
+                                    {content}
+                                </Box>
+                            </Hidden>
+                            <Hidden mdUp={true}>
+                                <Box className="sponsored-item-mobile" style={{ backgroundImage: `url(${item.image.mobile})` }}>
+                                    {content}
+                                </Box>
+                            </Hidden>
+                        </Box>
+                    );
+                })
             }
+        </Box>
+    )
+
+    extension = () => (
+        <Container className="home-section extension-content">
+            This is extension section.
         </Container>
     )
 
-    /**
-     * MOBILE QUICK LINK - currently disabled
-     *
-     */
-    renderMobileQuickLink = () => {}
-
-    /**
-     * BACK IN STOCK - slider of restoked product cards
-     */
-    renderBackInStock = () => (
-        <div>
-            {
-                this.props.homePage.newArrival.success &&
-                this.sectionHotStuff(
-                    'Back In Stock',
-                    'We just cant get enough!',
-                    dataChecking(this.props.homePage, 'newArrival', 'data', 'just_restocked', 'items')
-                )
-            }
-        </div>
-    )
-
-    /**
-     * HIGHLY RATED - slider of trending product cards
-     */
-    renderHighlyRated = () => (
-        <div>
-            {
-                this.props.homePage.trending.success &&
-                this.sectionHotStuff(
-                    'Highly Rated',
-                    'Popular beauty must-haves',
-                    dataChecking(this.props.homePage, 'trending', 'data', 'items')
-                )
-            }
-        </div>
-    )
-
-    /**
-     * FEATURED - sponsored products
-     */
-    renderFeaturedBrand = () => {
-        const sponsored = dataChecking(this.props.homePage, 'sponsored', 'success') && dataChecking(this.props, 'homePage', 'sponsored');
-        let sponsoredBrands;
-        let sponsoredContainer;
-        if (sponsored.success && dataChecking(sponsored, 'data', 'result', 'items')) {
-            const sponsors = Object.keys(dataChecking(sponsored, 'data', 'result', 'items'));
-
-            sponsoredBrands = sponsors.map((sponsor) => {
-                const indexs = Object.keys(sponsored.data.result.items[sponsor]._product.items);
-                const product = sponsored.data.result.items[sponsor]._product.items;
-                sponsoredContainer = (
-                    <Container style={{ textAlign: 'center' }}>
-                        {this.sectionHeader('featured brands')}
-                        <Paper className="py-1 my-1">
-                            <OwlCarousel
-                                options={{
-                                    items: 1,
-                                    responsive: {
-                                        320: {
-                                            items: 1,
-                                        },
-                                        700: {
-                                            items: 3,
-                                            nav: true,
-                                            navText: ['&lt;', '&gt;'],
-                                        },
-                                    },
-                                }}
-                            >
-                                {
-                                    indexs.map((index) => (
-                                        // NEED TO CHANGE TO <Card>, depends on wireframe later
-                                        <ProductCard
-                                            key={product[index].id}
-                                            product={product[index]}
-                                            url={product[index].url}
-                                            image={true}
-                                        />
-                                    ))
-                                }
-                            </OwlCarousel>
-                        </Paper>
-                        <NavLink to={sponsored.data.result.items[sponsor].url}>
-                            <Button variant="contained">
-                                shop now
-                            </Button>
-                        </NavLink>
-                    </Container>
-                );
-                return (
-                    <div className="div home-sponsored-item" key={sponsored.data.result.items[sponsor].id}>
-                        <Hidden smDown={true}>
-                            <div className="p-3" style={{ backgroundImage: `url(${sponsored.data.result.items[sponsor].image.desktop})` }}>
-                                { sponsoredContainer }
-                            </div>
-                        </Hidden>
-                        <Hidden mdUp={true}>
-                            <div style={{ backgroundImage: `url(${sponsored.data.result.items[sponsor].image.mobile})` }}>
-                                { sponsoredContainer }
-                            </div>
-                        </Hidden>
-                    </div>
-                );
-            });
-        }
-        return (
-            <div className="div home-sponsored my-2">
-                {sponsoredBrands}
-            </div>
-        );
-    }
-
-    /**
-     * RECOMMENDED FOR YOU - slider of recommended product cards
-     */
-    renderRecommend = () => (
-        <div>
-            <Container>
-                {this.sectionHeader('recommend for you')}
-                {/* <OwlCarousel
-                    options={{
-                        items: 3,
-                        loop: true,
-                        nav: true,
-                        navText: ['&lt;', '&gt;'],
-                        stagePadding: 50,
-                    }}
-                >
-                    {
-                        // Product Card here
-                    } */}
-                    UNAVAILABLE
-                {/* </OwlCarousel> */}
-            </Container>
-        </div>
-    )
-
-    /**
-     * REVIEW - slider of review cards
-     */
-    renderReview = () => {
-        const review = dataChecking(this.props.homePage, 'review', 'success') && dataChecking(this.props, 'homePage', 'review');
-        let reviewCards;
-        if (review.success && dataChecking(review, 'data', 'result', 'items')) {
-            const items = dataChecking(review, 'data', 'result', 'items');
-            const reviewObject = Object.keys(dataChecking(review, 'data', 'result', 'items'));
-            reviewCards = reviewObject.map((index) => (
-                <Card key={items[index].id} className={this.props.classes.cardReview}>
-                    <CardHeader
-                        avatar={<Avatar src={items[index].avatar} alt={`${items[index].username} avatar`} />}
-                        title={items[index].username}
-                        subheader={items[index].created_text}
-                        action={
-                            <div>
-                                <Favorite />
-                                <Typography>{items[index].like_count}</Typography>
-                            </div>
-                        }
-                    />
-                    <Divider />
-                    <CardContent>
-                        <Grid container={true}>
-                            <Grid item={true} xs={3}>
-                                <img src={items[index].image.square || require('images/hermo.png')} alt="review product" />
-                            </Grid>
-                            <Grid item={true} xs={9}>
-                                <Typography>
-                                    {items[index].comment}
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                    </CardContent>
-                </Card>
-            ));
-        }
-        return (
-            <div className="my-3" style={{ textAlign: 'center' }}>
+    personalisation = (data) => {
+        const settings = {
+            slidesToShow: 5,
+            responsive: [
                 {
-                    review.success && this.sectionHeader(dataChecking(review, 'data', 'title') || 'beauty reviews', dataChecking(review, 'data', 'description') || 'share your beauty stories') &&
-                        <Container>
-                            <OwlCarousel
-                                options={{
-                                    items: 1.3,
-                                    loop: true,
-                                    stagePadding: 50,
-                                    responsive: {
-                                        700: {
-                                            items: 3,
-                                            nav: true,
-                                            navText: ['&lt;', '&gt;'],
-                                        },
-                                    },
-                                }}
-                            >
-                                {reviewCards}
-                            </OwlCarousel>
-                            <NavLink to={review.data.url}>
-                                <Button variant="contained">
-                                    see all reviews
-                                </Button>
-                            </NavLink>
-                        </Container>
+                    breakpoint: 600,
+                    settings: {
+                        slidesToShow: 1,
+                        centerMode: true,
+                    },
+                },
+            ],
+        };
+
+        const products = data.product.items.map((product) => (
+            <Box className="p-half" key={product.id}>
+                <ProductCard
+                    product={product}
+                    url={product.url}
+                    image={true}
+                />
+            </Box>
+        ));
+
+        return (
+            <Container className="home-section personalisation-content">
+                {
+                    this.sectionHeader({
+                        title: dig(data, 'headline.title.text'),
+                        description: dig(data, 'headline.title.description'),
+                    })
                 }
-            </div>
+                <Carousel settings={settings}>
+                    {products}
+                </Carousel>
+            </Container>
         );
     }
 
-    /**
-     * HOME FOOTER - footer about us and partners
-     */
-    renderHomeFooter = () => {
-        const partnerFooter = dataChecking(this.props.homePage, 'partnerFooter', 'success') && dataChecking(this.props, 'homePage', 'partnerFooter');
-        let partnerLogos;
-        if (partnerFooter.success && dataChecking(partnerFooter, 'data', 'items')) {
-            const partnerObject = Object.keys(dataChecking(partnerFooter, 'data', 'items'));
-            partnerLogos = partnerObject.map((index) => (
-                <Grid key={partnerFooter.data.items[index].id} item={true}>
-                    <Avatar src={partnerFooter.data.items[index].image.desktop} alt={partnerFooter.data.items[index].name} />
-                </Grid>
-            ));
-        }
+    reviews = () => {
+        const settings = {
+            slidesToShow: 3,
+            centerMode: true,
+            responsive: [
+                {
+                    breakpoint: 600,
+                    settings: {
+                        slidesToShow: 1,
+                    },
+                },
+            ],
+        };
+        const reviewsCards = this.props.homePage.review.data.result.items.map((review) => {
+            this.state = {
+                src: review.image.square,
+            };
+            return (
+                <Box className="p-1" key={review.id}>
+                    <Card>
+                        <CardHeader
+                            avatar={<Avatar src={review.avatar} alt={`${review.username} avatar`} />}
+                            title={review.username}
+                            subheader={review.created_text}
+                            action={
+                                <div>
+                                    <Favorite />
+                                    <Typography>{review.like_count}</Typography>
+                                </div>
+                            }
+                        />
+                        <Divider />
+                        <CardContent>
+                            <Grid container={true} spacing={2}>
+                                <Grid item={true} xs={3}>
+                                    <img
+                                        src={!dig(this.state, 'src') ? `${globalScope.cdn}/hershop/fallback-image.jpg` : dig(this.state, 'src')}
+                                        alt="review product"
+                                        onError={() => this.setState({ src: `${globalScope.cdn}/hershop/fallback-image.jpg` })}
+                                    />
+                                </Grid>
+                                <Grid item={true} xs={9}>
+                                    <Typography>{review.comment}</Typography>
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+                </Box>
+            );
+        });
+
+        return (
+            <Box className="home-section review-content text-xs-center">
+                {this.sectionHeader({
+                    title: dig(this.props.homePage, 'review.data.title') || 'beauty reviews',
+                    description: dig(this.props.homePage, 'review.data.description') || 'share your beauty stories',
+                })}
+                <Carousel settings={settings} disableArrow={true}>
+                    {reviewsCards}
+                </Carousel>
+                <NavLink to={this.props.homePage.review.data.url} style={{ textDecoration: 'none' }}>
+                    <Button variant="contained" color="primary">See all reviews</Button>
+                </NavLink>
+            </Box>
+        );
+    }
+
+    homeFooter = (layout, image, partner) => {
+        const partnerLogos = partner.items.map((item) => (
+            <Grid key={item.id} item={true}>
+                <Avatar src={item.image.desktop} alt={item.name} style={{ border: '2px solid #DDD' }} />
+            </Grid>
+        ));
         return (
             <Hidden smDown={true}>
-                {
-                    this.props.homePage.layoutFooter.success && this.props.homePage.imageFooter.success && this.props.homePage.partnerFooter.success &&
-                    <div style={{ backgroundColor: '#000' }}>
-                        <Container className="p-3">
-                            <Grid container={true}>
-                                <Grid item={true} md={8}>
-                                    <Container style={{ color: '#FFF' }}>
-                                        <img src={this.props.homePage.imageFooter.data.items[0].image.desktop || null} alt={this.props.homePage.imageFooter.data.items[0].name} />
-                                        <Box>
-                                            <Typography style={{ color: '#FFF' }}>
-                                                {parse(this.props.homePage.layoutFooter.data.modules[0].result.text)}
-                                            </Typography>
-                                        </Box>
-                                    </Container>
-                                </Grid>
-                                <Divider orientation="vertical" style={{ color: '#FFF' }} />
-                                <Grid item={true} md={4}>
-                                    <Container style={{ color: '#FFF' }}>
-                                        <Typography variant="h4">{this.props.homePage.layoutFooter.data.modules[1].result.title}</Typography>
-                                        <div className="my-3">
-                                            <Typography className="my-2" variant="body1">{this.props.homePage.layoutFooter.data.modules[1].result.text}</Typography>
-                                        </div>
-                                        <Grid container={true} justify="space-evenly" alignItems="center">
-                                            {
-                                                partnerLogos
-                                            }
-                                        </Grid>
-                                        <div className="my-1" style={{ textAlign: 'center' }}>
-                                            <Button variant="contained">
-                                                View All Partners
-                                            </Button>
-                                        </div>
-                                    </Container>
-                                </Grid>
+                <Container style={{ color: '#f2f2f2' }}>
+                    <Grid container={true}>
+                        <Grid className="pr-2" item={true} xs={8}>
+                            <img src={image.items[0].image.desktop || null} alt={image.items[0].name} style={{ width: '20%' }} />
+                            <Box className="py-1">
+                                <Typography>
+                                    <HtmlParser html={layout.modules[0].result.text} />
+                                </Typography>
+                            </Box>
+                        </Grid>
+                        <Grid className="pt-1 pl-2" item={true} xs={4} style={{ borderLeft: '1px solid #404040' }}>
+                            <Typography className="partner-title text-uppercase" variant="h5" component="div"><Box fontWeight="fontWeightBold" >{layout.modules[1].result.title}</Box></Typography>
+                            <Typography className="py-2 partner-body">{layout.modules[1].result.text}</Typography>
+                            <Grid container={true} justify="space-evenly" alignItems="center">
+                                {partnerLogos}
                             </Grid>
-                        </Container>
-                    </div>
-                }
+                            <Box className="partner-button mt-2" style={{ textAlign: 'center' }}>
+                                <NavLink to="/partnerships?ucf=footer" style={{ textDecoration: 'none' }}>
+                                    <Button variant="contained">View all partners</Button>
+                                </NavLink>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </Container>
             </Hidden>
         );
     }
 
-    render() {
-        return (
-            <div>
-                {this.renderHomeBanner()}
-                <Hidden mdUp={true}>
-                    {this.renderMobileShortcuts()}
-                </Hidden>
-                {this.renderFlagship()}
-                {this.renderTwoh()}
-                {this.renderNewArrivals()}
-                {/* {this.renderExtensionZone()} */}
-                {/* <Hidden mdUp={true}>
-                    {this.renderMobileQuickLink()}
-                </Hidden> */}
-                <Container>
-                    <Grid container={true}>
-                        <Grid item={true} xs={12} md={6}>
-                            {this.renderBackInStock()}
-                        </Grid>
-                        <Grid item={true} xs={12} md={6}>
-                            {this.renderHighlyRated()}
-                        </Grid>
-                    </Grid>
-                </Container>
-                {this.props.homePage.sponsored.success && this.renderFeaturedBrand()}
-                {this.renderRecommend()}
-                {this.renderReview()}
-                {this.renderHomeFooter()}
-            </div>
-        );
-    }
+    render = () => (
+        <Box className="home-page">
+            <Helmet>
+                <title>Hermo</title>
+                <meta name="description" content="Hermo Malaysia" />
+            </Helmet>
+            <Box className="home-page-content">
+                <Box className="home-banner-section mb-2">
+                    {dig(this.props.homePage, 'homeBanner.data.result.items.length') && this.homeBanner()}
+                </Box>
+                <Box className="home-section flagship my-2">
+                    {dig(this.props.homePage, 'flagship.data.items.length') && this.flagship()}
+                </Box>
+                <Box className="home-section twoh my-2">
+                    {dig(this.props.homePage, 'twoh.data') && dig(this.props.homePage, 'twoh.data.result.length') && this.twoh()}
+                </Box>
+                <Box className="home-section new-arrival my-2">
+                    {dig(this.props.homePage, 'newArrival.data') && dig(this.props.homePage, 'newArrival.data.latest_trends.items.length') && this.newArrival()}
+                </Box>
+                <Box className="home-section hot-stuff my-2">
+                    {
+                        dig(this.props.homePage, 'newArrival.data.just_restocked.items.length') && dig(this.props.homePage, 'trending.data.items.length') &&
+                            <Container className="home-section hot-stuff-content">
+                                <Grid container={true} spacing={2}>
+                                    {this.hotStuff('Back In Stock', 'We just cant get enough!', dig(this.props.homePage, 'newArrival.data.just_restocked.items'))}
+                                    {this.hotStuff('Highly Rated', 'Popular beauty must-haves', dig(this.props.homePage, 'trending.data.items'))}
+                                </Grid>
+                            </Container>
+                    }
+                </Box>
+                <Box className="home-section sponsored my-2" >
+                    {dig(this.props.homePage, 'sponsored.data.result.items.length') && this.sponsor()}
+                </Box>
+                {/* <Box className="home-section extension my-2">
+                    {dig(this.props.homePage, 'extension.data.items.length') && this.extension()}
+                </Box> */}
+                <Box className="home-section personalisation">
+                    {dig(this.props.homePage, 'personalisation.data.data.product.items.length') && this.personalisation(this.props.homePage.personalisation.data.data)}
+                </Box>
+                <Box className="home-section review my-2">
+                    {dig(this.props.homePage, 'review.data.result.items.length') && this.reviews()}
+                </Box>
+                <Box className="home-footer pt-3" style={{ backgroundColor: '#222' }}>
+                    {
+                        dig(this.props.homePage, 'footerLayout.data.modules.length') && dig(this.props.homePage, 'footerImage.data.items.length') && dig(this.props.homePage, 'footerPartner.data.items.length') &&
+                        this.homeFooter(this.props.homePage.footerLayout.data, this.props.homePage.footerImage.data, this.props.homePage.footerPartner.data)
+                    }
+                </Box>
+            </Box>
+        </Box>
+    );
 }
 
 HomePage.propTypes = {
@@ -723,6 +594,5 @@ const withSaga = injectSaga({ key: 'homePage', saga });
 export default compose(
     withReducer,
     withSaga,
-    withStyles(styles),
     withConnect,
 )(HomePage);

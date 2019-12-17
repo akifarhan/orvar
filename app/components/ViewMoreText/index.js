@@ -5,10 +5,9 @@
 */
 
 import React from 'react';
-import {
-    ButtonBase,
-    Typography,
-} from '@material-ui/core';
+import ButtonBase from '@material-ui/core/ButtonBase';
+import Typography from '@material-ui/core/Typography';
+
 // import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import './style.scss';

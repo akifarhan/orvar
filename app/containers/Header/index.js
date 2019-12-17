@@ -20,16 +20,16 @@ import Highlighter from 'react-highlight-words';
 import globalScope from 'globalScope';
 
 import {
+    ChevronLeft,
+    ChevronRight,
+    Close,
+    ExpandLess,
+    ExpandMore,
+    Menu,
     Person,
+    Remove,
     Search,
     ShoppingCart,
-    Close,
-    Remove,
-    Menu,
-    ChevronRight,
-    ChevronLeft,
-    ExpandMore,
-    ExpandLess,
 } from '@material-ui/icons';
 import {
     Typography,
@@ -239,6 +239,7 @@ export class Header extends React.PureComponent {
                                 <div>
                                     <ListItem button={true} divider={true}>
                                         <ListItemText
+                                            className="list-item"
                                             primary={item.text}
                                             onClick={() => this.setState({
                                                 open: !this.state.open,
