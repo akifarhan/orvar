@@ -490,32 +490,30 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
             </Grid>
         ));
         return (
-            <Hidden smDown={true}>
-                <Container style={{ color: '#f2f2f2' }}>
-                    <Grid container={true}>
-                        <Grid className="pr-2" item={true} xs={8}>
-                            <img src={image.items[0].image.desktop || null} alt={image.items[0].name} style={{ width: '20%' }} />
-                            <Box className="py-1">
-                                <Typography>
-                                    <HtmlParser html={layout.modules[0].result.text} />
-                                </Typography>
-                            </Box>
-                        </Grid>
-                        <Grid className="pt-1 pl-2" item={true} xs={4} style={{ borderLeft: '1px solid #404040' }}>
-                            <Typography className="partner-title text-uppercase" variant="h5" component="div"><Box fontWeight="fontWeightBold" >{layout.modules[1].result.title}</Box></Typography>
-                            <Typography className="py-2 partner-body">{layout.modules[1].result.text}</Typography>
-                            <Grid container={true} justify="space-evenly" alignItems="center">
-                                {partnerLogos}
-                            </Grid>
-                            <Box className="partner-button mt-2" style={{ textAlign: 'center' }}>
-                                <NavLink to="/partnerships?ucf=footer" style={{ textDecoration: 'none' }}>
-                                    <Button variant="contained">View all partners</Button>
-                                </NavLink>
-                            </Box>
-                        </Grid>
+            <Container style={{ color: '#f2f2f2' }}>
+                <Grid container={true}>
+                    <Grid className="pr-2" item={true} xs={8}>
+                        <img src={image.items[0].image.desktop || null} alt={image.items[0].name} style={{ width: '20%' }} />
+                        <Box className="py-1">
+                            <Typography>
+                                <HtmlParser html={layout.modules[0].result.text} />
+                            </Typography>
+                        </Box>
                     </Grid>
-                </Container>
-            </Hidden>
+                    <Grid className="pt-1 pl-2" item={true} xs={4} style={{ borderLeft: '1px solid #404040' }}>
+                        <Typography className="partner-title text-uppercase" variant="h5" component="div"><Box fontWeight="fontWeightBold" >{layout.modules[1].result.title}</Box></Typography>
+                        <Typography className="py-2 partner-body">{layout.modules[1].result.text}</Typography>
+                        <Grid container={true} justify="space-evenly" alignItems="center">
+                            {partnerLogos}
+                        </Grid>
+                        <Box className="partner-button mt-2" style={{ textAlign: 'center' }}>
+                            <NavLink to="/partnerships?ucf=footer" style={{ textDecoration: 'none' }}>
+                                <Button variant="contained">View all partners</Button>
+                            </NavLink>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Container>
         );
     }
 
@@ -561,12 +559,14 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                 <Box className="home-section review my-2">
                     {dig(this.props.homePage, 'review.data.result.items.length') && this.reviews()}
                 </Box>
-                <Box className="home-footer pt-3" style={{ backgroundColor: '#222' }}>
-                    {
-                        dig(this.props.homePage, 'footerLayout.data.modules.length') && dig(this.props.homePage, 'footerImage.data.items.length') && dig(this.props.homePage, 'footerPartner.data.items.length') &&
-                        this.homeFooter(this.props.homePage.footerLayout.data, this.props.homePage.footerImage.data, this.props.homePage.footerPartner.data)
-                    }
-                </Box>
+                <Hidden smDown={true}>
+                    <Box className="home-footer pt-3" style={{ backgroundColor: '#222' }}>
+                        {
+                            dig(this.props.homePage, 'footerLayout.data.modules.length') && dig(this.props.homePage, 'footerImage.data.items.length') && dig(this.props.homePage, 'footerPartner.data.items.length') &&
+                            this.homeFooter(this.props.homePage.footerLayout.data, this.props.homePage.footerImage.data, this.props.homePage.footerPartner.data)
+                        }
+                    </Box>
+                </Hidden>
             </Box>
         </Box>
     );

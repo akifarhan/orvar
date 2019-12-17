@@ -14,7 +14,7 @@ import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 
 import globalScope from 'globalScope';
-import { dig, Events } from 'globalUtils';
+import { dig, Events, createUrl } from 'globalUtils';
 
 import {
     Box,
@@ -24,6 +24,7 @@ import {
     Grid,
     Hidden,
     IconButton,
+    Link,
     Typography,
 } from '@material-ui/core';
 
@@ -61,14 +62,14 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
     appsolutely = (className) => (
         <Grid className={className} container={true} spacing={1}>
             <Grid item={true}>
-                <NavLink to="">
+                <Link href={createUrl(`${globalScope.url_store_general}/Gy15Nk5JfC`, [])}>
                     <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/app-store-badge.svg`} style={{ width: '110px' }} />
-                </NavLink>
+                </Link>
             </Grid>
             <Grid item={true}>
-                <NavLink to="">
+                <Link href={createUrl(`${globalScope.url_store_general}/Gy15Nk5JfC`, [])}>
                     <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/google-play-badge.png`} style={{ width: '110px' }} />
-                </NavLink>
+                </Link>
             </Grid>
         </Grid>
     )
@@ -85,24 +86,24 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
             if (column.id === 'need-help') {
                 return (
                     <Grid key={index} item={true} xs={3}>
-                        <Container>
+                        <Container className={column.id}>
                             {columnHeader(column.title)}
                             <Box className="contact-info pb-1" style={{ borderBottom: '1px solid #404040' }}>
                                 <Typography>
                                     <Phone className="mr-1" style={{ float: 'left' }} />
-                                    <NavLink to={`tel:${column.data.contact_number}`} style={{ textDecoration: 'none' }}>
+                                    <Link href={`tel:${column.data.contact_number}`}>
                                         {column.data.contact_number}
-                                    </NavLink>
+                                    </Link>
                                 </Typography>
                                 <br />
                                 <Typography>
-                                    <NavLink to={`mailto:${column.data.email}`} style={{ textDecoration: 'none' }}>
+                                    <Link href={`mailto:${column.data.email}`}>
                                         {column.data.email}
-                                    </NavLink>
+                                    </Link>
                                 </Typography>
                             </Box>
                             <Box className="pt-1">
-                                <Typography>Operation Hours:</Typography>
+                                <Typography style={{ color: '#818A91' }}>Operation Hours:</Typography>
                                 <br />
                                 <Typography>{column.data.working_day}</Typography>
                                 <br />
@@ -117,12 +118,12 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
             if (column.id === 'links') {
                 return (
                     <Grid key={index} item={true} xs={3} style={{ borderLeft: '1px solid #404040' }}>
-                        <Container>
+                        <Container className={column.id}>
                             {columnHeader(column.title)}
                             <Box>
                                 {
                                     column.items.map((link) => (
-                                        <NavLink key={link.url} to={link.url} style={{ textDecoration: 'none' }}>
+                                        <NavLink key={link.url} to={link.url}>
                                             <Typography>{link.text}</Typography><br />
                                         </NavLink>
                                     ))
@@ -135,9 +136,9 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
             if (column.id === 'social-links') {
                 return (
                     <Grid key={index} item={true} xs={3} style={{ borderLeft: '1px solid #404040' }}>
-                        <Container>
+                        <Container className={column.id}>
                             <Box className="social-links-connect-header text-uppercase mb-1">
-                                <Typography variant="subtitle" component="div">
+                                <Typography variant="subtitle1" component="div">
                                     <Box fontWeight="fontWeightBold" >{column.title}</Box>
                                 </Typography>
                             </Box>
@@ -147,20 +148,20 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                                         if (item.type === 'facebook') {
                                             return (
                                                 <Grid key={item.url} item={true}>
-                                                    <NavLink to={item.url} style={{ textDecoration: 'none' }}>
+                                                    <Link href={item.url}>
                                                         <img src={require('resources/socialIcons/fb.png')} alt="facebook" style={{ width: '30px' }} />
-                                                    </NavLink>
+                                                    </Link>
                                                 </Grid>
                                             );
                                         }
                                         if (item.type === 'instagram') {
                                             return (
                                                 <Grid key={item.url} item={true}>
-                                                    <NavLink to={item.url} style={{ textDecoration: 'none' }}>
+                                                    <Link href={item.url}>
                                                         <Box>
                                                             <img src={require('resources/socialIcons/ig.png')} alt="instagram" style={{ width: '30px', borderRadius: '50%' }} />
                                                         </Box>
-                                                    </NavLink>
+                                                    </Link>
                                                 </Grid>
                                             );
                                         }
@@ -169,7 +170,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                                 }
                             </Grid>
                             <Box className="social-links-download-header text-uppercase my-1">
-                                <Typography variant="subtitle" component="div">
+                                <Typography variant="subtitle1" component="div">
                                     <Box fontWeight="fontWeightBold" >Download our app</Box>
                                 </Typography>
                             </Box>
@@ -202,14 +203,16 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
             <Grid className="py-half" item={true} xs={12} style={{ color: '#FFF', borderTop: '1px solid #404040', borderBottom: '1px solid #404040' }}>
                 <Grid container={true} justify="space-between">
                     <Grid item={true}>
-                        <Box component="span" display="inline">
-                            <Typography className="mr-1">Now Shopping</Typography>
+                        <Box className="footer-sites" component="span" display="inline">
+                            <Typography className="mr-1" style={{ color: '#818A91' }}>Now Shopping</Typography>
                             {
                                 result.sites.map((site) => (
-                                    <NavLink key={site.text} className={`site mr-1 ${site.is_active ? 'active' : ''}`} to={site.url} style={{ textDecoration: 'none' }}>
-                                        <img className="mr-half" alt={site.flag} src={site.image} />
-                                        <Typography>{site.text}</Typography>
-                                    </NavLink>
+                                    <Box key={site.text} className={`site ${site.is_active ? '' : 'inactive'}`}>
+                                        <Link href={site.url}>
+                                            <img className="mr-half" alt={site.flag} src={site.image} />
+                                            <Typography>{site.text}</Typography>
+                                        </Link>
+                                    </Box>
                                 ))
                             }
                         </Box>
@@ -228,7 +231,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                 <img alt="payment-gateway" src={result.image} />
             </Grid>
             <Grid className="py-half" item={true}>
-                <Typography variant="caption" style={{ color: '#fff' }}>
+                <Typography variant="caption" style={{ color: '#818A91' }}>
                     Copyright &copy; {result.copyright.company_name} ({result.copyright.company_registration}). {result.copyright.is_gst_applicable && `[GST Reg. No.: ${result.copyright.company_gst_no}]. `}All right reserved
                 </Typography>
             </Grid>
@@ -288,7 +291,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
             </Grid>
             <Box className="appsolutely my-1">
                 <NavLink to="/appsolutely-hermo?ucf=mobile-footer">
-                    <Typography variant="subtitle" color="secondary">Hermo in your hand? APP-solutely <ChevronRightRounded style={{ float: 'right' }} /></Typography>
+                    <Typography variant="subtitle1" color="secondary">Hermo in your hand? APP-solutely <ChevronRightRounded style={{ float: 'right' }} /></Typography>
                 </NavLink>
                 {this.appsolutely('my-1')}
             </Box>

@@ -9,6 +9,23 @@ export const apiRequest = (path, type = 'get', body, baseUrl, headerParams) => {
     return globalScope.axios[type](path, body, headerParams);
 };
 
+export const createUrl = (url, params) => {
+    let newUrl = url;
+    if (url) {
+        if (url.includes('?') !== false) {
+            newUrl = url.concat('&', params.join('&'));
+        } else if (params.length > 0) {
+            const a = params[0];
+            params.shift();
+            newUrl = url.concat('?', a);
+            if (params.length > 1) {
+                newUrl = newUrl.concat('&', params.join('&'));
+            }
+        }
+    }
+    return newUrl;
+};
+
 export const getURLParams = (urlparams) => {
     const result = {};
     let param = urlparams;
