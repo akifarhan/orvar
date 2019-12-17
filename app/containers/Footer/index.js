@@ -18,17 +18,22 @@ import { dig, Events } from 'globalUtils';
 
 import {
     Box,
+    ButtonBase,
     Container,
+    FormControl,
     Grid,
     Hidden,
+    IconButton,
     Typography,
 } from '@material-ui/core';
 
 import {
+    ChevronRightRounded,
+    Mail,
     Phone,
-    // Mail,
 } from '@material-ui/icons';
 
+import InputForm from 'components/InputForm';
 import makeSelectFooter from './selectors';
 import { getFooterLayout } from './actions';
 import reducer from './reducer';
@@ -41,6 +46,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
 
         this.state = {
             hideFooter: false,
+            email: '',
         };
 
         Events.listen('hideFooter', 123456, () => {
@@ -52,6 +58,20 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
         this.props.dispatch(getFooterLayout());
     }
 
+    appsolutely = (className) => (
+        <Grid className={className} container={true} spacing={1}>
+            <Grid item={true}>
+                <NavLink to="">
+                    <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/app-store-badge.svg`} style={{ width: '110px' }} />
+                </NavLink>
+            </Grid>
+            <Grid item={true}>
+                <NavLink to="">
+                    <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/google-play-badge.png`} style={{ width: '110px' }} />
+                </NavLink>
+            </Grid>
+        </Grid>
+    )
     footerLink = (items) => {
         const columnHeader = (title) => (
             <Box className="mb-2">
@@ -153,18 +173,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                                     <Box fontWeight="fontWeightBold" >Download our app</Box>
                                 </Typography>
                             </Box>
-                            <Grid container={true} spacing={1}>
-                                <Grid item={true}>
-                                    <NavLink to="">
-                                        <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/app-store-badge.svg`} style={{ width: '110px' }} />
-                                    </NavLink>
-                                </Grid>
-                                <Grid item={true}>
-                                    <NavLink to="">
-                                        <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/google-play-badge.png`} style={{ width: '110px' }} />
-                                    </NavLink>
-                                </Grid>
-                            </Grid>
+                            {this.appsolutely()}
                         </Container>
                     </Grid>
                 );
@@ -197,7 +206,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                             <Typography className="mr-1">Now Shopping</Typography>
                             {
                                 result.sites.map((site) => (
-                                    <NavLink className={`site mr-1 ${site.is_active ? 'active' : ''}`} to={site.url} style={{ textDecoration: 'none' }}>
+                                    <NavLink key={site.text} className={`site mr-1 ${site.is_active ? 'active' : ''}`} to={site.url} style={{ textDecoration: 'none' }}>
                                         <img className="mr-half" alt={site.flag} src={site.image} />
                                         <Typography>{site.text}</Typography>
                                     </NavLink>
@@ -224,6 +233,76 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                 </Typography>
             </Grid>
         </Grid>
+    )
+
+    footerFeedback = () => (
+        <Box>
+            <Typography className="footer-feedback-header" variant="h6" component="div">
+                <Box fontWeight="fontWeightBold" >Sign up & get two FREE masks.</Box>
+            </Typography>
+            <FormControl fullWidth={true} className="my-1 text-xs-center">
+                <Grid container={true}>
+                    <Grid item={true} xs={10} sm={9}>
+                        <InputForm
+                            id="email"
+                            type="email"
+                            placeholder="Subscribe with us! Enter your email."
+                            handleChange={(event) => this.setState({ email: event.target.value })}
+                            value={this.state.email}
+                            onClear={() => this.setState({ email: '' })}
+                        />
+                    </Grid>
+                    <Grid item={true} xs={2} sm={3}>
+                        <IconButton>
+                            <Mail />
+                        </IconButton>
+                    </Grid>
+                </Grid>
+            </FormControl>
+        </Box>
+    )
+
+    footerInfo = (result) => (
+        <Box className="my-1">
+            <Grid container={true} spacing={2} justify="center">
+                <Grid item={true}>
+                    <NavLink to="/?ucf=mobile-footer">
+                        <Typography variant="body2">Home</Typography>
+                    </NavLink>
+                </Grid>
+                <Grid item={true}>
+                    <NavLink to="/about#/contact?ucf=mobile-footer">
+                        <Typography variant="body2">Need Help</Typography>
+                    </NavLink>
+                </Grid>
+                <Grid item={true}>
+                    <NavLink to="/partnerships?ucf=mobile-footer">
+                        <Typography variant="body2">Partnership</Typography>
+                    </NavLink>
+                </Grid>
+                <Grid item={true}>
+                    <NavLink to="/about?ucf=mobile-footer">
+                        <Typography variant="body2">About</Typography>
+                    </NavLink>
+                </Grid>
+            </Grid>
+            <Box className="appsolutely my-1">
+                <NavLink to="/appsolutely-hermo?ucf=mobile-footer">
+                    <Typography variant="subtitle" color="secondary">Hermo in your hand? APP-solutely <ChevronRightRounded style={{ float: 'right' }} /></Typography>
+                </NavLink>
+                {this.appsolutely('my-1')}
+            </Box>
+            <Box className="view-desktop my-1">
+                <ButtonBase onClick={() => this.setState({ showDesktop: true })}>
+                    <Typography><u>View desktop version</u></Typography>
+                </ButtonBase>
+            </Box>
+            <Box className="copyright my-1">
+                <Typography variant="caption">
+                    Copyright &copy; {result.copyright.company_name} ({result.copyright.company_registration}). {result.copyright.is_gst_applicable && `[GST Reg. No.: ${result.copyright.company_gst_no}]. `}All right reserved
+                </Typography>
+            </Box>
+        </Box>
     )
 
     footerDesktop = (modules) => {
@@ -253,9 +332,21 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
         );
     }
 
-    // footerMobile = () => {
-
-    // }
+    footerMobile = (modules) => {
+        let result;
+        modules.map((items) => {
+            if (items.id === 'footer-copyright') {
+                result = items.result;
+            }
+            return null;
+        });
+        return (
+            <Container>
+                {this.footerFeedback()}
+                {this.footerInfo(result)}
+            </Container>
+        );
+    }
     render = () => {
         if (this.state.hideFooter) {
             return null;
@@ -271,7 +362,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                     </Hidden>
                     <Hidden mdUp={true}>
                         <Box className="footer-mobile" style={{ textAlign: 'center' }}>
-                            {this.footerMobile()}
+                            {this.footerMobile(this.props.footer.layout.data.modules)}
                         </Box>
                     </Hidden>
                 </Box>
