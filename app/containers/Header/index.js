@@ -445,7 +445,7 @@ export class Header extends React.PureComponent {
                                 <img src={require('images/hermo-logo-image.png')} alt="Hermo Logo" style={{ width: '100px' }} />
                             </NavLink>
                         </Grid>
-                        <Grid item={true} style={{ flex: 1 }}>
+                        <Grid className="top-nav" item={true} style={{ flex: 1 }}>
                             {this.renderTopCategory()}
                         </Grid>
                     </Grid>
@@ -794,7 +794,7 @@ export class Header extends React.PureComponent {
         <Grid
             container={true}
             className={`
-                top-nav
+                top-category
                 ${!this.state.hideSearchBar ? 'show' : ''}
                 ${this.props.header.header.data ? '' : 'opacity-zero'}
             `}
@@ -804,10 +804,11 @@ export class Header extends React.PureComponent {
                     <Grid item={true} className="ml-3 category animated fadeIn" key={val.code}>
                         {
                             val.type === 'category-directory' ?
-                                <div>
+                                <div className="category-directory">
                                     <Typography
                                         id={val.code}
                                         onMouseEnter={(event) => this.setState({ megaMenuToggle: true, anchorElID: event.target.id })}
+                                        style={{ display: 'inline' }}
                                     >
                                         {val.text}
                                     </Typography>
