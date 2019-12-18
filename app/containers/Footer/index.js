@@ -77,7 +77,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
         const columnHeader = (title) => (
             <Box className="mb-2">
                 <Typography className="footer-links-header text-uppercase" variant="h5" component="div">
-                    <Box fontWeight="fontWeightBold" >{title}</Box>
+                    <Box fontWeight="fontWeightBold">{title}</Box>
                 </Typography>
             </Box>
         );
