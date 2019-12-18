@@ -14,7 +14,7 @@ import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 
 import globalScope from 'globalScope';
-import { dig, Events, createUrl } from 'globalUtils';
+import { dig, Events } from 'globalUtils';
 
 import {
     Box,
@@ -62,12 +62,12 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
     appsolutely = (className) => (
         <Grid className={className} container={true} spacing={1}>
             <Grid item={true}>
-                <Link href={createUrl(`${globalScope.url_store_general}/Gy15Nk5JfC`, [])}>
+                <Link href={`${globalScope.url_store_general}/Gy15Nk5JfC`}>
                     <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/app-store-badge.svg`} style={{ width: '110px' }} />
                 </Link>
             </Grid>
             <Grid item={true}>
-                <Link href={createUrl(`${globalScope.url_store_general}/Gy15Nk5JfC`, [])}>
+                <Link href={`${globalScope.url_store_general}/Gy15Nk5JfC`}>
                     <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/google-play-badge.png`} style={{ width: '110px' }} />
                 </Link>
             </Grid>
