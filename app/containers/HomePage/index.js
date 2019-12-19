@@ -18,7 +18,6 @@ import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import Container from '@material-ui/core/Container';
@@ -30,9 +29,13 @@ import Typography from '@material-ui/core/Typography';
 
 import Favorite from '@material-ui/icons/Favorite';
 
+import withStyles from '@material-ui/core/styles/withStyles';
+
+
 import Carousel from 'components/Carousel';
 import HtmlParser from 'components/HtmlParser';
 import ProductCard from 'components/ProductCard';
+import ViewMoreText from 'components/ViewMoreText';
 
 import { dig } from 'globalUtils';
 import globalScope from 'globalScope';
@@ -54,6 +57,7 @@ import {
 import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
+import styles from './materialStyle';
 
 
 export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
@@ -76,30 +80,32 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
      * display header for each section
      */
     sectionHeader = (section) => (
-        <Box className={`section-title mb-1 ${dig(section, 'data.cta') && section.data.cta.color === 'light' ? 'light-cta' : 'dark-cta'}`}>
-            <Typography className="text-uppercase" align="center" variant="h4">{section.title}</Typography>
+        <Box className={`section-title mb-2 ${dig(section, 'data.cta') && section.data.cta.color === 'light' ? 'light-cta' : 'dark-cta'}`}>
+            <Typography className="text-uppercase" align="center" variant="h4" component="div"><Box fontWeight="fontWeightBold" >{section.title}</Box></Typography>
             <Typography className="text-capitalize" align="center" variant="subtitle1">{section.description}</Typography>
         </Box>
     )
 
     homeBanner = () => {
         const settings = {
-            dots: true,
+            // dots: true,
             autoplay: true,
             autoplaySpeed: 5000,
         };
         const homeBanner = this.props.homePage.homeBanner.data.result.items.map((item, index) => (
             <Box key={index}>
-                <img
-                    src={item.image.desktop}
-                    alt={item.name}
-                    srcSet={`
-                        ${item.image.desktop} 2000w,
-                        ${item.image.mobile} 1000w,
-                    `}
-                    width="100%"
-                    height="100%"
-                />
+                <NavLink to={item.url}>
+                    <img
+                        src={item.image.desktop}
+                        alt={item.name}
+                        srcSet={`
+                            ${item.image.desktop} 2000w,
+                            ${item.image.mobile} 1000w,
+                        `}
+                        width="100%"
+                        height="100%"
+                    />
+                </NavLink>
             </Box>
         ));
 
@@ -130,12 +136,14 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
         };
         const homeFlagship = this.props.homePage.flagship.data.items.map((item, index) => (
             <Box key={index}>
-                <img
-                    src={item.brand.logo}
-                    alt={item.name}
-                    width="100%"
-                    height="100%"
-                />
+                <NavLink to={item.url}>
+                    <img
+                        src={item.brand.logo}
+                        alt={item.name}
+                        width="100%"
+                        height="100%"
+                    />
+                </NavLink>
             </Box>
         ));
 
@@ -166,9 +174,9 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                     <Grid item={true} xs={12}>
                         {
                             dig(column, 'primary.items.length') && column.primary.items.map((primary) => (
-                                <Card key={primary.id}>
-                                    <NavLink to={primary.url} style={{ textDecoration: 'none' }}>
-                                        <CardActionArea>
+                                <Card className={this.props.classes.cardTwohPrimary} key={primary.id}>
+                                    <NavLink to={primary.url}>
+                                        <Box>
                                             <img
                                                 src={primary.image.desktop}
                                                 alt={primary.name}
@@ -179,11 +187,11 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                                                 width="100%"
                                                 height="100%"
                                             />
-                                            <Box className="p-1">
-                                                <Typography className="twoh-card-title text-uppercase" variant="body1">{primary.title}</Typography>
-                                                <Typography className="twoh-card-brief" variant="body2">{primary.brief}</Typography>
+                                            <Box className="px-1">
+                                                <Typography className="twoh-card-title text-uppercase" variant="h6">{primary.title}</Typography>
+                                                <Typography className="twoh-card-brief" variant="body1">{primary.brief}</Typography>
                                             </Box>
-                                        </CardActionArea>
+                                        </Box>
                                     </NavLink>
                                 </Card>
                             ))
@@ -194,9 +202,9 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                             {
                                 dig(column, 'secondary.items.length') && column.secondary.items.map((secondary) => (
                                     <Grid key={secondary.id} item={true} xs={6}>
-                                        <Card>
-                                            <NavLink to={secondary.url} style={{ textDecoration: 'none' }}>
-                                                <CardActionArea>
+                                        <Card className={this.props.classes.cardTwohSecondary}>
+                                            <Box>
+                                                <NavLink to={secondary.url} style={{ textDecoration: 'none' }}>
                                                     <img
                                                         src={secondary.image.desktop}
                                                         alt={secondary.name}
@@ -207,12 +215,12 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                                                         width="100%"
                                                         height="100%"
                                                     />
-                                                    <Box className="p-1">
-                                                        <Typography className="twoh-card-title text-uppercase" variant="body1">{secondary.title}</Typography>
-                                                        <Typography className="twoh-card-brief" variant="body2">{secondary.brief}</Typography>
+                                                    <Box className="px-1">
+                                                        <Typography className="twoh-card-title text-uppercase" variant="h6">{secondary.title}</Typography>
+                                                        <Typography className="twoh-card-brief" variant="body1">{secondary.brief}</Typography>
                                                     </Box>
-                                                </CardActionArea>
-                                            </NavLink>
+                                                </NavLink>
+                                            </Box>
                                         </Card>
                                     </Grid>
                                 ))
@@ -227,9 +235,11 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
         return (
             <Container className="home-section twoh-content">
                 {this.sectionHeader({ title: dig(twohData, 'title') || 'this week on hermo', description: dig(twohData, 'description') || '' })}
-                <Grid className="twoh-container" container={true} spacing={2}>
-                    {homeTwoh}
-                </Grid>
+                <Box className="twoh-container">
+                    <Grid className={this.props.classes.gridContainerTwoh} container={true} spacing={2}>
+                        {homeTwoh}
+                    </Grid>
+                </Box>
             </Container>
         );
     }
@@ -327,7 +337,7 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                     };
                     const content = (
                         <Container>
-                            <Box className={`pb-1 sponsor-label text-uppercase text-xs-center ${item.cta.color === 'light' ? 'dark-cta light-bg' : 'light-cta dark-bg'}`}>
+                            <Box className={`sponsor-label text-uppercase text-xs-center ${item.cta.color === 'light' ? 'dark-cta light-bg' : 'light-cta dark-bg'}`}>
                                 <Typography variant="h6">Featured Brand</Typography>
                             </Box>
                             {this.sectionHeader({ title: item.cta.button_text, data: item })}
@@ -435,7 +445,7 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
             };
             return (
                 <Box className="p-1" key={review.id}>
-                    <Card>
+                    <Card className={this.props.classes.cardReview}>
                         <CardHeader
                             avatar={<Avatar src={review.avatar} alt={`${review.username} avatar`} />}
                             title={review.username}
@@ -448,7 +458,7 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                             }
                         />
                         <Divider />
-                        <CardContent>
+                        <Box className="p-1">
                             <Grid container={true} spacing={2}>
                                 <Grid item={true} xs={3}>
                                     <img
@@ -458,10 +468,14 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                                     />
                                 </Grid>
                                 <Grid item={true} xs={9}>
-                                    <Typography>{review.comment}</Typography>
+                                    <ViewMoreText
+                                        text={review.comment}
+                                        hideButton={true}
+                                        readMoreCharacterLimit={150}
+                                    />
                                 </Grid>
                             </Grid>
-                        </CardContent>
+                        </Box>
                     </Card>
                 </Box>
             );
@@ -594,5 +608,6 @@ const withSaga = injectSaga({ key: 'homePage', saga });
 export default compose(
     withReducer,
     withSaga,
+    withStyles(styles),
     withConnect,
 )(HomePage);

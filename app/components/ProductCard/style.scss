@@ -3,6 +3,7 @@
 
 .product-container {
     position: relative;
+    min-height: 23rem;
     &.no-box-shadow {
         box-shadow: none;
     }

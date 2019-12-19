@@ -1,0 +1,44 @@
+@import 'app/breakpoints';
+@import 'app/legacy-styling.scss';
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.light-cta {
+    color: white;
+}
+
+.dark-cta {
+    color: black;
+}
+
+.light-bg {
+    background: white;
+}
+
+.dark-bg {
+    background: black;
+}
+
+.sponsor-label {
+    margin: auto;
+    width: 15rem;
+    margin-bottom: 1rem;
+}
+
+.twoh-content {
+    max-width: 100%;
+    .twoh-container {
+        img:hover {
+            transform: scale(1.05);
+        }
+
+        @include media-breakpoint-down(sm) {
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+    }
+}
+
