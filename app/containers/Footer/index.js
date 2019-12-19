@@ -63,12 +63,22 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
         <Grid className={className} container={true} spacing={1}>
             <Grid item={true}>
                 <Link href={`${globalScope.url_store_general}/Gy15Nk5JfC`}>
-                    <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/app-store-badge.svg`} style={{ width: '110px' }} />
+                    <img
+                        alt="Get it on App Store"
+                        src={`${globalScope.cdn}/hershop/temp/app-store-badge.svg`}
+                        width="110px"
+                        height="33px"
+                    />
                 </Link>
             </Grid>
             <Grid item={true}>
                 <Link href={`${globalScope.url_store_general}/Gy15Nk5JfC`}>
-                    <img alt="Get it on App Store" src={`${globalScope.cdn}/hershop/temp/google-play-badge.png`} style={{ width: '110px' }} />
+                    <img
+                        alt="Get it on App Store"
+                        src={`${globalScope.cdn}/hershop/temp/google-play-badge.png`}
+                        width="110px"
+                        height="33px"
+                    />
                 </Link>
             </Grid>
         </Grid>
@@ -149,7 +159,12 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                                             return (
                                                 <Grid key={item.url} item={true}>
                                                     <Link href={item.url}>
-                                                        <img src={require('resources/socialIcons/fb.png')} alt="facebook" style={{ width: '30px' }} />
+                                                        <img
+                                                            src={require('resources/socialIcons/fb.png')}
+                                                            alt="facebook"
+                                                            width="30px"
+                                                            height="30px"
+                                                        />
                                                     </Link>
                                                 </Grid>
                                             );
@@ -159,7 +174,12 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                                                 <Grid key={item.url} item={true}>
                                                     <Link href={item.url}>
                                                         <Box>
-                                                            <img src={require('resources/socialIcons/ig.png')} alt="instagram" style={{ width: '30px', borderRadius: '50%' }} />
+                                                            <img
+                                                                src={require('resources/socialIcons/ig.png')}
+                                                                alt="instagram"
+                                                                width="30px"
+                                                                height="30px"
+                                                            />
                                                         </Box>
                                                     </Link>
                                                 </Grid>
@@ -197,7 +217,13 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
         <Grid container={true}>
             <Grid className="py-1" item={true} xs={12}>
                 <Box>
-                    <img alt="Handcrafted in Malaysia" src={`${globalScope.cdn}//hershop/modules/footer/hermo_handcrafted.png`} style={{ float: 'right' }} />
+                    <img
+                        alt="Handcrafted in Malaysia"
+                        src={`${globalScope.cdn}//hershop/modules/footer/hermo_handcrafted.png`}
+                        style={{ float: 'right' }}
+                        width="239px"
+                        height="26px"
+                    />
                 </Box>
             </Grid>
             <Grid className="py-half" item={true} xs={12} style={{ color: '#FFF', borderTop: '1px solid #404040', borderBottom: '1px solid #404040' }}>
@@ -209,7 +235,13 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                                 result.sites.map((site) => (
                                     <Box key={site.text} className={`site ${site.is_active ? '' : 'inactive'}`}>
                                         <Link href={site.url}>
-                                            <img className="mr-half" alt={site.flag} src={site.image} />
+                                            <img
+                                                className="mr-half"
+                                                alt={site.flag}
+                                                src={site.image}
+                                                height="15px"
+                                                width="25px"
+                                            />
                                             <Typography>{site.text}</Typography>
                                         </Link>
                                     </Box>
@@ -218,7 +250,12 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                         </Box>
                     </Grid>
                     <Grid item={true}>
-                        <img alt="supported banks" src={result.image} />
+                        <img
+                            alt="supported banks"
+                            src={result.image}
+                            width="100%"
+                            height="30px"
+                        />
                     </Grid>
                 </Grid>
             </Grid>
@@ -228,7 +265,12 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
     footerCopyright = (result) => (
         <Grid className="py-half" container={true} justify="space-between">
             <Grid item={true}>
-                <img alt="payment-gateway" src={result.image} />
+                <img
+                    alt="payment-gateway"
+                    src={result.image}
+                    width="100%"
+                    height="30px"
+                />
             </Grid>
             <Grid className="py-half" item={true}>
                 <Typography variant="caption" style={{ color: '#818A91' }}>

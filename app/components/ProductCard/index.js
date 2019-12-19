@@ -38,6 +38,7 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
                     src={dataChecking(this.props.product, 'image', 'small')}
                     alt="product_image"
                     width="100%"
+                    height="100%"
                 />
                 {
                     dataChecking(this.props.product, 'instock') ?
@@ -65,6 +66,8 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
                                 src={feature.value}
                                 alt="product_feature"
                                 className="feature-tag"
+                                width="100%"
+                                height="100%"
                             />
                         </Grid>
                     ))

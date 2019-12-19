@@ -465,6 +465,8 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                                         src={!dig(this.state, 'src') ? `${globalScope.cdn}/hershop/fallback-image.jpg` : dig(this.state, 'src')}
                                         alt="review product"
                                         onError={() => this.setState({ src: `${globalScope.cdn}/hershop/fallback-image.jpg` })}
+                                        width="100%"
+                                        height="100%"
                                     />
                                 </Grid>
                                 <Grid item={true} xs={9}>
@@ -507,7 +509,12 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
             <Container style={{ color: '#f2f2f2' }}>
                 <Grid container={true}>
                     <Grid className="pr-2" item={true} xs={8}>
-                        <img src={image.items[0].image.desktop || null} alt={image.items[0].name} style={{ width: '20%' }} />
+                        <img
+                            src={image.items[0].image.desktop || null}
+                            alt={image.items[0].name}
+                            width="20%"
+                            height="30px"
+                        />
                         <Box className="py-1">
                             <Typography>
                                 <HtmlParser html={layout.modules[0].result.text} />
