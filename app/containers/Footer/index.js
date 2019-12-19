@@ -179,6 +179,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
                                                                 alt="instagram"
                                                                 width="30px"
                                                                 height="30px"
+                                                                style={{ borderRadius: '50%' }}
                                                             />
                                                         </Box>
                                                     </Link>
