@@ -77,6 +77,7 @@ class Carousel extends React.PureComponent { // eslint-disable-line react/prefer
         const settings = {
             ...this.props.settings,
             arrows: false,
+            swipeToSlide: true,
         };
 
         return (

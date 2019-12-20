@@ -87,11 +87,6 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
     )
 
     homeBanner = () => {
-        const settings = {
-            // dots: true,
-            autoplay: true,
-            autoplaySpeed: 5000,
-        };
         const homeBanner = this.props.homePage.homeBanner.data.result.items.map((item, index) => (
             <Box key={index}>
                 <NavLink to={item.url}>
@@ -113,7 +108,13 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
             <Box className="home-banner-content">
                 {
                     homeBanner &&
-                    <Carousel settings={settings}>
+                    <Carousel
+                        settings={{
+                            // dots: true,
+                            autoplay: true,
+                            autoplaySpeed: 5000,
+                        }}
+                    >
                         { homeBanner }
                     </Carousel>
                 }
@@ -122,18 +123,6 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
     }
 
     flagship = () => {
-        const settings = {
-            centerMode: true,
-            slidesToShow: 5,
-            responsive: [
-                {
-                    breakpoint: 600,
-                    settings: {
-                        slidesToShow: 1,
-                    },
-                },
-            ],
-        };
         const homeFlagship = this.props.homePage.flagship.data.items.map((item, index) => (
             <Box key={index}>
                 <NavLink to={item.url}>
@@ -152,7 +141,20 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                 {this.sectionHeader({ title: 'official flagships stores', description: 'authorised & authentic' })}
                 {
                     homeFlagship &&
-                    <Carousel settings={settings}>
+                    <Carousel
+                        settings={{
+                            centerMode: true,
+                            slidesToShow: 5,
+                            responsive: [
+                                {
+                                    breakpoint: 600,
+                                    settings: {
+                                        slidesToShow: 1,
+                                    },
+                                },
+                            ],
+                        }}
+                    >
                         {homeFlagship}
                     </Carousel>
                 }
@@ -257,51 +259,51 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
             </Box>
         ));
 
-        const settings = {
-            slidesToShow: 5,
-            responsive: [
-                {
-                    breakpoint: 600,
-                    settings: {
-                        slidesToShow: 1,
-                        centerMode: true,
-                    },
-                },
-            ],
-        };
-
         return (
             <Container className="home-section new-arrival-content">
                 {this.sectionHeader({ title: dig(newArrivalData, 'title') || 'new arrivals', description: 'checkout the latest and hottest!' })}
-                <Carousel settings={settings}>
+                <Carousel
+                    settings={{
+                        slidesToShow: 5,
+                        responsive: [
+                            {
+                                breakpoint: 600,
+                                settings: {
+                                    slidesToShow: 1,
+                                    centerMode: true,
+                                },
+                            },
+                        ],
+                    }}
+                >
                     {latestTrends}
                 </Carousel>
             </Container>
         );
     }
 
-    hotStuff = (title, description, products) => {
-        const settings = {
-            slidesToShow: 2,
-            responsive: [
-                {
-                    breakpoint: 600,
-                    settings: {
-                        slidesToShow: 1,
-                        centerMode: true,
-                    },
-                },
-            ],
-        };
-        return (
-            <Grid item={true} xs={12} md={6}>
-                <Card>
-                    <Box className="p-1">
-                        {this.sectionHeader({ title, description })}
-                        <Divider />
-                        <CardContent>
-                            <Carousel settings={settings}>
-                                {
+    hotStuff = (title, description, products) => (
+        <Grid item={true} xs={12} md={6}>
+            <Card>
+                <Box className="p-1">
+                    {this.sectionHeader({ title, description })}
+                    <Divider />
+                    <CardContent>
+                        <Carousel
+                            settings={{
+                                slidesToShow: 2,
+                                responsive: [
+                                    {
+                                        breakpoint: 600,
+                                        settings: {
+                                            slidesToShow: 1,
+                                            centerMode: true,
+                                        },
+                                    },
+                                ],
+                            }}
+                        >
+                            {
                                     products.map((product) => (
                                         <Box className="p-1" key={product.id}>
                                             <ProductCard
@@ -312,29 +314,17 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                                         </Box>
                                     ))
                                 }
-                            </Carousel>
-                        </CardContent>
-                    </Box>
-                </Card>
-            </Grid>
-        );
-    }
+                        </Carousel>
+                    </CardContent>
+                </Box>
+            </Card>
+        </Grid>
+        )
 
     sponsor = () => (
         <Box className="home-section sponsored-content">
             {
                 this.props.homePage.sponsored.data.result.items.map((item) => {
-                    const settings = {
-                        slidesToShow: 3,
-                        responsive: [
-                            {
-                                breakpoint: 600,
-                                settings: {
-                                    slidesToShow: 1,
-                                },
-                            },
-                        ],
-                    };
                     const content = (
                         <Container>
                             <Box className={`sponsor-label text-uppercase text-xs-center ${item.cta.color === 'light' ? 'dark-cta light-bg' : 'light-cta dark-bg'}`}>
@@ -342,7 +332,20 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                             </Box>
                             {this.sectionHeader({ title: item.cta.button_text, data: item })}
                             <Paper className="p-1 my-1">
-                                <Carousel settings={settings} disableArrow={item._product.items.length < settings.slidesToShow + 1}>
+                                <Carousel
+                                    settings={{
+                                        slidesToShow: 3,
+                                        responsive: [
+                                            {
+                                                breakpoint: 600,
+                                                settings: {
+                                                    slidesToShow: 1,
+                                                },
+                                            },
+                                        ],
+                                    }}
+                                    disableArrow={item._product.items.length < 4}
+                                >
                                     {
                                         item._product.items.map((product) => (
                                             <Box className="p-1" key={product.id}>
@@ -388,19 +391,6 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
     )
 
     personalisation = (data) => {
-        const settings = {
-            slidesToShow: 5,
-            responsive: [
-                {
-                    breakpoint: 600,
-                    settings: {
-                        slidesToShow: 1,
-                        centerMode: true,
-                    },
-                },
-            ],
-        };
-
         const products = data.product.items.map((product) => (
             <Box className="p-half" key={product.id}>
                 <ProductCard
@@ -419,7 +409,20 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                         description: dig(data, 'headline.title.description'),
                     })
                 }
-                <Carousel settings={settings}>
+                <Carousel
+                    settings={{
+                        slidesToShow: 5,
+                        responsive: [
+                            {
+                                breakpoint: 600,
+                                settings: {
+                                    slidesToShow: 1,
+                                    centerMode: true,
+                                },
+                            },
+                        ],
+                    }}
+                >
                     {products}
                 </Carousel>
             </Container>
@@ -427,18 +430,6 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
     }
 
     reviews = () => {
-        const settings = {
-            slidesToShow: 3,
-            centerMode: true,
-            responsive: [
-                {
-                    breakpoint: 600,
-                    settings: {
-                        slidesToShow: 1,
-                    },
-                },
-            ],
-        };
         const reviewsCards = this.props.homePage.review.data.result.items.map((review) => {
             this.state = {
                 src: review.image.square,
@@ -489,7 +480,21 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                     title: dig(this.props.homePage, 'review.data.title') || 'beauty reviews',
                     description: dig(this.props.homePage, 'review.data.description') || 'share your beauty stories',
                 })}
-                <Carousel settings={settings} disableArrow={true}>
+                <Carousel
+                    settings={{
+                        slidesToShow: 3,
+                        centerMode: true,
+                        responsive: [
+                            {
+                                breakpoint: 600,
+                                settings: {
+                                    slidesToShow: 1,
+                                },
+                            },
+                        ],
+                    }}
+                    disableArrow={true}
+                >
                     {reviewsCards}
                 </Carousel>
                 <NavLink to={this.props.homePage.review.data.url} style={{ textDecoration: 'none' }}>
