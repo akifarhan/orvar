@@ -304,27 +304,28 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                             }}
                         >
                             {
-                                    products.map((product) => (
-                                        <Box className="p-1" key={product.id}>
-                                            <ProductCard
-                                                product={product}
-                                                url={product.url}
-                                                image={true}
-                                            />
-                                        </Box>
-                                    ))
-                                }
+                                products.map((product) => (
+                                    <Box className="p-1" key={product.id}>
+                                        <ProductCard
+                                            product={product}
+                                            url={product.url}
+                                            image={true}
+                                        />
+                                    </Box>
+                                ))
+                            }
                         </Carousel>
                     </CardContent>
                 </Box>
             </Card>
         </Grid>
-        )
+    )
 
     sponsor = () => (
         <Box className="home-section sponsored-content">
             {
                 this.props.homePage.sponsored.data.result.items.map((item) => {
+                    const SLIDES_TO_SHOW = 3;
                     const content = (
                         <Container>
                             <Box className={`sponsor-label text-uppercase text-xs-center ${item.cta.color === 'light' ? 'dark-cta light-bg' : 'light-cta dark-bg'}`}>
@@ -334,7 +335,7 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                             <Paper className="p-1 my-1">
                                 <Carousel
                                     settings={{
-                                        slidesToShow: 3,
+                                        slidesToShow: SLIDES_TO_SHOW,
                                         responsive: [
                                             {
                                                 breakpoint: 600,
@@ -344,7 +345,7 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
                                             },
                                         ],
                                     }}
-                                    disableArrow={item._product.items.length < 4}
+                                    disableArrow={item._product.items.length < SLIDES_TO_SHOW + 1}
                                 >
                                     {
                                         item._product.items.map((product) => (

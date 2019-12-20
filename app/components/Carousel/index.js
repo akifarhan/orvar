@@ -3,11 +3,11 @@
 * Carousel
 *
 * After evaluating several packages for carousel; we chose react-slick.
-* However, this package still not perfect yet:
-* [x] Arrows not on top of the slider
-* [x] Arrows icons cannot be changed easily
-* [x] Link's click triggered when dragging the carousel
-* [] Drag behavior for slidesToScroll remain 1 for centerMode
+* React-slick issue resolved by CUSTOMIZATION:
+* -> Arrows not on top of the slider
+* -> Arrows icons cannot be changed easily
+* -> Link's click triggered when dragging the carousel
+* -> Drag behavior for slidesToScroll remain 1 for centerMode
 */
 
 import React from 'react';
