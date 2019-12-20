@@ -35,10 +35,8 @@ import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
 
-const CARD_PAIR = 6;
-// const TIME_WAIT_FOR_CARD_ONE_BY_ONE = CARD_PAIR * 2;
+// const TIME_WAIT_FOR_CARD_ONE_BY_ONE = this.pairPerGame * 2;
 const TIME_WAIT_FOR_CARD_ONE_BY_ONE = 0; // XH request dont wait one by one
-const GAME_DURATION = 30000;
 
 const TIME_UNIT = 330;
 const shareUrl = 'https://app.hermo.my/N1B7NUpi3Z';
@@ -67,6 +65,8 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
 
         document.ondragstart = () => null;
         Events.trigger('hideHeader', {});
+        this.pairPerGame = this.props.gameConfig.pairPerGame || 6;
+        this.gameDuration = this.props.gameConfig.gameDuration || 30000;
         this.state = {
             ...initialState,
             brandArr: this.shuffleArray(this.getRandomBrands()),
@@ -80,7 +80,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
         this.state.gameMusic.loop = true;
 
         let counter = 0;
-        while (counter < CARD_PAIR) {
+        while (counter < this.pairPerGame) {
             this.state[`flipped_${counter}`] = false;
             counter++;
         }
@@ -118,8 +118,8 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
         const newArr = [];
 
         let counter = 0;
-        while (counter < CARD_PAIR) {
-            index = Math.floor(Math.random() * CARD_PAIR);
+        while (counter < this.pairPerGame) {
+            index = Math.floor(Math.random() * brands.length);
             newArr.push(brands[index]);
             brands.splice(index, 1);
             counter++;
@@ -134,38 +134,17 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
         }, value * TIME_UNIT);
     }
 
-    initialiseGame = () => {
-        let counter = 0;
-        while (counter < TIME_WAIT_FOR_CARD_ONE_BY_ONE) {
-            this.setDelayState(counter + 1);
-            counter++;
+    getCardSizeClass = () => {
+        if (this.pairPerGame > 15) {
+            return 'six-per-row';
+        } else if (this.pairPerGame > 12) {
+            return 'five-per-row';
+        } else if (this.pairPerGame > 6) {
+            return 'four-per-row';
         }
-        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 3);
-        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 6);
-        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 9);
 
-        const getExtraObj = () => {
-            const obj = {
-                countingDown: Date.now() + (GAME_DURATION + 400),
-                tips: 'Try to get a match!',
-            };
-            let counter2 = 0;
-            while (counter2 < (CARD_PAIR * 2)) {
-                obj[`flipped_${counter2}`] = true;
-                counter2++;
-            }
-
-            return obj;
-        };
-        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 12, getExtraObj);
-        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 15);
-
-        this.state.gameMusic.currentTime = 0;
-        if (this.props.playMusic) {
-            this.state.gameMusic.play();
-        }
+        return '';
     }
-
 
     shuffleArray = (array) => {
         const newArr = [];
@@ -187,6 +166,38 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
         //     counter--;
         // }
         // return newArr;
+    }
+
+    initialiseGame = () => {
+        let counter = 0;
+        while (counter < TIME_WAIT_FOR_CARD_ONE_BY_ONE) {
+            this.setDelayState(counter + 1);
+            counter++;
+        }
+        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 3);
+        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 6);
+        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 9);
+
+        const getExtraObj = () => {
+            const obj = {
+                countingDown: Date.now() + (this.gameDuration + 400),
+                tips: 'Try to get a match!',
+            };
+            let counter2 = 0;
+            while (counter2 < (this.pairPerGame * 2)) {
+                obj[`flipped_${counter2}`] = true;
+                counter2++;
+            }
+
+            return obj;
+        };
+        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 12, getExtraObj);
+        this.setDelayState(TIME_WAIT_FOR_CARD_ONE_BY_ONE + 15);
+
+        this.state.gameMusic.currentTime = 0;
+        if (this.props.playMusic) {
+            this.state.gameMusic.play();
+        }
     }
 
     renderGame = () => (
@@ -221,7 +232,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                     this.state.countingDown ?
                         <Countdown
                             date={this.state.countingDown}
-                            renderer={({ seconds, completed }) => {
+                            renderer={({ hours, minutes, seconds, completed }) => {
                                 if (completed) {
                                     if (this.props.playMusic) {
                                         this.state.loseSound.play();
@@ -229,11 +240,24 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                     this.setState({
                                         complete: 'lose',
                                     });
-                                    this.props.onGameLose({
-                                        score: 0,
-                                    });
+                                    if (!this.props.gameConfig.trialMode) {
+                                        this.props.onGameLose({
+                                            score: 0,
+                                        });
+                                    }
                                 }
-                                return <span className="countdown-timer">{seconds}s</span>;
+
+                                if (!hours && !minutes) {
+                                    return <span className="countdown-timer seconds">{seconds}s</span>;
+                                }
+
+                                return (
+                                    <div>
+                                        <span className="countdown-timer hours">{hours}:</span>
+                                        <span className="countdown-timer minutes">{minutes > 10 ? minutes : `0${minutes}`}:</span>
+                                        <span className="countdown-timer seconds">{seconds > 10 ? seconds : `0${seconds}`}</span>
+                                    </div>
+                                );
                             }}
                         />
                         :
@@ -261,7 +285,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                     this.state.brandArr && this.state.brandArr.map((brandImage, index) => (
                         <span
                             key={index}
-                            className={`flipable-card ${CARD_PAIR > 6 ? 'four-per-row' : ''}`}
+                            className={`flipable-card ${this.getCardSizeClass(this.pairPerGame)}`}
                             onClick={() => {
                                 const obj = { ...this.state };
                                 let result = null;
@@ -308,7 +332,7 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                         obj.correctMatch[obj.onHand1.index] = true;
 
                                         obj.correct = (obj.correct || 0) + 1;
-                                        if (obj.correct >= CARD_PAIR) {
+                                        if (obj.correct >= this.pairPerGame) {
                                             if (this.props.playMusic) {
                                                 this.state.winSound.play();
                                             }
@@ -336,9 +360,9 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
                                             onHand2: null,
                                             complete: result || this.state.complete,
                                         }, () => {
-                                            if (result === 'win') {
+                                            if (result === 'win' && !this.props.gameConfig.trialMode) {
                                                 this.props.onGameWin({
-                                                    score: CARD_PAIR,
+                                                    score: this.pairPerGame,
                                                 });
                                             }
                                         });
@@ -386,6 +410,19 @@ export class PerfectMatchGame extends React.PureComponent { // eslint-disable-li
     renderResult = () => (
         <div className="result-screen-content">
             <div className="inner-section animated zoomIn">
+                {
+                    this.props.gameConfig.trialMode ?
+                        <div className="verticle-center bigger">
+                            {
+                                this.state.complete === 'win' ?
+                                    this.props.gameConfig.trialModeWin
+                                    :
+                                    this.props.gameConfig.trialModeLose
+                            }
+                        </div>
+                        :
+                        null
+                }
                 {
                     this.state.gameResultImage ?
                         <div

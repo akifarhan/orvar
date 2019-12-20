@@ -9,6 +9,7 @@ const globalScope = {
     previousPage: '',
     config: {},
     axios: null, // create in initialiseApp.js
+    gameVersion: '1.2.0',
 };
 
 export default globalScope;

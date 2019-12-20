@@ -251,9 +251,30 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
             this.startSound.currentTime = 0;
         }
 
-        if (dig(this.state.gameInfo, 'data.config.game.background_music')) {
+        if (this.idleMusic && dig(this.state.gameInfo, 'data.config.game.background_music')) {
             this.idleMusic.pause();
             this.idleMusic.currentTime = 0;
+        }
+
+        // trialMode
+        if (dataChecking(this.state.gameInfo, 'data', 'config', 'game', 'trialMode')) {
+            const obj = {
+                showModal: 'showPlay',
+                gameResultImagelink: null,
+                disableAction: this.state.gameInfo.data.config.game.disableActionOnPlay,
+                gameAccessToken: null,
+            };
+
+            if (this.state.gameInfo.data.type === 'video-show') {
+                console.log('to be handle');
+            }
+
+            if (this.state.playMusic && this.startSound) {
+                this.startSound.play();
+            }
+            this.setState(obj);
+
+            return;
         }
 
         if ((dig(this.state.memberInfo, 'data.token.amount') >= dig(this.state.gameInfo, 'data.token_charge'))) {
@@ -584,7 +605,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                             //     }
                             // }
                         }}
-                    >1.1.4</div>
+                    >{globalScope.gameVersion}</div>
                     <img
                         draggable="false"
                         onLoad={this.onBgImageLoaded}
