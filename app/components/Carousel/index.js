@@ -3,11 +3,11 @@
 * Carousel
 *
 * After evaluating several packages for carousel; we chose react-slick.
-* However, this package still not perfect yet:
+* Issues need to be fixed:
 * [x] Arrows not on top of the slider
 * [x] Arrows icons cannot be changed easily
 * [x] Link's click triggered when dragging the carousel
-* [] Drag behavior for slidesToScroll remain 1 for centerMode
+* [x] Drag behavior for slidesToScroll remain 1 for centerMode
 */
 
 import React from 'react';
@@ -77,6 +77,7 @@ class Carousel extends React.PureComponent { // eslint-disable-line react/prefer
         const settings = {
             ...this.props.settings,
             arrows: false,
+            slideToSwipe: true,
         };
 
         return (
