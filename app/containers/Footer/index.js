@@ -273,7 +273,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
         return (
             <div>
                 <Hidden smDown={true}>
-                    <div className="footer-desktop" style={{ backgroundColor: '#000', color: '#f2f2f2' }}>
+                    <div className="footer-desktop" style={{ backgroundColor: '#222', color: '#f2f2f2' }}>
                         {
                         this.props.footer.layoutFooter.success &&
                         <Container className="p-3">

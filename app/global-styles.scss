@@ -212,3 +212,9 @@ input:-webkit-autofill:active  {
 .hidden {
     display: none !important;
 }
+
+.verticle-center {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}

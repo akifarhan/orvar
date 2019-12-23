@@ -7,40 +7,40 @@
 import {
     GET_HOME_BANNER,
     GET_HOME_BANNER_SUCCESS,
-    GET_HOME_BANNER_FAILED,
+    GET_HOME_BANNER_FAIL,
     GET_FLAGSHIP,
     GET_FLAGSHIP_SUCCESS,
-    GET_FLAGSHIP_FAILED,
+    GET_FLAGSHIP_FAIL,
     GET_TWOH,
     GET_TWOH_SUCCESS,
-    GET_TWOH_FAILED,
+    GET_TWOH_FAIL,
     GET_NEW_ARRIVAL,
     GET_NEW_ARRIVAL_SUCCESS,
-    GET_NEW_ARRIVAL_FAILED,
-    GET_EXTENSION,
-    GET_EXTENSION_SUCCESS,
-    GET_EXTENSION_FAILED,
+    GET_NEW_ARRIVAL_FAIL,
     GET_TRENDING,
     GET_TRENDING_SUCCESS,
-    GET_TRENDING_FAILED,
+    GET_TRENDING_FAIL,
     GET_SPONSORED,
     GET_SPONSORED_SUCCESS,
-    GET_SPONSORED_FAILED,
+    GET_SPONSORED_FAIL,
+    GET_EXTENSION,
+    GET_EXTENSION_SUCCESS,
+    GET_EXTENSION_FAIL,
+    GET_PERSONALISATION,
+    GET_PERSONALISATION_SUCCESS,
+    GET_PERSONALISATION_FAIL,
     GET_REVIEW,
     GET_REVIEW_SUCCESS,
-    GET_REVIEW_FAILED,
-    GET_STORE,
-    GET_STORE_SUCCESS,
-    GET_STORE_FAILED,
-    GET_LAYOUT_FOOTER,
-    GET_LAYOUT_FOOTER_SUCCESS,
-    GET_LAYOUT_FOOTER_FAILED,
-    GET_IMAGE_FOOTER,
-    GET_IMAGE_FOOTER_SUCCESS,
-    GET_IMAGE_FOOTER_FAILED,
-    GET_PARTNER_FOOTER,
-    GET_PARTNER_FOOTER_SUCCESS,
-    GET_PARTNER_FOOTER_FAILED,
+    GET_REVIEW_FAIL,
+    GET_FOOTER_LAYOUT,
+    GET_FOOTER_LAYOUT_SUCCESS,
+    GET_FOOTER_LAYOUT_FAIL,
+    GET_FOOTER_IMAGE,
+    GET_FOOTER_IMAGE_SUCCESS,
+    GET_FOOTER_IMAGE_FAIL,
+    GET_FOOTER_PARTNER,
+    GET_FOOTER_PARTNER_SUCCESS,
+    GET_FOOTER_PARTNER_FAIL,
 } from './constants';
 
 export function getHomeBanner() {
@@ -48,18 +48,16 @@ export function getHomeBanner() {
         type: GET_HOME_BANNER,
     };
 }
-
-export function getHomeBannerSuccess(bannerData) {
+export function getHomeBannerSuccess(response) {
     return {
         type: GET_HOME_BANNER_SUCCESS,
-        bannerData,
+        response,
     };
 }
-
-export function getHomeBannerFailed(bannerData) {
+export function getHomeBannerFail(err) {
     return {
-        type: GET_HOME_BANNER_FAILED,
-        bannerData,
+        type: GET_HOME_BANNER_FAIL,
+        err,
     };
 }
 export function getFlagship() {
@@ -67,18 +65,16 @@ export function getFlagship() {
         type: GET_FLAGSHIP,
     };
 }
-
-export function getFlagshipSuccess(flagshipData) {
+export function getFlagshipSuccess(response) {
     return {
         type: GET_FLAGSHIP_SUCCESS,
-        flagshipData,
+        response,
     };
 }
-
-export function getFlagshipFailed(flagshipData) {
+export function getFlagshipFail(err) {
     return {
-        type: GET_FLAGSHIP_FAILED,
-        flagshipData,
+        type: GET_FLAGSHIP_FAIL,
+        err,
     };
 }
 export function getTwoh() {
@@ -86,17 +82,16 @@ export function getTwoh() {
         type: GET_TWOH,
     };
 }
-
-export function getTwohSuccess(twohData) {
+export function getTwohSuccess(response) {
     return {
         type: GET_TWOH_SUCCESS,
-        twohData,
+        response,
     };
 }
-export function getTwohFailed(twohData) {
+export function getTwohFail(err) {
     return {
-        type: GET_TWOH_FAILED,
-        twohData,
+        type: GET_TWOH_FAIL,
+        err,
     };
 }
 export function getNewArrival() {
@@ -104,35 +99,16 @@ export function getNewArrival() {
         type: GET_NEW_ARRIVAL,
     };
 }
-
-export function getNewArrivalSuccess(newArrivalData) {
+export function getNewArrivalSuccess(response) {
     return {
         type: GET_NEW_ARRIVAL_SUCCESS,
-        newArrivalData,
+        response,
     };
 }
-export function getNewArrivalFailed(newArrivalData) {
+export function getNewArrivalFail(err) {
     return {
-        type: GET_NEW_ARRIVAL_FAILED,
-        newArrivalData,
-    };
-}
-export function getExtension() {
-    return {
-        type: GET_EXTENSION,
-    };
-}
-
-export function getExtensionSuccess(extensionData) {
-    return {
-        type: GET_EXTENSION_SUCCESS,
-        extensionData,
-    };
-}
-export function getExtensionFailed(extensionData) {
-    return {
-        type: GET_EXTENSION_FAILED,
-        extensionData,
+        type: GET_NEW_ARRIVAL_FAIL,
+        err,
     };
 }
 export function getTrending() {
@@ -140,17 +116,16 @@ export function getTrending() {
         type: GET_TRENDING,
     };
 }
-
-export function getTrendingSuccess(trendingData) {
+export function getTrendingSuccess(response) {
     return {
         type: GET_TRENDING_SUCCESS,
-        trendingData,
+        response,
     };
 }
-export function getTrendingFailed(trendingData) {
+export function getTrendingFail(err) {
     return {
-        type: GET_TRENDING_FAILED,
-        trendingData,
+        type: GET_TRENDING_FAIL,
+        err,
     };
 }
 export function getSponsored() {
@@ -158,17 +133,50 @@ export function getSponsored() {
         type: GET_SPONSORED,
     };
 }
-
-export function getSponsoredSuccess(sponsoredData) {
+export function getSponsoredSuccess(response) {
     return {
         type: GET_SPONSORED_SUCCESS,
-        sponsoredData,
+        response,
     };
 }
-export function getSponsoredFailed(sponsoredData) {
+export function getSponsoredFail(err) {
     return {
-        type: GET_SPONSORED_FAILED,
-        sponsoredData,
+        type: GET_SPONSORED_FAIL,
+        err,
+    };
+}
+export function getExtension() {
+    return {
+        type: GET_EXTENSION,
+    };
+}
+export function getExtensionSuccess(response) {
+    return {
+        type: GET_EXTENSION_SUCCESS,
+        response,
+    };
+}
+export function getExtensionFail(err) {
+    return {
+        type: GET_EXTENSION_FAIL,
+        err,
+    };
+}
+export function getPersonalisation() {
+    return {
+        type: GET_PERSONALISATION,
+    };
+}
+export function getPersonalisationSuccess(response) {
+    return {
+        type: GET_PERSONALISATION_SUCCESS,
+        response,
+    };
+}
+export function getPersonalisationFail(err) {
+    return {
+        type: GET_PERSONALISATION_FAIL,
+        err,
     };
 }
 export function getReview() {
@@ -176,88 +184,66 @@ export function getReview() {
         type: GET_REVIEW,
     };
 }
-
-export function getReviewSuccess(reviewData) {
+export function getReviewSuccess(response) {
     return {
         type: GET_REVIEW_SUCCESS,
-        reviewData,
+        response,
     };
 }
-export function getReviewFailed(reviewData) {
+export function getReviewFail(err) {
     return {
-        type: GET_REVIEW_FAILED,
-        reviewData,
+        type: GET_REVIEW_FAIL,
+        err,
     };
 }
-export function getStore() {
+export function getFooterLayout() {
     return {
-        type: GET_STORE,
+        type: GET_FOOTER_LAYOUT,
     };
 }
-
-export function getStoreSuccess(storeData) {
+export function getFooterLayoutSuccess(response) {
     return {
-        type: GET_STORE_SUCCESS,
-        storeData,
+        type: GET_FOOTER_LAYOUT_SUCCESS,
+        response,
     };
 }
-export function getStoreFailed(storeData) {
+export function getFooterLayoutFail(err) {
     return {
-        type: GET_STORE_FAILED,
-        storeData,
+        type: GET_FOOTER_LAYOUT_FAIL,
+        err,
     };
 }
-export function getLayoutFooter() {
+export function getFooterImage() {
     return {
-        type: GET_LAYOUT_FOOTER,
+        type: GET_FOOTER_IMAGE,
     };
 }
-
-export function getLayoutFooterSuccess(layoutFooterData) {
+export function getFooterImageSuccess(response) {
     return {
-        type: GET_LAYOUT_FOOTER_SUCCESS,
-        layoutFooterData,
+        type: GET_FOOTER_IMAGE_SUCCESS,
+        response,
     };
 }
-export function getLayoutFooterFailed(layoutFooterData) {
+export function getFooterImageFail(err) {
     return {
-        type: GET_LAYOUT_FOOTER_FAILED,
-        layoutFooterData,
+        type: GET_FOOTER_IMAGE_FAIL,
+        err,
     };
 }
-export function getImageFooter() {
+export function getFooterPartner() {
     return {
-        type: GET_IMAGE_FOOTER,
+        type: GET_FOOTER_PARTNER,
     };
 }
-
-export function getImageFooterSuccess(imageFooterData) {
+export function getFooterPartnerSuccess(response) {
     return {
-        type: GET_IMAGE_FOOTER_SUCCESS,
-        imageFooterData,
+        type: GET_FOOTER_PARTNER_SUCCESS,
+        response,
     };
 }
-export function getImageFooterFailed(imageFooterData) {
+export function getFooterPartnerFail(err) {
     return {
-        type: GET_IMAGE_FOOTER_FAILED,
-        imageFooterData,
-    };
-}
-export function getPartnerFooter() {
-    return {
-        type: GET_PARTNER_FOOTER,
-    };
-}
-
-export function getPartnerFooterSuccess(partnerFooterData) {
-    return {
-        type: GET_PARTNER_FOOTER_SUCCESS,
-        partnerFooterData,
-    };
-}
-export function getPartnerFooterFailed(partnerFooterData) {
-    return {
-        type: GET_PARTNER_FOOTER_FAILED,
-        partnerFooterData,
+        type: GET_FOOTER_PARTNER_FAIL,
+        err,
     };
 }

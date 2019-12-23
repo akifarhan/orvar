@@ -1,84 +1,90 @@
 import { takeLatest, call, put } from 'redux-saga/effects';
+import globalScope from 'globalScope';
 import {
     GET_HOME_BANNER,
     GET_FLAGSHIP,
     GET_TWOH,
     GET_NEW_ARRIVAL,
-    GET_EXTENSION,
     GET_TRENDING,
     GET_SPONSORED,
+    GET_EXTENSION,
+    GET_PERSONALISATION,
     GET_REVIEW,
-    GET_STORE,
-    GET_LAYOUT_FOOTER,
-    GET_IMAGE_FOOTER,
-    GET_PARTNER_FOOTER,
+    GET_FOOTER_LAYOUT,
+    GET_FOOTER_IMAGE,
+    GET_FOOTER_PARTNER,
 } from './constants';
 import {
     getHomeBannerSuccess,
-    getHomeBannerFailed,
+    getHomeBannerFail,
     getFlagshipSuccess,
-    getFlagshipFailed,
+    getFlagshipFail,
     getTwohSuccess,
-    getTwohFailed,
+    getTwohFail,
     getNewArrivalSuccess,
-    getNewArrivalFailed,
-    getExtensionSuccess,
-    getExtensionFailed,
+    getNewArrivalFail,
     getTrendingSuccess,
-    getTrendingFailed,
+    getTrendingFail,
     getSponsoredSuccess,
-    getSponsoredFailed,
+    getSponsoredFail,
+    getExtensionSuccess,
+    getExtensionFail,
+    getPersonalisationSuccess,
+    getPersonalisationFail,
     getReviewSuccess,
-    getReviewFailed,
-    getStoreSuccess,
-    getStoreFailed,
-    getLayoutFooterSuccess,
-    getLayoutFooterFailed,
-    getImageFooterSuccess,
-    getImageFooterFailed,
-    getPartnerFooterSuccess,
-    getPartnerFooterFailed,
+    getReviewFail,
+    getFooterLayoutSuccess,
+    getFooterLayoutFail,
+    getFooterImageSuccess,
+    getFooterImageFail,
+    getFooterPartnerSuccess,
+    getFooterPartnerFail,
 } from './actions';
 import { staticErrorResponse, apiRequest } from '../../globalUtils';
 
-
-export function* getBannerWorker() {
+export function* homeBannerQuery() {
     let err;
 
     try { // Trying the HTTP Request
         const response = yield call(apiRequest, '/home/home-banner');
         if (response && response.ok !== false) {
-            yield put(getHomeBannerSuccess(response));
+            yield put(getHomeBannerSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getHomeBannerFailed(response));
+            yield put(getHomeBannerFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getHomeBannerFailed(e));
+        yield put(getHomeBannerFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
-export function* getFlagshipWorker() {
+
+export function* flagshipQuery() {
     let err;
 
     try { // Trying the HTTP Request
         const response = yield call(apiRequest, '/flagship');
         if (response && response.ok !== false) {
-            yield put(getFlagshipSuccess(response));
+            yield put(getFlagshipSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getFlagshipFailed(response));
+            yield put(getFlagshipFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getFlagshipFailed(e));
+        yield put(getFlagshipFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
-export function* getTwohWorker() {
+
+export function* twohQuery() {
     let err;
 
     try { // Trying the HTTP Request
@@ -86,17 +92,20 @@ export function* getTwohWorker() {
         if (response && response.ok !== false) {
             yield put(getTwohSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getTwohFailed(response.data));
+            yield put(getTwohFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getTwohFailed(e));
+        yield put(getTwohFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
-export function* getNewArrivalWorker() {
+
+export function* newArrivalQuery() {
     let err;
 
     try { // Trying the HTTP Request
@@ -104,35 +113,20 @@ export function* getNewArrivalWorker() {
         if (response && response.ok !== false) {
             yield put(getNewArrivalSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getNewArrivalFailed(response.data));
+            yield put(getNewArrivalFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getNewArrivalFailed(e));
+        yield put(getNewArrivalFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
-export function* getExtensionWorker() {
-    let err;
 
-    try { // Trying the HTTP Request
-        const response = yield call(apiRequest, '/view/135');
-        if (response && response.ok !== false) {
-            yield put(getExtensionSuccess(response.data));
-        } else if (response && response.ok === false) {
-            yield put(getExtensionFailed(response.data));
-        } else {
-            err = staticErrorResponse({ text: 'No response from server' });
-            throw err;
-        }
-    } catch (e) {
-        console.log('error: ', e);
-        yield put(getExtensionFailed(e));
-    }
-}
-export function* getTrendingWorker() {
+export function* trendingQuery() {
     let err;
 
     try { // Trying the HTTP Request
@@ -140,17 +134,20 @@ export function* getTrendingWorker() {
         if (response && response.ok !== false) {
             yield put(getTrendingSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getTrendingFailed(response.data));
+            yield put(getTrendingFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getTrendingFailed(e));
+        yield put(getTrendingFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
-export function* getSponsoredWorker() {
+
+export function* sponsoredQuery() {
     let err;
 
     try { // Trying the HTTP Request
@@ -158,17 +155,62 @@ export function* getSponsoredWorker() {
         if (response && response.ok !== false) {
             yield put(getSponsoredSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getSponsoredFailed(response.data));
+            yield put(getSponsoredFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getSponsoredFailed(e));
+        yield put(getSponsoredFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
-export function* getReviewWorker() {
+
+export function* extensionQuery() {
+    let err;
+
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/view/135');
+        if (response && response.ok !== false) {
+            yield put(getExtensionSuccess(response.data));
+        } else if (response && response.ok === false) {
+            yield put(getExtensionFail(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(getExtensionFail(e));
+    }
+    // yield call, yield put and etc, whatever you like
+    yield true;
+}
+
+export function* personalisationQuery() {
+    let err;
+
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/v2/personalisation', 'get', {}, globalScope.reco);
+        if (response && response.ok !== false) {
+            yield put(getPersonalisationSuccess(response.data));
+        } else if (response && response.ok === false) {
+            yield put(getPersonalisationFail(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(getPersonalisationFail(e));
+    }
+    // yield call, yield put and etc, whatever you like
+    yield true;
+}
+
+export function* reviewQuery() {
     let err;
 
     try { // Trying the HTTP Request
@@ -176,100 +218,94 @@ export function* getReviewWorker() {
         if (response && response.ok !== false) {
             yield put(getReviewSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getReviewFailed(response.data));
+            yield put(getReviewFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getReviewFailed(e));
+        yield put(getReviewFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
-export function* getStoreWorker() {
-    let err;
 
-    try { // Trying the HTTP Request
-        const response = yield call(apiRequest, '/store');
-        if (response && response.ok !== false) {
-            yield put(getStoreSuccess(response.data));
-        } else if (response && response.ok === false) {
-            yield put(getStoreFailed(response.data));
-        } else {
-            err = staticErrorResponse({ text: 'No response from server' });
-            throw err;
-        }
-    } catch (e) {
-        console.log('error: ', e);
-        yield put(getStoreFailed(e));
-    }
-}
-export function* getLayoutFooterWorker() {
+export function* footerLayoutQuery() {
     let err;
 
     try { // Trying the HTTP Request
         const response = yield call(apiRequest, '/layout/footer');
         if (response && response.ok !== false) {
-            yield put(getLayoutFooterSuccess(response.data));
+            yield put(getFooterLayoutSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getLayoutFooterFailed(response.data));
+            yield put(getFooterLayoutFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getLayoutFooterFailed(e));
+        yield put(getFooterLayoutFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
-export function* getImageFooterWorker() {
+
+export function* footerImageQuery() {
     let err;
 
     try { // Trying the HTTP Request
         const response = yield call(apiRequest, '/image?code=hershop-footer');
         if (response && response.ok !== false) {
-            yield put(getImageFooterSuccess(response.data));
+            yield put(getFooterImageSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getImageFooterFailed(response.data));
+            yield put(getFooterImageFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getImageFooterFailed(e));
+        yield put(getFooterImageFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
-export function* getPartnerFooterWorker() {
+
+export function* footerPartnerQuery() {
     let err;
 
     try { // Trying the HTTP Request
         const response = yield call(apiRequest, '/image?code=footer-partner-logo');
         if (response && response.ok !== false) {
-            yield put(getPartnerFooterSuccess(response.data));
+            yield put(getFooterPartnerSuccess(response.data));
         } else if (response && response.ok === false) {
-            yield put(getPartnerFooterFailed(response.data));
+            yield put(getFooterPartnerFail(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getPartnerFooterFailed(e));
+        yield put(getFooterPartnerFail(e));
     }
+    // yield call, yield put and etc, whatever you like
+    yield true;
 }
+
 // Individual exports for testing
 export default function* homePageSaga() {
-    yield takeLatest(GET_HOME_BANNER, getFlagshipWorker);
-    yield takeLatest(GET_FLAGSHIP, getBannerWorker);
-    yield takeLatest(GET_TWOH, getTwohWorker);
-    yield takeLatest(GET_NEW_ARRIVAL, getNewArrivalWorker);
-    yield takeLatest(GET_EXTENSION, getExtensionWorker);
-    yield takeLatest(GET_TRENDING, getTrendingWorker);
-    yield takeLatest(GET_SPONSORED, getSponsoredWorker);
-    yield takeLatest(GET_REVIEW, getReviewWorker);
-    yield takeLatest(GET_STORE, getStoreWorker);
-    yield takeLatest(GET_LAYOUT_FOOTER, getLayoutFooterWorker);
-    yield takeLatest(GET_IMAGE_FOOTER, getImageFooterWorker);
-    yield takeLatest(GET_PARTNER_FOOTER, getPartnerFooterWorker);
+    yield takeLatest(GET_HOME_BANNER, homeBannerQuery);
+    yield takeLatest(GET_FLAGSHIP, flagshipQuery);
+    yield takeLatest(GET_TWOH, twohQuery);
+    yield takeLatest(GET_NEW_ARRIVAL, newArrivalQuery);
+    yield takeLatest(GET_TRENDING, trendingQuery);
+    yield takeLatest(GET_SPONSORED, sponsoredQuery);
+    yield takeLatest(GET_EXTENSION, extensionQuery);
+    yield takeLatest(GET_PERSONALISATION, personalisationQuery);
+    yield takeLatest(GET_REVIEW, reviewQuery);
+    yield takeLatest(GET_FOOTER_LAYOUT, footerLayoutQuery);
+    yield takeLatest(GET_FOOTER_IMAGE, footerImageQuery);
+    yield takeLatest(GET_FOOTER_PARTNER, footerPartnerQuery);
 }
