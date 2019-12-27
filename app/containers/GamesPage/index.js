@@ -460,8 +460,8 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
     render() {
         if (this.state.requestToken) {
             return (
-                <div className="games-page" style={{ fontSize: this.state.pageFontSize }}>
-                    <div className="game-container">
+                <div className="mobile-style-page games-page" style={{ fontSize: this.state.pageFontSize }}>
+                    <div className="mobile-style-container game-container">
                         <div className="games-login-modal animated fa" style={{ backgroundColor: 'rgba(255,255,255)', overflow: 'auto' }}>
                             <AuthPage isModal={true} />
                         </div>
@@ -485,8 +485,8 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
         const gameData = this.state.gameInfo.data;
 
         return (
-            <div className="games-page" style={{ fontSize: this.state.pageFontSize }}>
-                <div className="game-container">
+            <div className="mobile-style-page games-page" style={{ fontSize: this.state.pageFontSize }}>
+                <div className="mobile-style-container game-container">
                     <div className="page-buttons">
                         {
                             this.state.showModal ?
@@ -611,7 +611,7 @@ export class GamesPage extends React.PureComponent { // eslint-disable-line reac
                         onLoad={this.onBgImageLoaded}
                         src={gameData.config.menu.background_image}
                         alt="main menu background"
-                        className="main-menu-bg animated fadeIn"
+                        className="mobile-style-main-bg animated fadeIn"
                     />
                     {
                         this.state.loading ?

@@ -23,6 +23,7 @@ import CartPage from 'containers/CartPage';
 import CheckoutPage from 'containers/CheckoutPage';
 import FeedbackPage from 'containers/FeedbackPage';
 import GamesPage from 'containers/GamesPage';
+import FormsPage from 'containers/FormsPage';
 import HomePage from 'containers/HomePage';
 import LogIn from 'containers/LoginForm';
 import LogoutForm from 'containers/LogoutForm';
@@ -119,6 +120,7 @@ export default function App() {
                     <PrivateRoute exact={true} path="/cart" component={CartPage} />
 
                     <Route exact={true} path="/games/:id" component={GamesPage} />
+                    <Route exact={true} path="/forms/:id" component={FormsPage} />
                     <Route exact={true} path="/test" component={Example} />
 
                     <Route component={NotFoundPage} />

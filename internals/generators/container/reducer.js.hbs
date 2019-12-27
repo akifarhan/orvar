@@ -7,6 +7,8 @@
 import { fromJS } from 'immutable';
 import {
     DEFAULT_ACTION,
+    DEFAULT_ACTION_SUCCESS,
+    DEFAULT_ACTIONF_FAIL,
 } from './constants';
 
 export const initialState = fromJS({});
@@ -14,7 +16,23 @@ export const initialState = fromJS({});
 function {{ camelCase name }}Reducer(state = initialState, action) {
     switch (action.type) {
         case DEFAULT_ACTION:
-            return state;
+            return state
+                .setIn(['default', 'loading'], true)
+                .setIn(['default', 'error'], false)
+                .setIn(['default', 'success'], false)
+                .setIn(['default', 'data'], null);
+        case DEFAULT_ACTION_SUCCESS:
+            return state
+                .setIn(['default', 'loading'], false)
+                .setIn(['default', 'error'], false)
+                .setIn(['default', 'success'], true)
+                .setIn(['default', 'data'], action.data);
+        case DEFAULT_ACTIONF_FAIL:
+            return state
+                .setIn(['default', 'loading'], false)
+                .setIn(['default', 'error'], true)
+                .setIn(['default', 'success'], false)
+                .setIn(['default', 'data'], action.payload);
         default:
             return state;
     }

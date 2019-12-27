@@ -1,8 +1,37 @@
 import { takeLatest } from 'redux-saga/effects';
-import { DEFAULT_ACTION } from './constants';
+import { staticErrorResponse, apiRequest } from 'globalUtils';
+
+import {
+    DEFAULT_ACTION,
+} from './constants';
+
+import {
+    defaultActionSuccess,
+    defaultActionFail,
+} from './actions';
+
+export function* defaultWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/xxxx`, 'get');
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(defaultActionFail(response.data));
+        } else if (response && response.ok !== false) {
+            yield put(defaultActionSuccess(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (error) {
+        console.log('error: ', error);
+        yield put(defaultActionFail(error));
+    }
+}
 
 export function* defaultWorker(action) {
     console.log('default worker for {{ camelCase name }}Saga', action);
+    console.log(staticErrorResponse, apiRequest);
     // yield call, yield put and etc, whatever you like
     yield true;
 }

@@ -2,19 +2,7 @@
 @import '../../custom-bootstrap-style';
 
 .games-page {
-    min-height: 300px;
-    max-height: calc(var(--vh, 1vh) * 100);
-    margin: auto;
-    overflow: hidden;
-    display: flex;
-    flex: 1;
-    justify-content: center;
-
     .game-container {
-        position: relative;
-        height: 100%;max-height: calc(var(--vh, 1vh) * 100);
-        max-width: 100%;
-
         .games-login-modal {
             position: fixed;
             top: 0;
@@ -242,19 +230,6 @@
                     padding: 0.2em 0.4em;
                 }
             }
-        }
-
-        .ppg-version {
-            color: #0005;
-            position: absolute;
-            right: 1%;
-            bottom: 1%;
-            z-index: 100;
-        }
-
-        .main-menu-bg {
-            max-width: 100%;
-            max-height: calc(var(--vh, 1vh) * 100);
         }
 
         .main-menu-token-indicator {

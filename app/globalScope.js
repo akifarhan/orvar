@@ -10,6 +10,7 @@ const globalScope = {
     config: {},
     axios: null, // create in initialiseApp.js
     gameVersion: '1.2.0',
+    formVersion: '0.0.1',
 };
 
 export default globalScope;
