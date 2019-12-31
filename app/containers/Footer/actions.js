@@ -5,26 +5,25 @@
  */
 
 import {
-    GET_LAYOUT_FOOTER,
-    GET_LAYOUT_FOOTER_SUCCESS,
-    GET_LAYOUT_FOOTER_FAILED,
+    GET_FOOTER_LAYOUT,
+    GET_FOOTER_LAYOUT_SUCCESS,
+    GET_FOOTER_LAYOUT_FAIL,
 } from './constants';
 
-export function getLayoutFooter() {
+export function getFooterLayout() {
     return {
-        type: GET_LAYOUT_FOOTER,
+        type: GET_FOOTER_LAYOUT,
     };
 }
-
-export function getLayoutFooterSuccess(layoutFooterData) {
+export function getFooterLayoutSuccess(response) {
     return {
-        type: GET_LAYOUT_FOOTER_SUCCESS,
-        layoutFooterData,
+        type: GET_FOOTER_LAYOUT_SUCCESS,
+        response,
     };
 }
-export function getLayoutFooterFailed(layoutFooterData) {
+export function getFooterLayoutFail(err) {
     return {
-        type: GET_LAYOUT_FOOTER_FAILED,
-        layoutFooterData,
+        type: GET_FOOTER_LAYOUT_FAIL,
+        err,
     };
 }

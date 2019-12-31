@@ -6,36 +6,35 @@
 
 import { fromJS } from 'immutable';
 import {
-    GET_LAYOUT_FOOTER,
-    GET_LAYOUT_FOOTER_SUCCESS,
-    GET_LAYOUT_FOOTER_FAILED,
+    GET_FOOTER_LAYOUT,
+    GET_FOOTER_LAYOUT_SUCCESS,
+    GET_FOOTER_LAYOUT_FAIL,
 } from './constants';
 
 export const initialState = fromJS({
-    layoutFooter: {
+    layout: {
+        data: null,
         loading: false,
         error: false,
-        success: false,
     },
 });
 
 function footerReducer(state = initialState, action) {
     switch (action.type) {
-        case GET_LAYOUT_FOOTER:
+        case GET_FOOTER_LAYOUT:
             return state
-                .setIn(['layoutFooter', 'loading'], true)
-                .setIn(['layoutFooter', 'error'], false);
-        case GET_LAYOUT_FOOTER_SUCCESS:
+                .setIn(['layout', 'loading'], true)
+                .setIn(['layout', 'error'], false);
+        case GET_FOOTER_LAYOUT_SUCCESS:
             return state
-                .setIn(['layoutFooter', 'success'], true)
-                .setIn(['layoutFooter', 'loading'], false)
-                .setIn(['layoutFooter', 'error'], false)
-                .setIn(['layoutFooter', 'data'], action.layoutFooterData);
-        case GET_LAYOUT_FOOTER_FAILED:
+                .setIn(['layout', 'loading'], false)
+                .setIn(['layout', 'error'], false)
+                .setIn(['layout', 'data'], action.response);
+        case GET_FOOTER_LAYOUT_FAIL:
             return state
-                .setIn(['layoutFooter', 'loading'], false)
-                .setIn(['layoutFooter', 'error'], true)
-                .setIn(['layoutFooter', 'data'], action.layoutFooterData);
+                .setIn(['layout', 'loading'], false)
+                .setIn(['layout', 'error'], true)
+                .setIn(['layout', 'data'], action.err);
         default:
             return state;
     }
