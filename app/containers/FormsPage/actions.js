@@ -11,15 +11,21 @@ import {
     GET_CHECKOUT_DATA,
     GET_CHECKOUT_DATA_SUCCESS,
     GET_CHECKOUT_DATA_FAIL,
-    GET_PHONE_PREFIX,
-    GET_PHONE_PREFIX_SUCCESS,
-    GET_PHONE_PREFIX_FAIL,
+    GET_CONFIG,
+    GET_CONFIG_SUCCESS,
+    GET_CONFIG_FAIL,
     SEND_OTP,
     SEND_OTP_SUCCESS,
     SEND_OTP_FAIL,
     SIGNUP_USER,
     SIGNUP_USER_SUCCESS,
     SIGNUP_USER_FAIL,
+    ADD_ADDRESS,
+    ADD_ADDRESS_SUCCESS,
+    ADD_ADDRESS_FAIL,
+    ADD_TO_CART,
+    ADD_TO_CART_SUCCESS,
+    ADD_TO_CART_FAIL,
 } from './constants';
 
 export function getTimeTable(params) {
@@ -64,23 +70,23 @@ export function getCheckoutDataFail(payload) {
     };
 }
 
-export function getPhonePrefix(params) {
+export function getConfig(params) {
     return {
-        type: GET_PHONE_PREFIX,
+        type: GET_CONFIG,
         params,
     };
 }
 
-export function getPhonePrefixSuccess(data) {
+export function getConfigSuccess(data) {
     return {
-        type: GET_PHONE_PREFIX_SUCCESS,
+        type: GET_CONFIG_SUCCESS,
         data,
     };
 }
 
-export function getPhonePrefixFail(payload) {
+export function getConfigFail(payload) {
     return {
-        type: GET_PHONE_PREFIX_FAIL,
+        type: GET_CONFIG_FAIL,
         payload,
     };
 }
@@ -123,6 +129,48 @@ export function signupUserSuccess(data) {
 export function signupUserFail(payload) {
     return {
         type: SIGNUP_USER_FAIL,
+        payload,
+    };
+}
+
+export function addAddress(params) {
+    return {
+        type: ADD_ADDRESS,
+        params,
+    };
+}
+
+export function addAddressSuccess(data) {
+    return {
+        type: ADD_ADDRESS_SUCCESS,
+        data,
+    };
+}
+
+export function addAddressFail(payload) {
+    return {
+        type: ADD_ADDRESS_FAIL,
+        payload,
+    };
+}
+
+export function addToCart(params) {
+    return {
+        type: ADD_TO_CART,
+        params,
+    };
+}
+
+export function addToCartSuccess(data) {
+    return {
+        type: ADD_TO_CART_SUCCESS,
+        data,
+    };
+}
+
+export function addToCartFail(payload) {
+    return {
+        type: ADD_TO_CART_FAIL,
         payload,
     };
 }

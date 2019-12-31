@@ -12,23 +12,31 @@ import {
     GET_CHECKOUT_DATA,
     GET_CHECKOUT_DATA_SUCCESS,
     GET_CHECKOUT_DATA_FAIL,
-    GET_PHONE_PREFIX,
-    GET_PHONE_PREFIX_SUCCESS,
-    GET_PHONE_PREFIX_FAIL,
+    GET_CONFIG,
+    GET_CONFIG_SUCCESS,
+    GET_CONFIG_FAIL,
     SEND_OTP,
     SEND_OTP_SUCCESS,
     SEND_OTP_FAIL,
     SIGNUP_USER,
     SIGNUP_USER_SUCCESS,
     SIGNUP_USER_FAIL,
+    ADD_ADDRESS,
+    ADD_ADDRESS_SUCCESS,
+    ADD_ADDRESS_FAIL,
+    ADD_TO_CART,
+    ADD_TO_CART_SUCCESS,
+    ADD_TO_CART_FAIL,
 } from './constants';
 
 export const initialState = fromJS({
     timeTable: {},
     checkoutData: {},
-    phonePrefix: {},
+    config: {},
     otp: {},
     signup: {},
+    addAddress: {},
+    addToCart: {},
 });
 
 function formsPageReducer(state = initialState, action) {
@@ -69,24 +77,24 @@ function formsPageReducer(state = initialState, action) {
                 .setIn(['checkoutData', 'error'], true)
                 .setIn(['checkoutData', 'success'], false)
                 .setIn(['checkoutData', 'data'], action.payload);
-        case GET_PHONE_PREFIX:
+        case GET_CONFIG:
             return state
-                .setIn(['phonePrefix', 'loading'], true)
-                .setIn(['phonePrefix', 'error'], false)
-                .setIn(['phonePrefix', 'success'], false)
-                .setIn(['phonePrefix', 'data'], null);
-        case GET_PHONE_PREFIX_SUCCESS:
+                .setIn(['config', 'loading'], true)
+                .setIn(['config', 'error'], false)
+                .setIn(['config', 'success'], false)
+                .setIn(['config', 'data'], null);
+        case GET_CONFIG_SUCCESS:
             return state
-                .setIn(['phonePrefix', 'loading'], false)
-                .setIn(['phonePrefix', 'error'], false)
-                .setIn(['phonePrefix', 'success'], true)
-                .setIn(['phonePrefix', 'data'], action.data && action.data.mobile_prefix);
-        case GET_PHONE_PREFIX_FAIL:
+                .setIn(['config', 'loading'], false)
+                .setIn(['config', 'error'], false)
+                .setIn(['config', 'success'], true)
+                .setIn(['config', 'data'], action.data);
+        case GET_CONFIG_FAIL:
             return state
-                .setIn(['phonePrefix', 'loading'], false)
-                .setIn(['phonePrefix', 'error'], true)
-                .setIn(['phonePrefix', 'success'], false)
-                .setIn(['phonePrefix', 'data'], action.payload);
+                .setIn(['config', 'loading'], false)
+                .setIn(['config', 'error'], true)
+                .setIn(['config', 'success'], false)
+                .setIn(['config', 'data'], action.payload);
         case SEND_OTP:
             return state
                 .setIn(['otp', 'loading'], true)
@@ -123,6 +131,42 @@ function formsPageReducer(state = initialState, action) {
                 .setIn(['signup', 'error'], true)
                 .setIn(['signup', 'success'], false)
                 .setIn(['signup', 'data'], action.payload);
+        case ADD_ADDRESS:
+            return state
+                .setIn(['addAddress', 'loading'], true)
+                .setIn(['addAddress', 'error'], false)
+                .setIn(['addAddress', 'success'], false)
+                .setIn(['addAddress', 'data'], null);
+        case ADD_ADDRESS_SUCCESS:
+            return state
+                .setIn(['addAddress', 'loading'], false)
+                .setIn(['addAddress', 'error'], false)
+                .setIn(['addAddress', 'success'], true)
+                .setIn(['addAddress', 'data'], action.data);
+        case ADD_ADDRESS_FAIL:
+            return state
+                .setIn(['addAddress', 'loading'], false)
+                .setIn(['addAddress', 'error'], true)
+                .setIn(['addAddress', 'success'], false)
+                .setIn(['addAddress', 'data'], action.payload);
+        case ADD_TO_CART:
+            return state
+                .setIn(['addToCart', 'loading'], true)
+                .setIn(['addToCart', 'error'], false)
+                .setIn(['addToCart', 'success'], false)
+                .setIn(['addToCart', 'data'], null);
+        case ADD_TO_CART_SUCCESS:
+            return state
+                .setIn(['addToCart', 'loading'], false)
+                .setIn(['addToCart', 'error'], false)
+                .setIn(['addToCart', 'success'], true)
+                .setIn(['addToCart', 'data'], action.data);
+        case ADD_TO_CART_FAIL:
+            return state
+                .setIn(['addToCart', 'loading'], false)
+                .setIn(['addToCart', 'error'], true)
+                .setIn(['addToCart', 'success'], false)
+                .setIn(['addToCart', 'data'], action.payload);
         default:
             return state;
     }

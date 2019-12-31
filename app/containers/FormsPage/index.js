@@ -7,34 +7,34 @@
 import React from 'react';
 // import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-// import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 
 import {
+    Box,
     Button,
     FormControl,
-    InputLabel,
-    Select,
-    FormLabel,
-    FormGroup,
     // FormControlLabel,
+    FormGroup,
+    FormLabel,
+    InputLabel,
     OutlinedInput,
+    Select,
 } from '@material-ui/core';
 
 import { dataDig, dataChecking, Events, setCookie } from 'globalUtils';
 import globalScope from 'globalScope';
 
 import InputForm from 'components/InputForm';
+import AddressForm from 'components/AddressForm';
 import { notifyError } from 'containers/Notify';
 
 import * as actions from './actions';
 import makeSelectFormsPage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-// import messages from './messages';
 import './style.scss';
 
 const formSetting = {
@@ -51,17 +51,20 @@ const formSetting = {
         type: 'deliveryInfo',
         onNext: (scope) => {
             // set loading
-            scope.handleSignUp();
+            scope.handleDeliveryInfo();
             // login
             // add default address
         },
         onPrev: (scope) => {
+            if (dataDig(scope, 'state.selectedProduct')) {
+                scope.setState({ readyTonNext: true });
+            }
             scope.setState({ selectedPage: 'product' });
         },
     },
     payment: {
-        title: 'Select Product',
-        type: 'timetable',
+        title: 'Select Payment',
+        type: 'payment',
         onNext: () => {
             // set courier
             // set payment
@@ -72,11 +75,10 @@ const formSetting = {
 
 const mockData = {
     selected_product: 45980,
-
-    email: 'petwesley@gmail.com',
-    sms_prefix: '+6016',
-    sms_number: '8556201',
-
+    email: 'ac@g.com',
+    sms_prefix: '+6011',
+    sms_number: '12345678',
+    otp: '',
     receiver_name: 'Lim Tien Ping',
     line_1: '2606',
     line_2: 'Sky Oasis',
@@ -86,6 +88,21 @@ const mockData = {
     state_code: 'MY-01',
 };
 
+// const initialState = {
+//     // selected_product: 45980,
+//     email: '',
+//     sms_prefix: '+6010',
+//     sms_number: '',
+//     otp: '',
+//     receiver_name: '',
+//     line_1: '',
+//     line_2: '',
+//     line_3: '',
+//     city: '',
+//     postal_code: '',
+//     state_code: 'MY-01',
+// };
+
 const selectOneOnly = true;
 
 export class FormsPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
@@ -93,8 +110,10 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         super(props);
 
         this.state = {
+            // ...initialState,
             ...mockData,
-            selectedPage: Object.keys(formSetting)[1],
+            isComplete: false,
+            selectedPage: Object.keys(formSetting)[0],
             selectedProduct: {},
             formId: dataChecking(this.props, 'match', 'params', 'id'),
         };
@@ -127,11 +146,11 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         // }
 
         this.props.dispatch(actions.getTimeTable({ id: 8328 }));
-        this.props.dispatch(actions.getPhonePrefix());
+        this.props.dispatch(actions.getConfig());
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.formsPage.otp !== this.props.formsPage.otp && nextProps.formsPage.otp.success) {
+        if (nextProps.formsPage.otp.success !== this.props.formsPage.otp.success && nextProps.formsPage.otp.success) {
             this.setState({
                 otpSent: true,
                 canResend: false,
@@ -146,10 +165,19 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
 
         if (nextProps.formsPage.signup.data !== this.props.formsPage.signup.data && nextProps.formsPage.signup.success) {
             if (globalScope.token) {
-                this.setState({ selectedPage: 'payment' });
+                const { receiver_name, line_1, line_2, line_3, city, postal_code, state_code, sms_number, sms_prefix } = this.state;
+                this.props.dispatch(actions.addAddress({ receiver_name, line_1, line_2, line_3, city, postal_code, state_code, sms_number, sms_prefix }));
             } else {
                 notifyError('Signup failed');
             }
+        }
+
+        if (nextProps.formsPage.addAddress.data !== this.props.formsPage.addAddress.data && nextProps.formsPage.addAddress.success) {
+            const item = Object.keys(this.state.selectedProduct);
+            this.props.dispatch(actions.addToCart({ id: item[0] }));
+        }
+        if (nextProps.formsPage.addToCart.data !== this.props.formsPage.addToCart.data && nextProps.formsPage.addToCart.success) {
+            this.setState({ selectedPage: 'payment' });
         }
     }
 
@@ -160,6 +188,10 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             selectedProduct,
             readyTonNext: selectedProduct[item.id],
         });
+    }
+
+    onClear = (event) => {
+        this.setState({ [event.target.id]: '' });
     }
 
     resendTimer = (RESEND_TIME) => {
@@ -197,18 +229,23 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
     }
 
 
-    handleChange = (event, key) => {
-        if (key === 'otp') {
+    handleChange = (event, MAX) => {
+        if (event.target.id === 'otp') {
             this.setState({ readyTonNext: !!event.target.value });
         }
+        if (MAX) {
+            if (event.target.value.length < MAX) {
+                this.setState({ [event.target.id]: event.target.value });
+            }
+        } else {
+            this.setState({ [event.target.id]: event.target.value });
+        }
+    }
 
-        this.setState({ [key]: event.target.value });
-    };
-
-    handleChangeNumber = (event) => {
+    handleChangeNumber = (event, MAX = 15) => {
         const onlyNums = event.target.value.replace(/[^0-9]/g, '');
-        if (onlyNums.length < 15) {
-            this.setState({ sms_number: onlyNums });
+        if (onlyNums.length < MAX) {
+            this.setState({ [event.target.id]: onlyNums });
         }
     }
 
@@ -220,29 +257,65 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         }
     }
 
-    handleSignUp = () => {
-        const { email, otp, sms_number, sms_prefix } = this.state;
-        if (sms_number) {
-            notifyError('Please key in SMS number');
-        } else if (sms_prefix) {
-            notifyError('Please key in SMS Prefix');
-        } else if (email) {
-            notifyError('Please key in Email Address');
-        } else if (otp) {
-            notifyError('Please key in OTP Number');
-        }
+    handleDeliveryInfo = () => {
+        // const { email, otp, sms_number, sms_prefix } = this.state;
 
-        const password = `${email.substr(0, 4).toUpperCase()}${otp}`;
-        console.log(password);
-        this.props.dispatch(actions.sendOTP({ sms_prefix, sms_number, email, tac: otp, password, confirmation_password: password }));
+        if (this.state.readyTonNext) {
+            // const password = `${email.substr(0, 4).toUpperCase()}${otp}`;
+            // console.log(password);
+            const { receiver_name, line_1, line_2, line_3, city, postal_code, state_code, sms_number, sms_prefix } = this.state;
+            this.props.dispatch(actions.addAddress({ receiver_name, line_1, line_2, line_3, city, postal_code, state_code, sms_number, sms_prefix }));
+            // this.props.dispatch(actions.signupUser({ sms_prefix, sms_number, email, tac: otp, password, password_confirmation: password }));
+        }/* else {
+            if (sms_number === '') {
+                notifyError('Please key in SMS number');
+            }
+            if (email === '') {
+                notifyError('Please key in Email Address');
+            }
+            if (otp === '') {
+                notifyError('Please key in OTP Number');
+            }
+            if (receiver_name === '') {
+                notifyError('Please key in Receiver name');
+            }
+            if (line_1 === '') {
+                notifyError('Please key in Address');
+            }
+            if (city === '') {
+                notifyError('Please key in City');
+            }
+            if (postal_code === '') {
+                notifyError('Please key in Postcode');
+            }
+        } */
+    }
+
+    checkComplete = () => {
+        const { email, otp, sms_number, receiver_name, line_1, city, postal_code } = this.state;
+        if (sms_number !== '' && email !== '' && otp !== '' && receiver_name !== '' && line_1 !== '' && city !== '' && postal_code !== '') {
+            return true;
+        }
+        return false;
     }
 
     smsPrefixList = () => {
-        if (!dataChecking(this.props.formsPage, 'phonePrefix', 'data', 'items', 'length')) {
+        if (!dataDig(this.props.formsPage, 'config.data.mobile_prefix.items.length')) {
             return null;
         }
 
-        return this.props.formsPage.phonePrefix.data.items.map((item, index) => (
+        return this.props.formsPage.config.data.mobile_prefix.items.map((item, index) => (
+            <option key={index} value={item.value}>
+                {item.name}
+            </option>
+        ));
+    }
+    statesList = () => {
+        if (!dataDig(this.props.formsPage, 'config.data.state.items.length')) {
+            return null;
+        }
+
+        return this.props.formsPage.config.data.state.items.map((item, index) => (
             <option key={index} value={item.value}>
                 {item.name}
             </option>
@@ -253,48 +326,46 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         if (dataDig(this.props.formsPage.timeTable, 'success')) {
             const items = dataDig(this.props.formsPage.timeTable, 'data.product.result.items');
             return (
-                <div className={`timetable-items ${items.length > 12 ? 'full-height-and-overflow' : ''}`}>
+                <Box className={`timetable-items ${items.length > 12 ? 'full-height-and-overflow' : ''}`}>
                     {
                         items.map((item) => (
-                            <div
+                            <Box
                                 key={item.id}
                                 className={`timetable-item ${this.state.selectedProduct[item.id] ? 'selected' : ''}`}
                                 onClick={() => this.onSelectTimeTableItem(item)}
                             >
-                                <div className="timetable-item-image">
+                                <Box className="timetable-item-image">
                                     <img src={item.image.medium || ''} alt="" />
-                                </div>
-                                <div className="timetable-item-name">
+                                </Box>
+                                <Box className="timetable-item-name">
                                     {item.name}
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
                         ))
                     }
-                </div>
+                </Box>
             );
         }
 
-        return <div>Loading</div>;
+        return <Box>Loading</Box>;
     }
 
     renderDeliveryInfo = () => (
-        <div className="form-field-items py-2">
+        <Box className="form-field-items py-2">
             <FormControl fullWidth={true}>
-                <FormLabel className="pt-2 pb-half">Email address</FormLabel>
                 <InputForm
+                    label="Email address"
                     id="email"
                     className="email-field form-field-item"
                     type="email"
-                    handleChange={(event) => { this.handleChange(event, 'email'); }}
+                    handleChange={this.handleChange}
                     value={this.state.email}
-                    onClear={() => {
-                        this.setState({ email: '' });
-                    }}
+                    onClear={this.onClear}
                 />
             </FormControl>
-            <div className="phone-number-field form-field-item my-half">
-                <InputLabel className="text-capitalize pb-half bigger">Mobile number</InputLabel>
-                <div
+            <Box className="phone-number-field form-field-item my-half">
+                <InputLabel className="text-capitalize pb-half bigger">Mobile number *</InputLabel>
+                <Box
                     className="phone-number-input form-field-item"
                 >
                     <FormControl className="pr-1">
@@ -303,7 +374,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                             id="sms_prefix"
                             className=""
                             value={this.state.sms_prefix}
-                            onChange={(event) => { this.handleChange(event, 'sms_prefix'); }}
+                            onChange={this.handleChange}
                             input={
                                 <OutlinedInput />
                             }
@@ -318,9 +389,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                             handleChange={this.handleChangeNumber}
                             value={this.state.sms_number}
                             placeholder="e.g. 7654321"
-                            onClear={() => {
-                                this.setState({ sms_number: '' });
-                            }}
+                            onClear={this.onClear}
                             onClick={this.handleSendOTP}
                             requestOTP={true}
                             canResend={this.state.canResend}
@@ -328,134 +397,45 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                             timer={this.state.timer}
                         />
                     </FormControl>
-                </div>
-            </div>
+                </Box>
+            </Box>
 
             <FormControl fullWidth={true}>
-                <FormLabel className="pb-half">OTP Number</FormLabel>
+                <FormLabel className="pb-half">OTP Number *</FormLabel>
                 <InputForm
                     id="otp"
                     className="otp-field form-field-item"
-                    handleChange={(event) => { this.handleChange(event, 'otp'); }}
+                    handleChange={this.handleChange}
                     value={this.state.otp}
-                    onClear={() => {
-                        this.setState({ otp: '' });
-                    }}
+                    onClear={this.onClear}
                 />
             </FormControl>
 
-            <FormControl fullWidth={true}>
-                <FormLabel className="pt-2 pb-half mb-quater">Shipping Address</FormLabel>
-                <FormGroup className="shipping-address-group">
-                    <FormControl fullWidth={true}>
-                        <InputForm
-                            label="Receiver Name"
-                            id="receiver_name"
-                            className="receiver_name-field form-field-item"
-                            type="email"
-                            handleChange={(event) => { this.handleChange(event, 'receiver_name'); }}
-                            value={this.state.receiver_name}
-                            onClear={() => {
-                                this.setState({ receiver_name: '' });
-                            }}
-                            // placeholder="e.g. 7654321"
-                        />
-                    </FormControl>
-                    <FormControl fullWidth={true}>
-                        <InputForm
-                            label="Line 1"
-                            id="line_1"
-                            className="line_1-field form-field-item"
-                            type="email"
-                            handleChange={(event) => { this.handleChange(event, 'line_1'); }}
-                            value={this.state.line_1}
-                            onClear={() => {
-                                this.setState({ line_1: '' });
-                            }}
-                            // placeholder="e.g. 7654321"
-                        />
-                    </FormControl>
-                    <FormControl fullWidth={true}>
-                        <InputForm
-                            label="Line 2"
-                            id="line_2"
-                            className="line_2-field form-field-item"
-                            type="email"
-                            handleChange={(event) => { this.handleChange(event, 'line_2'); }}
-                            value={this.state.line_2}
-                            onClear={() => {
-                                this.setState({ line_2: '' });
-                            }}
-                            // placeholder="e.g. 7654321"
-                        />
-                    </FormControl>
-                    <FormControl fullWidth={true}>
-                        <InputForm
-                            label="Line 3"
-                            id="line_3"
-                            className="line_3-field form-field-item"
-                            type="email"
-                            handleChange={(event) => { this.handleChange(event, 'line_3'); }}
-                            value={this.state.line_3}
-                            onClear={() => {
-                                this.setState({ line_3: '' });
-                            }}
-                            // placeholder="e.g. 7654321"
-                        />
-                    </FormControl>
-                    <FormControl fullWidth={true}>
-                        <InputForm
-                            label="City"
-                            id="city"
-                            className="city-field form-field-item"
-                            type="email"
-                            handleChange={(event) => { this.handleChange(event, 'city'); }}
-                            value={this.state.city}
-                            onClear={() => {
-                                this.setState({ city: '' });
-                            }}
-                            // placeholder="e.g. 7654321"
-                        />
-                    </FormControl>
-                    <FormControl fullWidth={true}>
-                        <InputForm
-                            label="Postal Code"
-                            id="postal_code"
-                            className="postal_code-field form-field-item"
-                            type="email"
-                            handleChange={(event) => { this.handleChange(event, 'postal_code'); }}
-                            value={this.state.postal_code}
-                            onClear={() => {
-                                this.setState({ postal_code: '' });
-                            }}
-                            // placeholder="e.g. 7654321"
-                        />
-                    </FormControl>
-                    <FormControl fullWidth={true}>
-                        <InputForm
-                            label="State Code"
-                            id="state_code"
-                            className="state_code-field form-field-item"
-                            type="email"
-                            handleChange={(event) => { this.handleChange(event, 'state_code'); }}
-                            value={this.state.state_code}
-                            onClear={() => {
-                                this.setState({ state_code: '' });
-                            }}
-                            // placeholder="e.g. 7654321"
-                        />
-                    </FormControl>
-                </FormGroup>
-                {/* <FormHelperText>Be careful</FormHelperText> */}
-            </FormControl>
-        </div>
+            <FormLabel className="pt-2 pb-half mb-quater">Shipping Address</FormLabel>
+            <FormGroup className="shipping-address-group">
+                <AddressForm
+                    handleChange={this.handleChange}
+                    onClear={this.onClear}
+                    state={this.state}
+                    statesList={this.statesList()}
+                    handleChangePostCode={(event) => this.handleChangeNumber(event, 6)}
+                    handleChangeCity={(event) => this.handleChange(event, 51)}
+                    hideExtra={true}
+                />
+            </FormGroup>
+        </Box>
     )
 
+    renderPayment = () => (
+        <Box>
+            This is payment page
+        </Box>
+    )
     //     key: 'courier',
     //     label: 'Delivery Courier',
 
     renderActionButtons = () => (
-        <div className="action-button-container">
+        <Box className="action-button-container">
             {
                 [{
                     actionName: 'onPrev',
@@ -482,23 +462,22 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                     </Button>
                 ))
             }
-        </div>
+        </Box>
     );
 
     renderFormPage = (page) => {
-        if (page.type === 'timetable') {
-            return this.renderTimeTable();
-        } else if (page.type === 'deliveryInfo') {
-            return this.renderDeliveryInfo(page);
+        switch (page.type) {
+            case 'timetable': return this.renderTimeTable();
+            case 'deliveryInfo': return this.renderDeliveryInfo(page);
+            case 'payment': return this.renderPayment();
+            default: return <Box>Unknown page type</Box>;
         }
-
-        return <div>Unknown page type</div>;
     }
 
     render = () => (
-        <div className="mobile-style-page" style={{ fontSize: this.state.pageFontSize }}>
-            <div className="mobile-style-container">
-                <div
+        <Box className="mobile-style-page" style={{ fontSize: this.state.pageFontSize }}>
+            <Box className="mobile-style-container">
+                <Box
                     className="ppf-version"
                     onClick={() => {
                         // alert(`${window.parent ? 'have window.parent' : 'no window.parent'}`);
@@ -515,18 +494,20 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                         //     }
                         // }
                     }}
-                >{globalScope.fomrVersion}</div>
+                >
+                    {globalScope.formVersion}
+                </Box>
                 <img
                     src="https://s3.ap-southeast-1.amazonaws.com/files.hermo.my/public/gamiassets/450295343_background.png"
                     alt="main menu background"
                     className="mobile-style-main-bg animated fadeIn"
                 />
-                <div className="form-page-content">
+                <Box className="form-page-content">
                     {this.renderFormPage(formSetting[this.state.selectedPage])}
-                </div>
+                </Box>
                 {this.renderActionButtons()}
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 }
 

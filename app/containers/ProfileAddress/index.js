@@ -153,21 +153,27 @@ export class ProfileAddress extends React.PureComponent { // eslint-disable-line
     onClear = (event) => { // target not precise
         this.setState({ [event.target.id]: '' });
     }
-    handleChange = (event) => {
-        this.setState({ [event.target.id]: event.target.value });
-    };
-    handleChangeNumber = (event) => {
+
+    handleChange = (event, MAX) => {
+        if (event.target.id === 'otp') {
+            this.setState({ readyTonNext: !!event.target.value });
+        }
+        if (MAX) {
+            if (event.target.value.length < MAX) {
+                this.setState({ [event.target.id]: event.target.value });
+            }
+        } else {
+            this.setState({ [event.target.id]: event.target.value });
+        }
+    }
+
+    handleChangeNumber = (event, MAX = 15) => {
         const onlyNums = event.target.value.replace(/[^0-9]/g, '');
-        if (onlyNums.length < 15) {
+        if (onlyNums.length < MAX) {
             this.setState({ [event.target.id]: onlyNums });
         }
     }
-    handleChangePostCode = (event) => {
-        const onlyNums = event.target.value.replace(/[^0-9]/g, '');
-        if (onlyNums.length < 6) {
-            this.setState({ [event.target.id]: onlyNums });
-        }
-    }
+
     handleSubmit = (event) => {
         const addressData = {
             city: this.state.city,
@@ -235,13 +241,13 @@ export class ProfileAddress extends React.PureComponent { // eslint-disable-line
                 return (
                     <AddressForm
                         handleChange={this.handleChange}
-                        value={this.state.receiver_name}
                         onClear={this.onClear}
                         state={this.state}
                         handleChangeNumber={this.handleChangeNumber}
                         smsPrefixList={this.smsPrefixList()}
                         statesList={this.statesList()}
-                        handleChangePostCode={this.handleChangePostCode}
+                        handleChangeCity={(event) => this.handleChange(event, 51)}
+                        handleChangePostCode={(event) => this.handleChangeNumber(event, 6)}
                         handleSubmit={this.handleSubmit}
                     />
                 );
@@ -251,13 +257,13 @@ export class ProfileAddress extends React.PureComponent { // eslint-disable-line
                         <AddressForm
                             editAddress={true}
                             handleChange={this.handleChange}
-                            value={this.state.receiver_name}
                             onClear={this.onClear}
                             state={this.state}
                             handleChangeNumber={this.handleChangeNumber}
                             smsPrefixList={this.smsPrefixList()}
                             statesList={this.statesList()}
-                            handleChangePostCode={this.handleChangePostCode}
+                            handleChangeCity={(event) => this.handleChange(event, 51)}
+                            handleChangePostCode={(event) => this.handleChangeNumber(event, 6)}
                             handleSubmit={this.handleSubmit}
                             handleDelete={() => {
                                 this.props.dispatch(deleteAddress(this.state.id));

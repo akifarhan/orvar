@@ -1,12 +1,15 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 import { staticErrorResponse, apiRequest, setCookie } from 'globalUtils';
+import { notifySuccess, notifyError } from 'containers/Notify';
 import globalScope from 'globalScope';
 import {
     GET_TIME_TABLE,
     GET_CHECKOUT_DATA,
-    GET_PHONE_PREFIX,
+    GET_CONFIG,
     SEND_OTP,
     SIGNUP_USER,
+    ADD_ADDRESS,
+    ADD_TO_CART,
 } from './constants';
 
 import {
@@ -14,12 +17,16 @@ import {
     getTimeTableFail,
     getCheckoutDataSuccess,
     getCheckoutDataFail,
-    getPhonePrefixSuccess,
-    getPhonePrefixFail,
+    getConfigSuccess,
+    getConfigFail,
     sendOTPSuccess,
     sendOTPFail,
     signupUserSuccess,
     signupUserFail,
+    addAddressSuccess,
+    addAddressFail,
+    addToCartSuccess,
+    addToCartFail,
 } from './actions';
 
 export function* getTimeTableWorker(action) {
@@ -60,22 +67,22 @@ export function* getCheckoutDataWorker() {
     }
 }
 
-export function* getPhonePrefix() {
+export function* configWorker() {
     let err;
     try { // Trying the HTTP Request
         const response = yield call(apiRequest, 'app/common', 'get');
 
         if (response && (response.ok === false || (response.data && response.data.success === false))) {
-            yield put(getPhonePrefixFail(response.data));
+            yield put(getConfigFail(response.data));
         } else if (response && response.ok !== false) {
-            yield put(getPhonePrefixSuccess(response.data));
+            yield put(getConfigSuccess(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
         }
     } catch (e) {
         console.log('error: ', e);
-        yield put(getPhonePrefixFail(e));
+        yield put(getConfigFail(e));
     }
 }
 
@@ -84,12 +91,14 @@ export function* sendOTPWorker(action) {
     let err;
     try { // Trying the HTTP Request
         const { sms_prefix, sms_number } = action.params;
-        const response = yield call(apiRequest, '/app/auth/tac', 'post', { sms_prefix, sms_number });
+        const response = yield call(apiRequest, '/auth/tac', 'post', { sms_prefix, sms_number });
 
         if (response && (response.ok === false || (response.data && response.data.success === false))) {
-            yield put(sendOTPSuccess(response.data));
+            yield put(sendOTPFail(response.data));
+            notifyError(response.data.messages[0].text);
         } else if (response && response.ok !== false) {
             yield put(sendOTPSuccess(response.data));
+            notifySuccess(response.data.messages[0].text);
         } else {
             err = staticErrorResponse({ text: 'No response from server' });
             throw err;
@@ -102,15 +111,7 @@ export function* sendOTPWorker(action) {
 
 export function* signUpWorker(action) {
     try { // Trying the HTTP Request
-        const payload = JSON.stringify({
-            email: action.params.email,
-            password: action.params.password,
-            tac: action.params.tac,
-            password_confirmation: action.params.password_confirmation,
-            sms_number: action.params.sms_number,
-            sms_prefix: action.params.sms_prefix,
-        });
-        const response = yield call(apiRequest, '/register', 'post', payload);
+        const response = yield call(apiRequest, '/register', 'post', JSON.stringify({ ...action.params }));
         if (response && response.ok && response.data.success) {
             globalScope.token = response.data.token;
             globalScope.axios.setHeader('hertoken', globalScope.token);
@@ -118,10 +119,53 @@ export function* signUpWorker(action) {
             yield put(signupUserSuccess(response.data));
         } else {
             yield put(signupUserFail(response.data));
+            response.data.messages.map((message) => notifyError(message.text));
         }
     } catch (error) {
         console.log('error: ', error);
-        yield put(sendOTPFail(error));
+        yield put(signupUserFail(error));
+    }
+}
+
+export function* addAddressWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/address', 'post', JSON.stringify({ ...action.params }));
+        const messages = response.data.messages.map((message) => message.text);
+        const messageList = messages.join(' ');
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(addAddressFail(response.data));
+            notifyError(messageList);
+        } else if (response && response.ok !== false) {
+            yield put(addAddressSuccess(response.data));
+            notifySuccess(messageList);
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(addAddressFail(e));
+    }
+}
+
+export function* addToCartWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/cart/mall', 'post', JSON.stringify({ ...action.params }));
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(addToCartFail(response.data));
+        } else if (response && response.ok !== false) {
+            yield put(addToCartSuccess(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(addToCartFail(e));
     }
 }
 
@@ -129,7 +173,9 @@ export function* signUpWorker(action) {
 export default function* formsPageSaga() {
     yield takeLatest(GET_TIME_TABLE, getTimeTableWorker);
     yield takeLatest(GET_CHECKOUT_DATA, getCheckoutDataWorker);
-    yield takeLatest(GET_PHONE_PREFIX, getPhonePrefix);
+    yield takeLatest(GET_CONFIG, configWorker);
     yield takeLatest(SEND_OTP, sendOTPWorker);
     yield takeLatest(SIGNUP_USER, signUpWorker);
+    yield takeLatest(ADD_ADDRESS, addAddressWorker);
+    yield takeLatest(ADD_TO_CART, addToCartWorker);
 }
