@@ -1,4 +1,4 @@
-import { takeLatest } from 'redux-saga/effects';
+import { takeLatest, put, call } from 'redux-saga/effects';
 import { staticErrorResponse, apiRequest } from 'globalUtils';
 
 import {
@@ -13,7 +13,7 @@ import {
 export function* defaultWorker(action) {
     let err;
     try { // Trying the HTTP Request
-        const response = yield call(apiRequest, '/xxxx`, 'get');
+        const response = yield call(apiRequest, '/xxxx', 'get');
 
         if (response && (response.ok === false || (response.data && response.data.success === false))) {
             yield put(defaultActionFail(response.data));

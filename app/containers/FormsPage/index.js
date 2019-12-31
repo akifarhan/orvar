@@ -5,88 +5,70 @@
  */
 
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
+import globalScope from 'globalScope';
+import { dataDig, /* dataChecking, setCookieEvents, */Events } from 'globalUtils';
 
+import { withStyles } from '@material-ui/core/styles';
 import {
+    AppBar,
+    Backdrop,
     Box,
     Button,
-    FormControl,
-    // FormControlLabel,
-    FormGroup,
-    FormLabel,
-    InputLabel,
-    OutlinedInput,
-    Select,
+    // Card,
+    CircularProgress,
+    Container,
+    Grid,
+    Toolbar,
 } from '@material-ui/core';
 
-import { dataDig, dataChecking, Events, setCookie } from 'globalUtils';
-import globalScope from 'globalScope';
-
-import InputForm from 'components/InputForm';
-import AddressForm from 'components/AddressForm';
-import { notifyError } from 'containers/Notify';
+import ProductCard from 'components/ProductCard';
 
 import * as actions from './actions';
 import makeSelectFormsPage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
+import styles from './materialStyle';
 
-const formSetting = {
-    product: {
+const formSetting = [
+    {
+        type: 'product',
         title: 'Select Product',
-        type: 'timetable',
-        onNext: (scope) => {
-            scope.setState({ selectedPage: 'delivery', readyTonNext: false });
-            // scope.props.dispatch(actions.getCheckoutData());
-        },
     },
-    delivery: {
+    {
+        type: 'addressInfo',
         title: 'Delivery Info',
-        type: 'deliveryInfo',
-        onNext: (scope) => {
-            // set loading
-            scope.handleDeliveryInfo();
-            // login
-            // add default address
-        },
-        onPrev: (scope) => {
-            if (dataDig(scope, 'state.selectedProduct')) {
-                scope.setState({ readyTonNext: true });
-            }
-            scope.setState({ selectedPage: 'product' });
-        },
     },
-    payment: {
-        title: 'Select Payment',
+    {
+        type: 'userInfo',
+        title: 'Contact Info',
+    },
+    {
         type: 'payment',
-        onNext: () => {
-            // set courier
-            // set payment
-            // proceed with checkout
-        },
+        title: 'Select Payment',
     },
-};
+];
 
-const mockData = {
-    selected_product: 45980,
-    email: 'ac@g.com',
-    sms_prefix: '+6011',
-    sms_number: '12345678',
-    otp: '',
-    receiver_name: 'Lim Tien Ping',
-    line_1: '2606',
-    line_2: 'Sky Oasis',
-    line_3: 'Jalan Setia Indah',
-    city: 'Johor Bahru',
-    postal_code: '81100',
-    state_code: 'MY-01',
-};
+// const mockData = {
+//     selected_product: 45980,
+//     email: 'ac@g.com',
+//     sms_prefix: '+6011',
+//     sms_number: '12345678',
+//     otp: '',
+//     receiver_name: 'Lim Tien Ping',
+//     line_1: '2606',
+//     line_2: 'Sky Oasis',
+//     line_3: 'Jalan Setia Indah',
+//     city: 'Johor Bahru',
+//     postal_code: '81100',
+//     state_code: 'MY-01',
+// };
 
 // const initialState = {
 //     // selected_product: 45980,
@@ -103,416 +85,119 @@ const mockData = {
 //     state_code: 'MY-01',
 // };
 
-const selectOneOnly = true;
-
 export class FormsPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     constructor(props) {
         super(props);
 
         this.state = {
+            // ,,,mockData,
             // ...initialState,
-            ...mockData,
-            isComplete: false,
-            selectedPage: Object.keys(formSetting)[0],
-            selectedProduct: {},
-            formId: dataChecking(this.props, 'match', 'params', 'id'),
+            pageIndex: 0,
+            // formId: dataChecking(this.props, 'match', 'params', 'id'),
         };
     }
 
     componentDidMount = () => {
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-
         Events.trigger('hideHeader', {});
         Events.trigger('hideFooter', {});
-
-        // setTimeout(() => {
-        //     this.setState({ isRendered: true });
-        // }, 1100);
-        // if (window.takePocket) {
-        //     this.handlePocket(window.takePocket());
-        // } else if (this.props.location.search.indexOf('pickPocket') !== -1) {
-        //     if (window.addEventListener) {
-        //         // For standards-compliant web browsers
-        //         window.addEventListener('message', this.parsePocketFromWeb, false);
-        //     } else {
-        //         window.attachEvent('onmessage', this.parsePocketFromWeb);
-        //     }
-        // } else if (!globalScope.token) {
-        //     globalScope.previousPage = window.location.pathname;
-        //     this.setState({ requestToken: true, loading: false });
-        // } else {
-        //     this.setState({ requestToken: false, loading: false });
-        // }
-
-        this.props.dispatch(actions.getTimeTable({ id: 8328 }));
-        this.props.dispatch(actions.getConfig());
+        this.props.dispatch(actions.getProductList({ id: 8328 }));
+        // this.props.dispatch(actions.getConfig());
     }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.formsPage.otp.success !== this.props.formsPage.otp.success && nextProps.formsPage.otp.success) {
-            this.setState({
-                otpSent: true,
-                canResend: false,
-                sendSuccess: true,
-                timer: nextProps.formsPage.otp.data.data.ttl,
-            });
-
-            if (this.state.sendClick) {
-                this.resendTimer(nextProps.formsPage.otp.data.data.ttl);
-            }
-        }
-
-        if (nextProps.formsPage.signup.data !== this.props.formsPage.signup.data && nextProps.formsPage.signup.success) {
-            if (globalScope.token) {
-                const { receiver_name, line_1, line_2, line_3, city, postal_code, state_code, sms_number, sms_prefix } = this.state;
-                this.props.dispatch(actions.addAddress({ receiver_name, line_1, line_2, line_3, city, postal_code, state_code, sms_number, sms_prefix }));
-            } else {
-                notifyError('Signup failed');
-            }
-        }
-
-        if (nextProps.formsPage.addAddress.data !== this.props.formsPage.addAddress.data && nextProps.formsPage.addAddress.success) {
-            const item = Object.keys(this.state.selectedProduct);
-            this.props.dispatch(actions.addToCart({ id: item[0] }));
-        }
-        if (nextProps.formsPage.addToCart.data !== this.props.formsPage.addToCart.data && nextProps.formsPage.addToCart.success) {
-            this.setState({ selectedPage: 'payment' });
-        }
-    }
-
-    onSelectTimeTableItem = (item) => {
-        const selectedProduct = selectOneOnly ? { [item.id]: this.state.selectedProduct[item.id] } : { ...this.state.selectedProduct };
-        selectedProduct[item.id] = !selectedProduct[item.id];
-        this.setState({
-            selectedProduct,
-            readyTonNext: selectedProduct[item.id],
-        });
-    }
-
-    onClear = (event) => {
-        this.setState({ [event.target.id]: '' });
-    }
-
-    resendTimer = (RESEND_TIME) => {
-        const interval = setInterval(() => {
-            if (this.state.timer > 0) {
-                this.setState((prevState) => ({
-                    timer: prevState.timer - 1,
-                }));
-            } else {
-                clearInterval(interval);
-                this.setState(() => ({
-                    canResend: true,
-                    timer: RESEND_TIME,
-                    sendClick: false,
-                    sendSuccess: false,
-                }));
-            }
-        }, 1000);
-        return (interval);
-    }
-
-    handlePocket = (pocket) => {
-        if (pocket.hertoken) {
-            globalScope.profile = pocket;
-            globalScope.token = pocket.hertoken;
-            globalScope.axios.setHeader('hertoken', globalScope.token);
-            setCookie(process.env.TOKEN_KEY, globalScope.token);
-            this.setState({ loading: false });
-        } else if (globalScope.token) {
-            this.setState({ loading: false, requestToken: false });
-        } else {
-            globalScope.previousPage = window.location.pathname;
-            this.setState({ requestToken: true, loading: false });
-        }
-    }
-
-
-    handleChange = (event, MAX) => {
-        if (event.target.id === 'otp') {
-            this.setState({ readyTonNext: !!event.target.value });
-        }
-        if (MAX) {
-            if (event.target.value.length < MAX) {
-                this.setState({ [event.target.id]: event.target.value });
-            }
-        } else {
-            this.setState({ [event.target.id]: event.target.value });
-        }
-    }
-
-    handleChangeNumber = (event, MAX = 15) => {
-        const onlyNums = event.target.value.replace(/[^0-9]/g, '');
-        if (onlyNums.length < MAX) {
-            this.setState({ [event.target.id]: onlyNums });
-        }
-    }
-
-    handleSendOTP = () => {
-        const { sms_number, sms_prefix } = this.state;
-        if (sms_number && sms_prefix) {
-            this.props.dispatch(actions.sendOTP({ sms_prefix, sms_number }));
-            this.setState({ sendClick: true });
-        }
-    }
-
-    handleDeliveryInfo = () => {
-        // const { email, otp, sms_number, sms_prefix } = this.state;
-
-        if (this.state.readyTonNext) {
-            // const password = `${email.substr(0, 4).toUpperCase()}${otp}`;
-            // console.log(password);
-            const { receiver_name, line_1, line_2, line_3, city, postal_code, state_code, sms_number, sms_prefix } = this.state;
-            this.props.dispatch(actions.addAddress({ receiver_name, line_1, line_2, line_3, city, postal_code, state_code, sms_number, sms_prefix }));
-            // this.props.dispatch(actions.signupUser({ sms_prefix, sms_number, email, tac: otp, password, password_confirmation: password }));
-        }/* else {
-            if (sms_number === '') {
-                notifyError('Please key in SMS number');
-            }
-            if (email === '') {
-                notifyError('Please key in Email Address');
-            }
-            if (otp === '') {
-                notifyError('Please key in OTP Number');
-            }
-            if (receiver_name === '') {
-                notifyError('Please key in Receiver name');
-            }
-            if (line_1 === '') {
-                notifyError('Please key in Address');
-            }
-            if (city === '') {
-                notifyError('Please key in City');
-            }
-            if (postal_code === '') {
-                notifyError('Please key in Postcode');
-            }
-        } */
-    }
-
-    checkComplete = () => {
-        const { email, otp, sms_number, receiver_name, line_1, city, postal_code } = this.state;
-        if (sms_number !== '' && email !== '' && otp !== '' && receiver_name !== '' && line_1 !== '' && city !== '' && postal_code !== '') {
-            return true;
-        }
-        return false;
-    }
-
-    smsPrefixList = () => {
-        if (!dataDig(this.props.formsPage, 'config.data.mobile_prefix.items.length')) {
-            return null;
-        }
-
-        return this.props.formsPage.config.data.mobile_prefix.items.map((item, index) => (
-            <option key={index} value={item.value}>
-                {item.name}
-            </option>
-        ));
-    }
-    statesList = () => {
-        if (!dataDig(this.props.formsPage, 'config.data.state.items.length')) {
-            return null;
-        }
-
-        return this.props.formsPage.config.data.state.items.map((item, index) => (
-            <option key={index} value={item.value}>
-                {item.name}
-            </option>
-        ));
-    }
-
-    renderTimeTable = () => {
-        if (dataDig(this.props.formsPage.timeTable, 'success')) {
-            const items = dataDig(this.props.formsPage.timeTable, 'data.product.result.items');
-            return (
-                <Box className={`timetable-items ${items.length > 12 ? 'full-height-and-overflow' : ''}`}>
-                    {
-                        items.map((item) => (
-                            <Box
-                                key={item.id}
-                                className={`timetable-item ${this.state.selectedProduct[item.id] ? 'selected' : ''}`}
-                                onClick={() => this.onSelectTimeTableItem(item)}
-                            >
-                                <Box className="timetable-item-image">
-                                    <img src={item.image.medium || ''} alt="" />
-                                </Box>
-                                <Box className="timetable-item-name">
-                                    {item.name}
-                                </Box>
-                            </Box>
-                        ))
-                    }
-                </Box>
-            );
-        }
-
-        return <Box>Loading</Box>;
-    }
-
-    renderDeliveryInfo = () => (
-        <Box className="form-field-items py-2">
-            <FormControl fullWidth={true}>
-                <InputForm
-                    label="Email address"
-                    id="email"
-                    className="email-field form-field-item"
-                    type="email"
-                    handleChange={this.handleChange}
-                    value={this.state.email}
-                    onClear={this.onClear}
-                />
-            </FormControl>
-            <Box className="phone-number-field form-field-item my-half">
-                <InputLabel className="text-capitalize pb-half bigger">Mobile number *</InputLabel>
-                <Box
-                    className="phone-number-input form-field-item"
-                >
-                    <FormControl className="pr-1">
-                        <Select
-                            native={true}
-                            id="sms_prefix"
-                            className=""
-                            value={this.state.sms_prefix}
-                            onChange={this.handleChange}
-                            input={
-                                <OutlinedInput />
-                            }
-                            required={true}
-                        >
-                            {this.smsPrefixList()}
-                        </Select>
-                    </FormControl>
-                    <FormControl className="pr-1">
-                        <InputForm
-                            id="sms_number"
-                            handleChange={this.handleChangeNumber}
-                            value={this.state.sms_number}
-                            placeholder="e.g. 7654321"
-                            onClear={this.onClear}
-                            onClick={this.handleSendOTP}
-                            requestOTP={true}
-                            canResend={this.state.canResend}
-                            otpSent={this.state.otpSent}
-                            timer={this.state.timer}
-                        />
-                    </FormControl>
-                </Box>
-            </Box>
-
-            <FormControl fullWidth={true}>
-                <FormLabel className="pb-half">OTP Number *</FormLabel>
-                <InputForm
-                    id="otp"
-                    className="otp-field form-field-item"
-                    handleChange={this.handleChange}
-                    value={this.state.otp}
-                    onClear={this.onClear}
-                />
-            </FormControl>
-
-            <FormLabel className="pt-2 pb-half mb-quater">Shipping Address</FormLabel>
-            <FormGroup className="shipping-address-group">
-                <AddressForm
-                    handleChange={this.handleChange}
-                    onClear={this.onClear}
-                    state={this.state}
-                    statesList={this.statesList()}
-                    handleChangePostCode={(event) => this.handleChangeNumber(event, 6)}
-                    handleChangeCity={(event) => this.handleChange(event, 51)}
-                    hideExtra={true}
-                />
-            </FormGroup>
-        </Box>
+    renderLoading = () => (
+        <Backdrop className={this.props.classes.loader} open={true}>
+            <CircularProgress />
+        </Backdrop>
     )
+    renderAppBar = () => {
+        const onClickPrev = () => {
+            this.setState((state) => ({ pageIndex: state.pageIndex - 1 }));
+        };
+        const onClickNext = () => {
+            this.setState((state) => ({ pageIndex: state.pageIndex + 1 }));
+        };
+        const disablePrev = !!(this.state.pageIndex === 0);
+        const disableNext = !!(this.state.pageIndex === formSetting.length - 1);
+        return (
+            <AppBar className="fast-checkout-header" position="static" color="default">
+                <Toolbar>
+                    <Container className={this.props.classes.header}>
+                        <Button className={this.props.classes.prevButton} variant="outlined" color="primary" disabled={disablePrev} aria-label="prev" onClick={onClickPrev}>
+                            Prev
+                        </Button>
+                        <Button className={this.props.classes.nextButton} variant="outlined" color="primary" disabled={disableNext} aria-label="Next" onClick={onClickNext}>
+                            Next
+                        </Button>
+                    </Container>
+                </Toolbar>
+            </AppBar>
+        );
+    }
 
-    renderPayment = () => (
-        <Box>
-            This is payment page
-        </Box>
-    )
-    //     key: 'courier',
-    //     label: 'Delivery Courier',
-
-    renderActionButtons = () => (
-        <Box className="action-button-container">
+    renderProductList = (products) => (
+        <Grid container={true} alignItems="flex-start" spacing={2}>
             {
-                [{
-                    actionName: 'onPrev',
-                    text: 'Previous',
-                    activeCheck: (action) => !!formSetting[this.state.selectedPage][action.actionName],
-                }, {
-                    actionName: 'onNext',
-                    text: 'Next',
-                    activeCheck: (action) => !!this.state.readyTonNext && formSetting[this.state.selectedPage][action.actionName],
-                }].map((action, index) => (
-                    <Button
-                        key={index}
-                        className={`action-button ${action.activeCheck(action) ? 'active' : ''}`}
-                        onClick={() => {
-                            if (!action.activeCheck(action)) {
-                                return;
-                            }
-                            if (formSetting[this.state.selectedPage][action.actionName]) {
-                                formSetting[this.state.selectedPage][action.actionName](this);
-                            }
-                        }}
-                    >
-                        {action.text}
-                    </Button>
+                products.map((product) => (
+                    <Grid key={product.id} item={true} xs={6} md={3}>
+                        <ProductCard
+                            product={product}
+                            image={true}
+                            url={product.url}
+                            addToCart={true}
+                        />
+                    </Grid>
                 ))
             }
-        </Box>
-    );
+        </Grid>
+    )
 
-    renderFormPage = (page) => {
-        switch (page.type) {
-            case 'timetable': return this.renderTimeTable();
-            case 'deliveryInfo': return this.renderDeliveryInfo(page);
+    renderDeliveryInfo = () => (
+        <Box>
+            this is delivery
+        </Box>
+    )
+
+    renderSignUp = () => (
+        <Box>
+            this is sign
+        </Box>
+    )
+
+    renderPayment= () => (
+        <Box>
+            this is payment
+        </Box>
+    )
+
+    renderFormPage = () => {
+        const items = dataDig(this.props.formsPage.productList, 'data.product.result.items');
+        switch (dataDig(formSetting[this.state.pageIndex], 'type')) {
+            case 'product':
+                if (dataDig(items, 'length')) {
+                    return this.renderProductList(items);
+                }
+                return this.renderLoading();
+            case 'addressInfo': return this.renderDeliveryInfo();
+            case 'userInfo': return this.renderSignUp();
             case 'payment': return this.renderPayment();
-            default: return <Box>Unknown page type</Box>;
+            default: return <Box>Unknown page index</Box>;
         }
     }
 
     render = () => (
-        <Box className="mobile-style-page" style={{ fontSize: this.state.pageFontSize }}>
-            <Box className="mobile-style-container">
-                <Box
-                    className="ppf-version"
-                    onClick={() => {
-                        // alert(`${window.parent ? 'have window.parent' : 'no window.parent'}`);
-                        // // alert(`${window.parent && window.parent.onPerfectGame ? 'have window.parent.onPerfectGame' : 'no window.parent.onPerfectGame'}`);
-                        // if (window.parent && window.parent.onPerfectGame) {
-                        //     window.parent.onPerfectGame();
-                        // }
-
-                        // if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
-                        //     window.ReactNativeWebView.postMessage('adasdadasd', 'applink');
-
-                        //     if (window.onCloseWindow) {
-                        //         window.onCloseWindow();
-                        //     }
-                        // }
-                    }}
-                >
-                    {globalScope.formVersion}
-                </Box>
-                <img
-                    src="https://s3.ap-southeast-1.amazonaws.com/files.hermo.my/public/gamiassets/450295343_background.png"
-                    alt="main menu background"
-                    className="mobile-style-main-bg animated fadeIn"
-                />
-                <Box className="form-page-content">
-                    {this.renderFormPage(formSetting[this.state.selectedPage])}
-                </Box>
-                {this.renderActionButtons()}
+        <Box className="fast-checkout-page">
+            <Box className="ppf-version">
+                {globalScope.formVersion}
             </Box>
+            {this.renderAppBar()}
+            <Container className="fast-checkout-content my-1">
+                {this.renderFormPage()}
+            </Container>
         </Box>
     );
 }
 
 FormsPage.propTypes = {
-    // dispatch: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -533,5 +218,6 @@ const withSaga = injectSaga({ key: 'formsPage', saga });
 export default compose(
     withReducer,
     withSaga,
+    withStyles(styles),
     withConnect,
 )(FormsPage);

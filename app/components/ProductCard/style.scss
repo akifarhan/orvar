@@ -45,8 +45,7 @@
 
     .product-description {
         min-height: 2rem;
-
-        @include line-elips(1rem, 1.3, 2);
+        font-size: 0.2rem;
     }
 
     .product-feature {

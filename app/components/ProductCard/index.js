@@ -125,7 +125,7 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
 
     renderDescription = () => (
         <div>
-            <Typography className="product-description mb-half">{this.props.product.display_name}</Typography>
+            <Typography className="product-description pb-half">{this.props.product.display_name}</Typography>
         </div>
     )
 
@@ -162,7 +162,7 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
         const inStock = dataChecking(product, 'instock');
         const notifyMe = dataChecking(product, 'attribute', 'is_notifiable') && !dataChecking(product, '_user', 'notified');
         return (
-            <Card className={`product-container ${this.props.disableElevation ? 'no-box-shadow' : ''}`}>
+            <Card className={`product-container ${this.props.disableElevation ? 'no-box-shadow' : ''}`} style={{ minHeight: this.props.addToCart ? '26rem' : '24rem' }}>
                 <CardContent className="product-content">
                     {
                         this.props.allowDelete &&

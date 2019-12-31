@@ -25,6 +25,7 @@ import injectReducer from 'utils/injectReducer';
 {{/if}}
 
 {{#if wantActionsAndReducer}}
+import * as actions from './actions';
 import makeSelect{{properCase name}} from './selectors';
 import reducer from './reducer';
 {{/if}}

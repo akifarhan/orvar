@@ -1,0 +1,87 @@
+.form-page-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    font-size: 11px;
+
+    $itemPadding: 0.25em;
+    $itemMargin: 0.35em;
+    $itemBorderWith: 2px;
+
+    .timetable-items {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: $itemPadding;
+
+        &.full-height-and-overflow {
+            overflow: auto;
+            height: 100%;
+        }
+
+        .timetable-item {
+            cursor: pointer;
+            border: $itemBorderWith solid lightgray;
+            padding: $itemPadding;
+            margin: $itemMargin;
+            width: calc(33.33% - (2 * (#{$itemMargin} + #{$itemPadding} + #{$itemBorderWith})));
+
+            &.selected {
+                border-color: green;
+            }
+
+            .timetable-item-image {
+                text-align: center;
+
+                img {
+                    max-height: 100%;
+                    max-width: 100%;
+                }
+            }
+
+            .timetable-item-name {
+                padding: $itemPadding #{2 * $itemPadding};
+            }
+        }
+    }
+
+    .form-field-items {
+        .phone-number-input {
+            display: flex;
+        }
+
+        .shipping-address-group {
+            border: 2px solid #66003322;
+            border-radius: 5px;
+            padding: 3em 2em 2em 2em;
+        }
+    }
+}
+
+.action-button-container {
+    position: absolute;
+    bottom: 1em;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .action-button {
+        color: gray;
+        background-color: lightgray;
+        padding: 0.5em 1em;
+        margin: 0 0.5em;
+        border-radius: 10px;
+        cursor: not-allowed;
+
+        &.active {
+            color: white;
+            background-color: green;
+            cursor: pointer;
+        }
+    }
+}
