@@ -155,9 +155,6 @@ export class ProfileAddress extends React.PureComponent { // eslint-disable-line
     }
 
     handleChange = (event, MAX) => {
-        if (event.target.id === 'otp') {
-            this.setState({ readyTonNext: !!event.target.value });
-        }
         if (MAX) {
             if (event.target.value.length < MAX) {
                 this.setState({ [event.target.id]: event.target.value });

@@ -5,13 +5,16 @@
 */
 import React from 'react';
 import { dataChecking } from 'globalUtils';
+import { withRouter, NavLink } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
 import PropTypes from 'prop-types';
-import { NavLink } from 'react-router-dom';
 
 import
 {
     Button,
     Card,
+    CardActionArea,
     CardContent,
     CardHeader,
     Grid,
@@ -31,24 +34,32 @@ import
 import './style.scss';
 
 class ProductCard extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+    handleClickImage = () => {
+        if (this.props.url) {
+            return this.props.history.push(this.props.url);
+        }
+        if (this.props.onClickImage) {
+            return this.props.onClickImage();
+        }
+        return null;
+    }
+
     renderImage = () => (
         <div className="product-img text-xs-center mb-1">
-            <NavLink to={this.props.url}>
-                <img
-                    src={dataChecking(this.props.product, 'image', 'small')}
-                    alt="product_image"
-                    width="100%"
-                    height="100%"
-                />
-                {
-                    dataChecking(this.props.product, 'instock') ?
-                        ''
-                        :
-                        <div className="out-of-stock">
-                            <Typography variant="overline" className="oos-text">out of stock</Typography>
-                        </div>
-                }
-            </NavLink>
+            <img
+                src={dataChecking(this.props.product, 'image', 'small')}
+                alt="product_image"
+                width="100%"
+                height="100%"
+            />
+            {
+                dataChecking(this.props.product, 'instock') ?
+                    ''
+                    :
+                    <div className="out-of-stock">
+                        <Typography variant="overline" className="oos-text">out of stock</Typography>
+                    </div>
+            }
         </div>
     )
 
@@ -164,8 +175,14 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
         const product = dataChecking(this.props, 'product');
         const inStock = dataChecking(product, 'instock');
         const notifyMe = dataChecking(product, 'attribute', 'is_notifiable') && !dataChecking(product, '_user', 'notified');
+        const cardStyle = this.props.addToCart ? { minHeight: '26rem', maxHeight: '26rem' } : { minHeight: '24rem', maxHeight: '24rem' };
         return (
-            <Card className={`product-container ${this.props.disableElevation ? 'no-box-shadow' : ''}`} style={{ minHeight: this.props.addToCart ? '26rem' : '24rem' }}>
+            <Card className={`product-container ${this.props.disableElevation ? 'no-box-shadow' : ''}`} style={{ ...cardStyle }}>
+                <CardActionArea
+                    onClick={() => this.handleClickImage()}
+                >
+                    {this.props.image && this.renderImage()}
+                </CardActionArea>
                 <CardContent className="product-content">
                     {
                         this.props.allowDelete &&
@@ -181,7 +198,6 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
                             style={{ display: 'block' }}
                         />
                     }
-                    {this.props.image && this.renderImage()}
                     {this.props.feature && this.renderFeature()}
                     {this.renderPrice()}
                     {this.renderBrand()}
@@ -189,25 +205,47 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
                     {this.props.rating && this.renderRating()}
                 </CardContent>
                 {
-                    this.props.addToCart &&
-                    <Button
-                        variant="contained"
-                        color={inStock ? 'secondary' : 'primary'}
-                        disabled={!notifyMe}
-                        fullWidth={true}
-                        className={`action-button adasdas ${inStock ? 'add-to-cart' : 'notify'}`}
-                        onClick={inStock ? () => this.props.addToCart() : () => this.props.notifyMe()}
-                    >
-                        {inStock ? <AddShoppingCart /> : <NotificationImportant />}
-                        <Typography variant="overline" className="pl-1">
-                            {
-                                inStock ?
-                                    'Add to cart'
-                                    :
-                                    'Notify Me'
-                            }
-                        </Typography>
-                    </Button>
+                    this.props.addToCart ?
+                        this.props.notifyMe ?
+                            <Button
+                                variant="contained"
+                                color={inStock ? 'secondary' : 'primary'}
+                                disabled={!notifyMe}
+                                fullWidth={true}
+                                className={`action-button ${inStock ? 'add-to-cart' : 'notify'}`}
+                                onClick={inStock ? () => this.props.addToCart() : () => this.props.notifyMe()}
+                            >
+                                {inStock ? <AddShoppingCart /> : <NotificationImportant />}
+                                <Typography variant="overline" className="pl-1">
+                                    {
+                                        inStock ?
+                                            'Add to cart'
+                                            :
+                                            'Notify Me'
+                                    }
+                                </Typography>
+                            </Button>
+                            :
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                disabled={!inStock}
+                                fullWidth={true}
+                                className="action-button add-to-cart"
+                                onClick={this.props.addToCart}
+                            >
+                                {inStock ? <AddShoppingCart /> : null}
+                                <Typography variant="overline" className="pl-1">
+                                    {
+                                        inStock ?
+                                            'Add to cart'
+                                            :
+                                            'Out of stock'
+                                    }
+                                </Typography>
+                            </Button>
+                        :
+                        null
                 }
             </Card>
         );
@@ -218,4 +256,14 @@ ProductCard.propTypes = {
     product: PropTypes.object.isRequired,
 };
 
-export default ProductCard;
+function mapDispatchToProps(dispatch) {
+    return {
+        dispatch,
+    };
+}
+const withConnect = connect(mapDispatchToProps);
+
+export default compose(
+    withConnect,
+    withRouter,
+)(ProductCard);

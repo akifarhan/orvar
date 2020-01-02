@@ -7,8 +7,22 @@ const styles = {
     loader: {
         background: 'transparent',
     },
-    nextButton: {
-        alignSelf: 'flex-end',
+    productInfo: {
+        position: 'relative',
+        minHeight: '20rem',
+        minWidth: '20rem',
+    },
+    productLoading: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    contact: {
+        margin: 'auto',
+        maxWidth: '30rem',
     },
 };
 

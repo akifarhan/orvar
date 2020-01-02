@@ -41,32 +41,39 @@ class AddressForm extends React.PureComponent {
                         handleChange={this.props.handleChange}
                         onClear={this.props.onClear}
                         value={this.props.state.line_1}
-                        placeholder="e.g No 13 2nd Floor, Blok B"
+                        placeholder={`e.g No 13 2nd Floor, Blok B${this.props.hideExtra && ', High Noon Apartment, Taman High Noon'}`}
                         defaultValue={this.props.defaultValue}
                     />
                 </FormControl>
-                <FormControl fullWidth={true}>
-                    <InputForm
-                        id="line_2"
-                        handleChange={this.props.handleChange}
-                        onClear={this.props.onClear}
-                        value={this.props.state.line_2}
-                        placeholder="e.g High Noon Apartment"
-                        required="false"
-                        defaultValue={this.props.defaultValue}
-                    />
-                </FormControl>
-                <FormControl fullWidth={true}>
-                    <InputForm
-                        id="line_3"
-                        handleChange={this.props.handleChange}
-                        onClear={this.props.onClear}
-                        value={this.props.state.line_3}
-                        required="false"
-                        placeholder="e.g Taman High Noon"
-                        defaultValue={this.props.defaultValue}
-                    />
-                </FormControl>
+                {
+                    this.props.hideExtra ?
+                        null
+                        :
+                        <Box>
+                            <FormControl fullWidth={true}>
+                                <InputForm
+                                    id="line_2"
+                                    handleChange={this.props.handleChange}
+                                    onClear={this.props.onClear}
+                                    value={this.props.state.line_2}
+                                    placeholder="e.g High Noon Apartment"
+                                    required="false"
+                                    defaultValue={this.props.defaultValue}
+                                />
+                            </FormControl>
+                            <FormControl fullWidth={true}>
+                                <InputForm
+                                    id="line_3"
+                                    handleChange={this.props.handleChange}
+                                    onClear={this.props.onClear}
+                                    value={this.props.state.line_3}
+                                    required="false"
+                                    placeholder="e.g Taman High Noon"
+                                    defaultValue={this.props.defaultValue}
+                                />
+                            </FormControl>
+                        </Box>
+                }
                 <FormControl fullWidth={true}>
                     <InputForm
                         id="city"
@@ -188,17 +195,17 @@ class AddressForm extends React.PureComponent {
 }
 
 AddressForm.propTypes = {
-    hideExtra: PropTypes.bool, // Show lite address form
-    handleSubmit: PropTypes.func, // Function for form submission
-    handleChange: PropTypes.func, // Function for input value changes
-    onClear: PropTypes.func, // Function for reset input value
-    state: PropTypes.object,
     defaultValue: PropTypes.string,
-    handleChangePostCode: PropTypes.func, // Function for postcode handling
+    handleChange: PropTypes.func, // Function for input value changes
     handleChangeNumber: PropTypes.func, // Function for number only
+    handleChangePostCode: PropTypes.func, // Function for postcode handling
     handleDelete: PropTypes.func, // Function for delete the address from database
-    statesList: PropTypes.array, // List of states
+    handleSubmit: PropTypes.func, // Function for form submission
+    hideExtra: PropTypes.bool, // Show lite address form
+    onClear: PropTypes.func, // Function for reset input value
     smsPrefixList: PropTypes.array, // List of sms-prefix
+    state: PropTypes.object,
+    statesList: PropTypes.array, // List of states
 };
 
 export default AddressForm;

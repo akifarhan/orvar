@@ -1,18 +1,33 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
-
-import { staticErrorResponse, apiRequest /* setCookie */} from 'globalUtils';
-
+import { staticErrorResponse, apiRequest, setCookie } from 'globalUtils';
+import { notifySuccess, notifyError } from 'containers/Notify';
+import globalScope from 'globalScope';
 
 import {
     GET_PRODUCT_LIST,
+    GET_PRODUCT,
+    GET_CONFIG,
+    SEND_OTP,
+    SIGN_UP,
+    ADD_ADDRESS,
 } from './constants';
 
 import {
     getProductListSuccess,
     getProductListFail,
+    getProductSuccess,
+    getProductFail,
+    getConfigSuccess,
+    getConfigFail,
+    sendOTPSuccess,
+    sendOTPFail,
+    signUpSuccess,
+    signUpFail,
+    addAddressSuccess,
+    addAddressFail,
 } from './actions';
 
-export function* defaultWorker(action) {
+export function* getProductListWorker(action) {
     let err;
     try { // Trying the HTTP Request
         const response = yield call(apiRequest, `/promotion/${action.params.id}`, 'get');
@@ -30,7 +45,112 @@ export function* defaultWorker(action) {
     }
 }
 
+export function* getProductWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, `/mall/${action.params.id}`, 'get');
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(getProductFail(response.data));
+        } else if (response && response.ok !== false) {
+            yield put(getProductSuccess(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (error) {
+        console.log('error: ', error);
+        yield put(getProductFail(error));
+    }
+}
+
+export function* getConfigWorker() {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, 'app/common', 'get');
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(getConfigFail(response.data));
+        } else if (response && response.ok !== false) {
+            yield put(getConfigSuccess(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (error) {
+        console.log('error: ', error);
+        yield put(getConfigFail(error));
+    }
+}
+
+export function* sendOTPWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/auth/tac', 'post', JSON.stringify({ ...action.params }));
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(sendOTPFail(response.data));
+            notifyError(response.data.messages[0].text);
+        } else if (response && response.ok !== false) {
+            yield put(sendOTPSuccess(response.data));
+            notifySuccess(response.data.messages[0].text);
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(sendOTPFail(e));
+    }
+}
+
+export function* signUpWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/register', 'post', JSON.stringify({ ...action.params }));
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(signUpFail(response.data));
+            response.data.messages.map((message) => notifyError(message.text));
+        } else if (response && response.ok !== false) {
+            globalScope.token = response.data.token;
+            globalScope.axios.setHeader('hertoken', globalScope.token);
+            setCookie(process.env.TOKEN_KEY, globalScope.token);
+            yield put(signUpSuccess(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(signUpFail(e));
+    }
+}
+
+export function* addAddressWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/address', 'post', JSON.stringify({ ...action.params }));
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(addAddressFail(response.data));
+            response.data.messages.map((message) => notifyError(message.text));
+        } else if (response && response.ok !== false) {
+            yield put(addAddressSuccess(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(addAddressFail(e));
+    }
+}
+
 // Individual exports for testing
 export default function* formsPageSaga() {
-    yield takeLatest(GET_PRODUCT_LIST, defaultWorker);
+    yield takeLatest(GET_PRODUCT_LIST, getProductListWorker);
+    yield takeLatest(GET_PRODUCT, getProductWorker);
+    yield takeLatest(GET_CONFIG, getConfigWorker);
+    yield takeLatest(SEND_OTP, sendOTPWorker);
+    yield takeLatest(SIGN_UP, signUpWorker);
+    yield takeLatest(ADD_ADDRESS, addAddressWorker);
 }
