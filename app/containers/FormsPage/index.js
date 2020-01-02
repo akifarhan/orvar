@@ -84,7 +84,7 @@ const formSetting = [
 // };
 
 const initialState = {
-    // selected_product: 45980,
+    cart: [{ 'id': 43208, 'name': 'Nu Formula Mineral Cleansing Water 510ml', 'plain_name': 'Mineral Cleansing Water', 'display_name': 'Nu Formula Mineral Cleansing Water 510ml', 'extra_name': '510ml', 'prefix_name': '', 'choosable_name': '', 'ingredients': 'Aqua (water), PEG-6 Caprylic/Capric Glycerides, Polyaminopropyl Biguanide, Mineral Water, Pantaenol, Rosa Damascena Flower Water, Lepidium Sativum Sprout(Cress) Extract, Vaccinium Myrtillus(Bilberry) Fruit Extract, Saccharum Officinarum (Sugar cane), Glycerin, Citrus Aurantium Dulcis(orange) Fruit Extract, Citrus Limon(Lemon) Fruit Extract, Lecithin, Acer Saccharum(Sugar Maple) Extract, Chamomile Recutita(Matricaria) Flower Extract, Phenoxyethanol, Disodium EDTA.', 'brief': 'Mineral Micellar Plus + complex, an upgraded technology developed by our skin laboratory. ', 'brand': { 'id': 969, 'name': 'Nu Formula', 'logo': 'https://devshop.hermo.my/images/logos/nu-formula_1565842541.png', 'country_code': 'TH', 'attribute': { 'is_new': false, 'is_flagship': false }, 'url': '/brand/969-nu-formula', '_applink': { 'target': 'new-page', 'type': 'brand', 'id': 969, 'page': { 'id': 'mall-list', 'params': [{ 'key': 'url', 'value': 'https://devapi.hermo.my/v1/brand/969' }] } }, '_links': { 'self': { 'href': 'https://devapi.hermo.my/v1/brand/969' } } }, 'merchant': { 'id': 1, 'name': 'Hermo', 'country': { 'id': 'MY', 'name': 'Malaysia' }, 'shipping': { 'courier': { 'name': 'Motorex', 'code': 'Motorex', 'tracking_url': 'http://www.motorex.com.my/tracking.php' }, 'estimate_arrival': '1-3 working days', 'currency': { 'id': 'MYR', 'code': 'MYR', 'symbol': 'RM' }, 'value': 'RM6.80(WM) / RM12.00(EM)', 'default_fee_wm': '6.80', 'default_fee_em': '12.00', 'free_shipping_cfg': { 'min_amount_wm': '50.00', 'min_amount_em': '150.00', 'min_qty_wm': 0, 'min_qty_em': 0 }, 'duration_normal': '1-3', 'duration_longer': '3-5' }, 'logo': { 'id': 4248, 'code': null, 'name': 'Hermo Logo', 'title': '', 'brief': 'Free Shipping above RM50(WM)/RM150(EM)', 'content': '', 'image': { 'desktop': null, 'mobile': null, 'tablet': null, 'app': null }, 'visibility': { 'desktop': true, 'mobile': true, 'tablet': true, 'app': true }, 'property': { 'image': { 'desktop': null, 'mobile': null, 'tablet': null, 'app': null } }, 'cta': { 'title': '', 'description': '', 'button_text': '', 'color': 'dark', 'alignment': 'center', 'action': { 'text': '', '_weblink': null, '_applink': { 'target': 'new-page', 'type': 'view', 'id': 'on-sale', 'page': { 'id': 'event-list', 'params': [{ 'key': 'url', 'value': 'https://devapi.hermo.my/v1/on-sale' }] } }, '_click': { 'type': 'Imagelink', 'key': '4248' } } }, 'timer': null, 'counter': null, 'url': '', '_weblink': null, '_applink': { 'target': 'new-page', 'type': 'view', 'id': 'on-sale', 'page': { 'id': 'event-list', 'params': [{ 'key': 'url', 'value': 'https://devapi.hermo.my/v1/on-sale' }] } }, '_click': { 'type': 'Imagelink', 'key': '4248' } }, 'banner': [], 'tax': { 'rate': '0.0000', 'is_taxable': 0 } }, 'url': '/mall/43208-nu-formula-mineral-cleansing-water-510ml', 'image': { 'small': 'https://devshop.hermo.my/product_images/malls/43208_nu-formula-mineral-cleansing-water-510ml_185_210_1565851101.png', 'medium': 'https://devshop.hermo.my/product_images/malls/43208_nu-formula-mineral-cleansing-water-510ml_200_125_1565851101.png', 'large': 'https://devshop.hermo.my/product_images/malls/43208_nu-formula-mineral-cleansing-water-510ml_440_280_1565851101.png', 'hotdeal': 'https://devshop.hermo.my/images/mall/hotdeal-image-not-found.jpg' }, 'currency': { 'id': 'MYR', 'code': 'MYR', 'symbol': 'RM' }, 'price': { 'retail': 109, 'normal': 109, 'selling': 76.3, 'saving': 32.7, 'discount_text': '30%', 'inclusive_tax': true }, 'tax': { 'price': 76.3, 'gst': { 'taxable': 76.3, 'rate': 0, 'text': '0% GST', 'value': 0 } }, 'instock': true, 'on_sale': true, 'deal': { 'type': 'default', 'expired_time': 1580486399, 'total_bought': 0, 'remaining_qty': 9999, 'image': { 'background': null }, 'attribute': { 'is_show_timer': false } }, 'status_bar': { 'is_active': false, 'move_image': null, 'bg_image': null, 'result': null, 'attribute': { 'is_show_status_bar': false } }, 'attribute': { 'is_selectable': false, 'is_notifiable': true, 'is_wishlistable': true, 'is_coming_soon': false }, 'estimate_arrival': '1-3 working days', 'review': { 'rating': 0, 'count': 0 }, 'features': [{ 'type': 'image', 'value': 'https://devshop.hermo.my/images/tags/hotdeal-200.png' }], 'extra_features': [], '_user': { 'notified': false, 'wishlisted': false }, '_google': { 'analytic': { 'ecommerce': { 'product': { 'id': '43208', 'name': 'Nu Formula Mineral Cleansing Water 510ml', 'price': '76.30', 'brand': 'Nu Formula', 'category': 'Make Up Removers' } } } }, '_applink': { 'target': 'new-page', 'type': 'mall', 'id': 43208, 'page': { 'id': 'mall-view', 'params': [{ 'key': 'url', 'value': 'https://devapi.hermo.my/v1/mall/43208' }] } }, '_weblink': null, '_links': { 'self': { 'href': 'https://devapi.hermo.my/v1/mall/43208' } } }],
     email: '',
     sms_prefix: '+6010',
     sms_number: '',
@@ -103,8 +103,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         this.state = {
             // ,,,mockData,
             ...initialState,
-            pageIndex: 0,
-            cart: [],
+            pageIndex: 2,
             popup: false,
             // formId: dataChecking(this.props, 'match', 'params', 'id'),
         };
@@ -199,10 +198,11 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         };
         const disablePrev = !!(this.state.pageIndex === 0);
         const disableNext = () => {
+            console.log(this.state.cart);
             const { receiver_name, line_1, city, postal_code, state_code } = this.state;
             switch (dataDig(formSetting[this.state.pageIndex], 'type')) {
                 case 'product':
-                    return !(this.state.cart > 0);
+                    return !(this.state.cart.length > 0);
                 case 'addressInfo' :
                     if (receiver_name !== '' && line_1 !== '' && city !== '' && postal_code !== '' && state_code !== '') {
                         return false;
@@ -252,7 +252,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                         <ProductCard
                             product={product}
                             image={true}
-                            addToCart={() => this.handleAddToCart(product.id)}
+                            addToCart={() => this.handleAddToCart(product)}
                             onClickImage={() => {
                                 this.props.dispatch(actions.getProduct({ id: product.id }));
                                 this.setState({ popup: true, dialogType: 'productInfo' });
@@ -380,7 +380,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
 
     renderConfirmOrder = () => (
         <Box>
-            Please confirm your order
+            {JSON.stringify(this.state.cart)}
         </Box>
     )
     renderPayment= () => (
@@ -418,7 +418,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                 return (
                     <ProductSummary
                         product={product.data}
-                        addToCart={() => this.handleAddToCart(product.data.id)}
+                        addToCart={() => this.handleAddToCart(product.data)}
                         notifyMe={true}
                     />
                 );
