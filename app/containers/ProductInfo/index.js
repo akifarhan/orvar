@@ -29,15 +29,23 @@ import './style.scss';
 
 export class ProductInfo extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     componentWillMount = () => {
+        if (dataChecking(this.props, 'product')) {
+            return null;
+        }
         const productId = dataChecking(this.props, 'match', 'params', 'productId');
         if (productId) {
             const id = productId.split('-', 2)[0];
             this.props.dispatch(getProduct(id));
         }
+        return null;
     }
     componentDidMount = () => {
+        if (dataChecking(this.props, 'product')) {
+            return null;
+        }
         Events.trigger('hideHeader', {});
         Events.trigger('hideFooter', {});
+        return null;
     }
 
 
@@ -63,44 +71,45 @@ export class ProductInfo extends React.PureComponent { // eslint-disable-line re
         ))
     )
     render() {
-        const product = dataChecking(this.props, 'productInfo', 'product', 'data');
-
+        const product = dataChecking(this.props, 'productInfo', 'product', 'data') || dataChecking(this.props, 'product');
+        if (dataChecking(this.props.productInfo, 'product', 'loading')) {
+            return (
+                <div className="product-info-loader">
+                    <CircularProgress className="loader" />
+                </div>
+            );
+        }
         return (
             <div className="product-info">
                 {
-                    this.props.productInfo.product.loading ?
-                        <div className="product-info-loader">
-                            <CircularProgress className="loader" />
-                        </div>
-                        :
-                        dataChecking(product) &&
-                            <Container>
-                                <div className="product-specification py-half">
-                                    {
-                                        dataChecking(product, 'subcategory') && this.renderInfo('Category', dataChecking(product, 'subcategory', 'name'))
+                    dataChecking(product) &&
+                        <Container>
+                            <div className="product-specification py-half">
+                                {
+                                    dataChecking(product, 'subcategory') && this.renderInfo('Category', dataChecking(product, 'subcategory', 'name'))
 
-                                    }
-                                    {
-                                        dataChecking(product, 'specification') && this.renderSpec(dataChecking(product, 'specification'))
-                                    }
-                                </div>
-                                <Divider />
-                                <div className="product-photos">
-                                    {
-                                        dataChecking(product, 'photos') && <HtmlParser html={dataChecking(product, 'photos')} />
-                                    }
-                                </div>
-                                <div className="product-usage">
-                                    {
-                                        dataChecking(product, 'usage') && <HtmlParser html={dataChecking(product, 'usage')} />
-                                    }
-                                </div>
-                                <div className="product-disclaimer">
-                                    {
-                                        dataChecking(product, 'disclaimer') && <HtmlParser html={dataChecking(product, 'disclaimer')} />
-                                    }
-                                </div>
-                            </Container>
+                                }
+                                {
+                                    dataChecking(product, 'specification') && this.renderSpec(dataChecking(product, 'specification'))
+                                }
+                            </div>
+                            <Divider />
+                            <div className="product-photos">
+                                {
+                                    dataChecking(product, 'photos') && <HtmlParser html={dataChecking(product, 'photos')} />
+                                }
+                            </div>
+                            <div className="product-usage">
+                                {
+                                    dataChecking(product, 'usage') && <HtmlParser html={dataChecking(product, 'usage')} />
+                                }
+                            </div>
+                            <div className="product-disclaimer">
+                                {
+                                    dataChecking(product, 'disclaimer') && <HtmlParser html={dataChecking(product, 'disclaimer')} />
+                                }
+                            </div>
+                        </Container>
                 }
             </div>
         );

@@ -13,7 +13,7 @@ import {
     DialogTitle,
     IconButton,
 } from '@material-ui/core';
-import { Close, ArrowBack } from '@material-ui/icons';
+import { Close, KeyboardArrowLeft } from '@material-ui/icons';
 
 class PopupDialog extends React.PureComponent {
     render() {
@@ -32,7 +32,7 @@ class PopupDialog extends React.PureComponent {
                                 >
                                     {
                                         this.props.isBack ?
-                                            <ArrowBack />
+                                            <KeyboardArrowLeft />
                                             :
                                             <Close />
                                     }

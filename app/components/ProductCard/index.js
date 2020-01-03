@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 
 import
 {
+    Box,
     Button,
     Card,
     CardActionArea,
@@ -31,6 +32,7 @@ import
     StarBorder,
 } from '@material-ui/icons';
 
+import ViewMoreText from 'components/ViewMoreText';
 import './style.scss';
 
 class ProductCard extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
@@ -138,8 +140,12 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
     )
 
     renderDescription = () => (
-        <div>
-            <Typography className="product-description pb-half">{this.props.product.display_name}</Typography>
+        <div className="product-description">
+            <ViewMoreText
+                text={this.props.product.display_name}
+                hideButton={true}
+                readMoreCharacterLimit={60}
+            />
         </div>
     )
 
@@ -175,34 +181,35 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
         const product = dataChecking(this.props, 'product');
         const inStock = dataChecking(product, 'instock');
         const notifyMe = dataChecking(product, 'attribute', 'is_notifiable') && !dataChecking(product, '_user', 'notified');
-        const cardStyle = this.props.addToCart ? { minHeight: '26rem', maxHeight: '26rem' } : { minHeight: '24rem', maxHeight: '24rem' };
         return (
-            <Card className={`product-container ${this.props.disableElevation ? 'no-box-shadow' : ''}`} style={{ ...cardStyle }}>
+            <Card className={`product-container ${this.props.disableElevation ? 'no-box-shadow' : ''}`}>
                 <CardActionArea
                     onClick={() => this.handleClickImage()}
                 >
                     {this.props.image && this.renderImage()}
                 </CardActionArea>
                 <CardContent className="product-content">
-                    {
-                        this.props.allowDelete &&
-                        <CardHeader
-                            action={
-                                <IconButton
-                                    onClick={() => this.props.allowDelete()}
-                                    style={{ float: 'right', padding: 0 }}
-                                >
-                                    <Cancel />
-                                </IconButton>
-                            }
-                            style={{ display: 'block' }}
-                        />
-                    }
-                    {this.props.feature && this.renderFeature()}
-                    {this.renderPrice()}
-                    {this.renderBrand()}
-                    {this.renderDescription()}
-                    {this.props.rating && this.renderRating()}
+                    <Box>
+                        {
+                            this.props.allowDelete &&
+                            <CardHeader
+                                action={
+                                    <IconButton
+                                        onClick={() => this.props.allowDelete()}
+                                        style={{ float: 'right', padding: 0 }}
+                                    >
+                                        <Cancel />
+                                    </IconButton>
+                                }
+                                style={{ display: 'block' }}
+                            />
+                        }
+                        {this.props.feature && this.renderFeature()}
+                        {this.renderPrice()}
+                        {this.renderBrand()}
+                        {this.renderDescription()}
+                        {this.props.rating && this.renderRating()}
+                    </Box>
                 </CardContent>
                 {
                     this.props.addToCart ?

@@ -1,16 +1,40 @@
 const styles = {
     header: {
+        zIndex: 2000,
+    },
+    headerBar: {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
+    },
+    content: {
+        marginTop: '6rem',
+        marginBottom: '6rem',
+    },
+    footer: {
+        top: 'auto',
+        bottom: 0,
+        zIndex: 2000,
+    },
+    footerBar: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    nextButton: {
+        width: '10rem',
+        height: '3.5rem',
     },
     loader: {
         background: 'transparent',
     },
     productInfo: {
         position: 'relative',
-        minHeight: '20rem',
-        minWidth: '20rem',
+        width: '100%',
+        height: '100%',
+    },
+    stepper: {
+        background: 'transparent',
     },
     productLoading: {
         position: 'absolute',
@@ -23,6 +47,17 @@ const styles = {
     contact: {
         margin: 'auto',
         maxWidth: '30rem',
+    },
+    summaryHeader: {
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
+        display: 'flex',
+        alignItems: 'center',
+    },
+    summaryContent: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
 };
 

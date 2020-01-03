@@ -24,36 +24,45 @@ import saga from './saga';
 import './style.scss';
 export class ProductDescription extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     componentWillMount = () => {
+        if (dataChecking(this.props, 'product')) {
+            return null;
+        }
         const productId = dataChecking(this.props, 'match', 'params', 'productId');
         if (productId) {
             const id = productId.split('-', 2)[0];
             this.props.dispatch(getProduct(id));
         }
+        return null;
     }
     componentDidMount = () => {
+        if (dataChecking(this.props, 'product')) {
+            return null;
+        }
         Events.trigger('hideHeader', {});
         Events.trigger('hideFooter', {});
+        return null;
     }
 
     render() {
-        const product = dataChecking(this.props, 'productDescription', 'product', 'data');
-
+        const product = dataChecking(this.props, 'productDescription', 'product', 'data') || dataChecking(this.props, 'product');
+        if (dataChecking(this.props.productDescription, 'product, loading')) {
+            return (
+                <div className="product-description-loader">
+                    <CircularProgress className="loader" />
+                </div>
+            );
+        }
         return (
             <div className="product-description">
                 {
-                    this.props.productDescription.product.loading ?
-                        <div className="product-description-loader">
-                            <CircularProgress className="loader" />
-                        </div>
-                        :
-                        <Container>
-                            {
-                                dataChecking(product, 'description') && <HtmlParser html={dataChecking(product, 'description')} />
-                            }
-                            {
-                                dataChecking(product, 'disclaimer') && <HtmlParser html={dataChecking(product, 'disclaimer')} />
-                            }
-                        </Container>
+                    <Container>
+                        {
+                            dataChecking(product, 'description') && <HtmlParser html={dataChecking(product, 'description')} />
+                        }
+                        {
+                            dataChecking(product, 'disclaimer') && <HtmlParser html={dataChecking(product, 'disclaimer')} />
+                        }
+                    </Container>
                 }
             </div>
         );

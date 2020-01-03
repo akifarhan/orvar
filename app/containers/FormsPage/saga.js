@@ -30,7 +30,7 @@ import {
 export function* getProductListWorker(action) {
     let err;
     try { // Trying the HTTP Request
-        const response = yield call(apiRequest, `/promotion/${action.params.id}`, 'get');
+        const response = yield call(apiRequest, action.params.url, 'get');
         if (response && (response.ok === false || (response.data && response.data.success === false))) {
             yield put(getProductListFail(response.data));
         } else if (response && response.ok !== false) {
@@ -114,6 +114,8 @@ export function* signUpWorker(action) {
             globalScope.token = response.data.token;
             globalScope.axios.setHeader('hertoken', globalScope.token);
             setCookie(process.env.TOKEN_KEY, globalScope.token);
+            // call reset password api
+            // yield call(apiRequest, '/password/reset', 'post', JSON.stringify({ action: 'reset', email: action.params.email }));
             yield put(signUpSuccess(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });

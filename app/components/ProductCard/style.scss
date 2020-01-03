@@ -3,8 +3,9 @@
 
 .product-container {
     position: relative;
+    // min-height: 26rem;
     @include media-breakpoint-down(sm) {
-        min-height: 30rem !important;
+        min-height: 28rem;
     }
     &.no-box-shadow {
         box-shadow: none;
@@ -39,7 +40,9 @@
             top: 25%;
         }
     }
-
+    .product-price {
+        min-height: 3.5rem;
+    }
     .product-brand {
         min-height: 1rem;
 
@@ -47,7 +50,7 @@
     }
 
     .product-description {
-        min-height: 2rem;
+        min-height: 3rem;
         font-size: 0.8;
     }
 
