@@ -7,31 +7,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { NavLink } from 'react-router-dom';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
-import { NavLink } from 'react-router-dom';
+
+import globalScope from 'globalScope';
+import { dig, Events } from 'globalUtils';
 
 import {
+    Box,
+    ButtonBase,
     Container,
+    FormControl,
     Grid,
-    Typography,
-    Divider,
     Hidden,
-    TextField,
     IconButton,
+    Link,
+    Typography,
 } from '@material-ui/core';
 
 import {
-    Phone,
+    ChevronRightRounded,
     Mail,
+    Phone,
 } from '@material-ui/icons';
-import { dataChecking, Events } from 'globalUtils';
-import {
-    getLayoutFooter,
-} from './actions';
+
+import InputForm from 'components/InputForm';
 import makeSelectFooter from './selectors';
+import { getFooterLayout } from './actions';
 import reducer from './reducer';
 import saga from './saga';
 import './style.scss';
@@ -42,6 +47,7 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
 
         this.state = {
             hideFooter: false,
+            email: '',
         };
 
         Events.listen('hideFooter', 123456, () => {
@@ -50,252 +56,366 @@ export class Footer extends React.PureComponent { // eslint-disable-line react/p
     }
 
     componentDidMount() {
-        this.props.dispatch(getLayoutFooter());
+        this.props.dispatch(getFooterLayout());
     }
 
-    copyright = (result) => (
-        <Typography variant="caption">
-            Copyright &copy; {result.copyright.company_name} ({result.copyright.company_registration}). {result.copyright.is_gst_applicable && `[GST Reg. No.: ${result.copyright.company_gst_no}]. `}All right reserved
-        </Typography>
+    appsolutely = (className) => (
+        <Grid className={className} container={true} spacing={1}>
+            <Grid item={true}>
+                <Link href={`${globalScope.url_store_general}/Gy15Nk5JfC`}>
+                    <img
+                        alt="Get it on App Store"
+                        src={`${globalScope.cdn}/hershop/temp/app-store-badge.svg`}
+                        width="110px"
+                        height="33px"
+                    />
+                </Link>
+            </Grid>
+            <Grid item={true}>
+                <Link href={`${globalScope.url_store_general}/Gy15Nk5JfC`}>
+                    <img
+                        alt="Get it on App Store"
+                        src={`${globalScope.cdn}/hershop/temp/google-play-badge.png`}
+                        width="110px"
+                        height="33px"
+                    />
+                </Link>
+            </Grid>
+        </Grid>
     )
-
-    /**
-     * FOOTERLINK
-     *  - need help
-     *  - customer service
-     *  - hermo
-     *  - connect with us
-     */
-    renderFooterLink = () => {
-        const layoutFooter = dataChecking(this.props.footer, 'layoutFooter', 'success') && this.props.footer.layoutFooter;
-        const modules = dataChecking(this.props.footer, 'layoutFooter', 'success') && layoutFooter.data.modules;
-        let section;
-        if (layoutFooter.success && modules) {
-            const moduleIndex = Object.keys(modules);
-            section = moduleIndex.map((mIndex) => {
-                if (modules[mIndex].id === 'footer-links') {
-                    const sections = dataChecking(modules[mIndex], 'result', 'items');
-                    const sectionIndex = Object.keys(sections);
-                    return (
-                        <Grid container={true} key={modules[mIndex].id} justify="space-between">
-                            {
-                                (modules[mIndex].id === 'footer-links') && sectionIndex.map((sIndex) => (
-                                    <div key={sections[sIndex].title}>
-                                        {
-                                            sections[sIndex].id === 'links' ?
-                                                <Grid item={true} md={3}>
-                                                    <Container>
-                                                        <div>
-                                                            <Typography variant="h5">{sections[sIndex].title}</Typography>
-                                                        </div>
-                                                        <div>
-                                                            {
-                                                                Object.keys(sections[sIndex].items).map((iIndex) => (
-                                                                    <NavLink key={sections[sIndex].items[iIndex].url} to={sections[sIndex].items[iIndex].url}>
-                                                                        <Typography variant="body1">{sections[sIndex].items[iIndex].text}</Typography><br />
-                                                                    </NavLink>
-                                                                ))
-                                                            }
-                                                        </div>
-                                                    </Container>
-                                                </Grid>
-                                            :
-                                                <div>
-                                                    {
-                                                        sections[sIndex].id === 'need-help' &&
-                                                            <Grid item={true} md={3}>
-                                                                <Container>
-                                                                    <div>
-                                                                        <Typography variant="h5">{sections[sIndex].title}</Typography>
-                                                                    </div>
-                                                                    <Typography variant="body2">
-                                                                        <Phone style={{ float: 'left' }} />
-                                                                        {sections[sIndex].data.contact_number}
-                                                                    </Typography>
-                                                                    <br />
-                                                                    <Typography variant="body2">
-                                                                        {sections[sIndex].data.email}
-                                                                    </Typography>
-                                                                    <Divider variant="middle" style={{ color: '#f2f2f2' }} />
-                                                                    <Typography variant="caption">
-                                                                        Operation Hours:
-                                                                    </Typography>
-                                                                    <br />
-                                                                    <Typography variant="body2">
-                                                                        {sections[sIndex].data.working_day}
-                                                                    </Typography>
-                                                                    <br />
-                                                                    <Typography variant="body1">
-                                                                        {sections[sIndex].data.operation_hour}
-                                                                    </Typography>
-                                                                </Container>
-                                                            </Grid>
-                                                    }
-                                                    {
-                                                        sections[sIndex].id === 'social-links' &&
-                                                            <Grid item={true} md={3}>
-                                                                <Container>
-                                                                    <div>
-                                                                        <Typography variant="h5">{sections[sIndex].title}</Typography>
-                                                                    </div>
-                                                                    <div>
-                                                                        {
-                                                                            Object.keys(sections[sIndex].items).map((iIndex) => (
-                                                                                <NavLink key={sections[sIndex].items[iIndex].url} to={sections[sIndex].items[iIndex].url}>
-                                                                                    <Typography variant="body1">{sections[sIndex].items[iIndex].text}</Typography><br />
-                                                                                </NavLink>
-                                                                            ))
-                                                                        }
-                                                                    </div>
-                                                                </Container>
-                                                            </Grid>
-                                                    }
-                                                </div>
-                                        }
-                                    </div>
-                                ))
-                            }
-                        </Grid>
-                    );
-                }
-                return null;
-            });
-        }
-        return (
-            <div>
-                {section}
-            </div>
+    footerLink = (items) => {
+        const columnHeader = (title) => (
+            <Box className="mb-2">
+                <Typography className="footer-links-header text-uppercase" variant="h5" component="div">
+                    <Box fontWeight="fontWeightBold">{title}</Box>
+                </Typography>
+            </Box>
         );
-    }
 
-    /**
-     * FOOTERSUPPORT
-     *  - MY
-     *  - SG
-     */
-    renderFooterSupport = () => {
-        const layoutFooter = dataChecking(this.props.footer, 'layoutFooter', 'success') && this.props.footer.layoutFooter;
-        const modules = dataChecking(this.props.footer, 'layoutFooter', 'success') && layoutFooter.data.modules;
-        let section;
-
-        if (layoutFooter.success && modules) {
-            const moduleIndex = Object.keys(modules);
-            section = moduleIndex.map((mIndex) => {
-                if (modules[mIndex].id === 'footer-support') {
-                    const result = modules[mIndex].result;
-                    const siteIndex = Object.keys(result.sites);
-                    return (
-                        <Grid container={true} key={modules[mIndex].id} justify="space-between">
-                            <Grid item={true} xs={8}>
-                                <Typography>Now shopping</Typography>
-                                {/* NEED TO USE is_active TO SHOW ACTIVE SITE */}
+        const columns = items.map((column, index) => {
+            if (column.id === 'need-help') {
+                return (
+                    <Grid key={index} item={true} xs={3}>
+                        <Container className={column.id}>
+                            {columnHeader(column.title)}
+                            <Box className="contact-info pb-1" style={{ borderBottom: '1px solid #404040' }}>
+                                <Typography>
+                                    <Phone className="mr-1" style={{ float: 'left' }} />
+                                    <Link href={`tel:${column.data.contact_number}`}>
+                                        {column.data.contact_number}
+                                    </Link>
+                                </Typography>
+                                <br />
+                                <Typography>
+                                    <Link href={`mailto:${column.data.email}`}>
+                                        {column.data.email}
+                                    </Link>
+                                </Typography>
+                            </Box>
+                            <Box className="pt-1">
+                                <Typography style={{ color: '#818A91' }}>Operation Hours:</Typography>
+                                <br />
+                                <Typography>{column.data.working_day}</Typography>
+                                <br />
+                                <Typography component="div">
+                                    <Box fontWeight="fontWeightBold" >{column.data.operation_hour}</Box>
+                                </Typography>
+                            </Box>
+                        </Container>
+                    </Grid>
+                );
+            }
+            if (column.id === 'links') {
+                return (
+                    <Grid key={index} item={true} xs={3} style={{ borderLeft: '1px solid #404040' }}>
+                        <Container className={column.id}>
+                            {columnHeader(column.title)}
+                            <Box>
                                 {
-                                    siteIndex.map((sIndex) => (
-                                        <div key={result.sites[sIndex].url}>
-                                            <img src={result.sites[sIndex].image} alt="country-flag" />
-                                            <NavLink to={result.sites[sIndex].url}>
-                                                <Typography>{result.sites[sIndex].text}</Typography>
-                                            </NavLink>
-                                        </div>
+                                    column.items.map((link) => (
+                                        <NavLink key={link.url} to={link.url}>
+                                            <Typography>{link.text}</Typography><br />
+                                        </NavLink>
                                     ))
                                 }
-                            </Grid>
-                            <Grid item={true} xs={4}>
-                                <img src={result.image} alt="supported banks" />
-                            </Grid>
-                        </Grid>
-                    );
-                }
-                return null;
-            });
-        }
-        return (
-            <div className="py-1">{section}</div>
-        );
-    }
-
-    /**
-     * FOOTERCOPYRIGHT
-     */
-    renderFooterCopyright = () => {
-        const layoutFooter = dataChecking(this.props.footer, 'layoutFooter', 'success') && this.props.footer.layoutFooter;
-        const modules = dataChecking(this.props.footer, 'layoutFooter', 'success') && layoutFooter.data.modules;
-        let section;
-
-        if (layoutFooter.success && modules) {
-            const moduleIndex = Object.keys(modules);
-            section = moduleIndex.map((mIndex) => {
-                if (modules[mIndex].id === 'footer-copyright') {
-                    const result = modules[mIndex].result;
-                    return (
-                        <Grid container={true} key={modules[mIndex].id} justify="space-between">
-                            <Grid item={true}>
-                                <img src={result.image} alt="footer-payment-gateway" />
-                            </Grid>
-                            <Grid item={true}>
-                                <Typography variant="caption">
-                                    {this.copyright(result)}
+                            </Box>
+                        </Container>
+                    </Grid>
+                );
+            }
+            if (column.id === 'social-links') {
+                return (
+                    <Grid key={index} item={true} xs={3} style={{ borderLeft: '1px solid #404040' }}>
+                        <Container className={column.id}>
+                            <Box className="social-links-connect-header text-uppercase mb-1">
+                                <Typography variant="subtitle1" component="div">
+                                    <Box fontWeight="fontWeightBold" >{column.title}</Box>
                                 </Typography>
+                            </Box>
+                            <Grid container={true} spacing={1}>
+                                {
+                                    column.items.map((item) => {
+                                        if (item.type === 'facebook') {
+                                            return (
+                                                <Grid key={item.url} item={true}>
+                                                    <Link href={item.url}>
+                                                        <img
+                                                            src={require('resources/socialIcons/fb.png')}
+                                                            alt="facebook"
+                                                            width="30px"
+                                                            height="30px"
+                                                        />
+                                                    </Link>
+                                                </Grid>
+                                            );
+                                        }
+                                        if (item.type === 'instagram') {
+                                            return (
+                                                <Grid key={item.url} item={true}>
+                                                    <Link href={item.url}>
+                                                        <Box>
+                                                            <img
+                                                                src={require('resources/socialIcons/ig.png')}
+                                                                alt="instagram"
+                                                                width="30px"
+                                                                height="30px"
+                                                                style={{ borderRadius: '50%' }}
+                                                            />
+                                                        </Box>
+                                                    </Link>
+                                                </Grid>
+                                            );
+                                        }
+                                        return null;
+                                    })
+                                }
                             </Grid>
-                        </Grid>
-                    );
-                }
-                return null;
-            });
-        }
+                            <Box className="social-links-download-header text-uppercase my-1">
+                                <Typography variant="subtitle1" component="div">
+                                    <Box fontWeight="fontWeightBold" >Download our app</Box>
+                                </Typography>
+                            </Box>
+                            {this.appsolutely()}
+                        </Container>
+                    </Grid>
+                );
+            }
+            return null;
+        });
+
         return (
-            <div className="py-1">{section}</div>
+            <Grid container={true} justify="space-between" style={{ color: '#FFF' }}>
+                {columns}
+                {/* ADD SUBSCRIBE HERE */}
+                {/* <Grid item={true} xs={12}>
+                    Subscribe
+                </Grid> */}
+            </Grid>
         );
     }
 
-    /**
-     * FOOTERFEEDBACK - mobile; subscribe email
-     */
-    renderFooterFeedback = () => (
-        <div>
-            <Typography >
-                Sign up & get two FREE masks.
-            </Typography>
-            <TextField
-                id="email"
-                placeholder="Subscribe with us! Enter your email."
-            />
-            <IconButton>
-                <Mail />
-            </IconButton>
-        </div>
+    footerSupport = (result) => (
+        <Grid container={true}>
+            <Grid className="py-1" item={true} xs={12}>
+                <Box>
+                    <img
+                        alt="Handcrafted in Malaysia"
+                        src={`${globalScope.cdn}//hershop/modules/footer/hermo_handcrafted.png`}
+                        style={{ float: 'right' }}
+                        width="239px"
+                        height="26px"
+                    />
+                </Box>
+            </Grid>
+            <Grid className="py-half" item={true} xs={12} style={{ color: '#FFF', borderTop: '1px solid #404040', borderBottom: '1px solid #404040' }}>
+                <Grid container={true} justify="space-between">
+                    <Grid item={true}>
+                        <Box className="footer-sites" component="span" display="inline">
+                            <Typography className="mr-1" style={{ color: '#818A91' }}>Now Shopping</Typography>
+                            {
+                                result.sites.map((site) => (
+                                    <Box key={site.text} className={`site ${site.is_active ? '' : 'inactive'}`}>
+                                        <Link href={site.url}>
+                                            <img
+                                                className="mr-half"
+                                                alt={site.flag}
+                                                src={site.image}
+                                                height="15px"
+                                                width="25px"
+                                            />
+                                            <Typography>{site.text}</Typography>
+                                        </Link>
+                                    </Box>
+                                ))
+                            }
+                        </Box>
+                    </Grid>
+                    <Grid item={true}>
+                        <img
+                            alt="supported banks"
+                            src={result.image}
+                            width="100%"
+                            height="30px"
+                        />
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
     )
-    render() {
+
+    footerCopyright = (result) => (
+        <Grid className="py-half" container={true} justify="space-between">
+            <Grid item={true}>
+                <img
+                    alt="payment-gateway"
+                    src={result.image}
+                    width="100%"
+                    height="30px"
+                />
+            </Grid>
+            <Grid className="py-half" item={true}>
+                <Typography variant="caption" style={{ color: '#818A91' }}>
+                    Copyright &copy; {result.copyright.company_name} ({result.copyright.company_registration}). {result.copyright.is_gst_applicable && `[GST Reg. No.: ${result.copyright.company_gst_no}]. `}All right reserved
+                </Typography>
+            </Grid>
+        </Grid>
+    )
+
+    footerFeedback = () => (
+        <Box>
+            <Typography className="footer-feedback-header" variant="h6" component="div">
+                <Box fontWeight="fontWeightBold" >Sign up & get two FREE masks.</Box>
+            </Typography>
+            <FormControl fullWidth={true} className="my-1 text-xs-center">
+                <Grid container={true}>
+                    <Grid item={true} xs={10} sm={9}>
+                        <InputForm
+                            id="email"
+                            type="email"
+                            placeholder="Subscribe with us! Enter your email."
+                            handleChange={(event) => this.setState({ email: event.target.value })}
+                            value={this.state.email}
+                            onClear={() => this.setState({ email: '' })}
+                        />
+                    </Grid>
+                    <Grid item={true} xs={2} sm={3}>
+                        <IconButton>
+                            <Mail />
+                        </IconButton>
+                    </Grid>
+                </Grid>
+            </FormControl>
+        </Box>
+    )
+
+    footerInfo = (result) => (
+        <Box className="my-1">
+            <Grid container={true} spacing={2} justify="center">
+                <Grid item={true}>
+                    <NavLink to="/?ucf=mobile-footer">
+                        <Typography variant="body2">Home</Typography>
+                    </NavLink>
+                </Grid>
+                <Grid item={true}>
+                    <NavLink to="/about#/contact?ucf=mobile-footer">
+                        <Typography variant="body2">Need Help</Typography>
+                    </NavLink>
+                </Grid>
+                <Grid item={true}>
+                    <NavLink to="/partnerships?ucf=mobile-footer">
+                        <Typography variant="body2">Partnership</Typography>
+                    </NavLink>
+                </Grid>
+                <Grid item={true}>
+                    <NavLink to="/about?ucf=mobile-footer">
+                        <Typography variant="body2">About</Typography>
+                    </NavLink>
+                </Grid>
+            </Grid>
+            <Box className="appsolutely my-1">
+                <NavLink to="/appsolutely-hermo?ucf=mobile-footer">
+                    <Typography variant="subtitle1" color="secondary">Hermo in your hand? APP-solutely <ChevronRightRounded style={{ float: 'right' }} /></Typography>
+                </NavLink>
+                {this.appsolutely('my-1')}
+            </Box>
+            <Box className="view-desktop my-1">
+                <ButtonBase onClick={() => this.setState({ showDesktop: true })}>
+                    <Typography><u>View desktop version</u></Typography>
+                </ButtonBase>
+            </Box>
+            <Box className="copyright my-1">
+                <Typography variant="caption">
+                    Copyright &copy; {result.copyright.company_name} ({result.copyright.company_registration}). {result.copyright.is_gst_applicable && `[GST Reg. No.: ${result.copyright.company_gst_no}]. `}All right reserved
+                </Typography>
+            </Box>
+        </Box>
+    )
+
+    footerDesktop = (modules) => {
+        const sections = modules.map((section) => {
+            if (section.id === 'footer-links') {
+                return (
+                    <Box key={section.id}>{this.footerLink(section.result.items)}</Box>
+                );
+            }
+            if (section.id === 'footer-support') {
+                return (
+                    <Box key={section.id}>{this.footerSupport(section.result)}</Box>
+                );
+            }
+            if (section.id === 'footer-copyright') {
+                return (
+                    <Box key={section.id}>{this.footerCopyright(section.result)}</Box>
+                );
+            }
+            return null;
+        });
+
+        return (
+            <Container className="p-3">
+                {sections}
+            </Container>
+        );
+    }
+
+    footerMobile = (modules) => {
+        let result;
+        modules.map((items) => {
+            if (items.id === 'footer-copyright') {
+                result = items.result;
+            }
+            return null;
+        });
+        return (
+            <Container>
+                {this.footerFeedback()}
+                {this.footerInfo(result)}
+            </Container>
+        );
+    }
+    render = () => {
         if (this.state.hideFooter) {
             return null;
         }
 
-        return (
-            <div>
-                <Hidden smDown={true}>
-                    <div className="footer-desktop" style={{ backgroundColor: '#222', color: '#f2f2f2' }}>
-                        {
-                        this.props.footer.layoutFooter.success &&
-                        <Container className="p-3">
-                            {this.renderFooterLink()}
-                            <Divider />
-                            {this.renderFooterSupport()}
-                            <Divider />
-                            {this.renderFooterCopyright()}
-                        </Container>
-                        }
-                    </div>
-                </Hidden>
-                <Hidden mdUp={true}>
-                    {
-                        this.props.footer.layoutFooter.success &&
-                        <div className="footer-mobile" style={{ textAlign: 'center' }}>
-                            {this.renderFooterFeedback()}
-                        </div>
-                    }
-                </Hidden>
-            </div>
-        );
+        if (dig(this.props.footer, 'layout.data')) {
+            return (
+                <Box className="footer">
+                    <Hidden smDown={true}>
+                        <Box className="footer-desktop" style={{ backgroundColor: '#222' }}>
+                            {this.footerDesktop(this.props.footer.layout.data.modules)}
+                        </Box>
+                    </Hidden>
+                    <Hidden mdUp={true}>
+                        <Box className="footer-mobile" style={{ textAlign: 'center' }}>
+                            {this.footerMobile(this.props.footer.layout.data.modules)}
+                        </Box>
+                    </Hidden>
+                </Box>
+            );
+        }
+
+        return null;
     }
 }
 

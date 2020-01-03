@@ -16,17 +16,6 @@ const SHOW_LESS_TEXT = 'See Less';
 const SHOW_MORE_TEXT = 'See More';
 
 class ViewMoreText extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-    static propTypes = {
-        // numberOfLines: PropTypes.oneOfType([
-        //     PropTypes.bool,
-        //     PropTypes.number,
-        // ]),
-        // lineHeight: PropTypes.number,
-        readMoreCharacterLimit: PropTypes.number,
-        showLessButton: PropTypes.bool,
-        text: PropTypes.string,
-    }
-
     static defaultProps = {
         // numberOfLines: 1,
         // lineHeight: 1,
@@ -126,14 +115,17 @@ class ViewMoreText extends React.PureComponent { // eslint-disable-line react/pr
 
         return (
             <div className="read-more" style={style}>
-                {textToDisplay}<br />{actionButton}
+                {textToDisplay}<br />{this.props.hideButton ? null : actionButton}
             </div>
         );
     }
 }
 
 ViewMoreText.propTypes = {
-
+    readMoreCharacterLimit: PropTypes.number,
+    hideButton: PropTypes.bool,
+    showLessButton: PropTypes.bool,
+    text: PropTypes.string,
 };
 
 export default ViewMoreText;
