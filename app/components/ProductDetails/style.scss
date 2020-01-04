@@ -1,6 +1,5 @@
-.product-summary {
-    padding-top: 2rem;
-    padding-bottom: 10rem;
+.product-details {
+    padding-bottom: 1rem;
     .product-section {
         margin: 1rem 0 1rem;
     }
@@ -36,7 +35,13 @@
     .action-button {
         position: fixed;
         bottom: 6.2rem;
-        width: 29rem;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        button {
+            width: 90%;
+            border-radius: 10px;
+        }
     }
 }
 

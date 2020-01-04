@@ -21,6 +21,9 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
+    snackbar: {
+        bottom: '10rem',
+    },
     nextButton: {
         width: '10rem',
         height: '3.5rem',
@@ -28,7 +31,7 @@ const styles = {
     loader: {
         background: 'transparent',
     },
-    productInfo: {
+    productDetails: {
         position: 'relative',
         width: '100%',
         height: '100%',

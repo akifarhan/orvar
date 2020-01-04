@@ -35,6 +35,7 @@ import {
     OutlinedInput,
     Paper,
     Select,
+    Snackbar,
     Toolbar,
     Tooltip,
     Typography,
@@ -51,9 +52,8 @@ import {
 import AddressForm from 'components/AddressForm';
 import Cart from 'components/Cart';
 import InputForm from 'components/InputForm';
-import PopupDialog from 'components/PopupDialog';
 import ProductCard from 'components/ProductCard';
-import ProductSummary from 'components/ProductSummary';
+import ProductDetails from 'components/ProductDetails';
 
 import * as actions from './actions';
 import makeSelectFormsPage from './selectors';
@@ -93,7 +93,7 @@ const formSetting = [
 //     postal_code: '81100',
 //     state_code: 'MY-01',
 // };
-
+const PROMOTION_ID = 8722;
 const CURRENCY = 'RM';
 const initialState = {
     cart: [],
@@ -129,11 +129,13 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             ...initialState,
             pageIndex: 0,
             total: 0,
-            // popup: true, dialogType: 'productInfo', // [TEST] => SUMMARY TEST
-            popup: false,
+            openProduct: true,  // [TEST] => PRODUCT DETAILS TEST
+            // openProduct: false,
             openSummary: false,
+            openSnackBar: false,
             subtotal: 0,
             activeStep: 0,
+            qty: 1,
             // formId: dataChecking(this.props, 'match', 'params', 'id'),
         };
     }
@@ -141,10 +143,10 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
     componentDidMount = () => {
         Events.trigger('hideHeader', {});
         Events.trigger('hideFooter', {});
-        this.props.dispatch(actions.getProductList({ url: '/mall/list?promotion_id=8722' }));
+        this.props.dispatch(actions.getProductList({ url: `/mall/list?promotion_id=${PROMOTION_ID}` }));
         this.props.dispatch(actions.getConfig());
 
-        // this.props.dispatch(actions.getProduct({ id: 45710 })); // [TEST] => SUMMARY TEST
+        this.props.dispatch(actions.getProduct({ id: 45710 })); // [TEST] => PRODUCT DETAILS TEST
     }
 
     componentWillReceiveProps(nextProps) {
@@ -175,7 +177,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
     }
 
     handleAddToCart = (item) => {
-        this.setState((state) => ({ cart: [...state.cart, item] }));
+        this.setState((state) => ({ cart: [...state.cart, item], openSnackBar: true }));
     }
 
     handleChange = (event, MAX) => {
@@ -273,8 +275,8 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                     </Hidden>
                     <Hidden mdUp={true}>
                         {
-                            this.state.popup ?
-                                <IconButton onClick={() => this.setState({ popup: false })}>
+                            this.state.openProduct ?
+                                <IconButton onClick={() => this.setState({ openProduct: false })}>
                                     <KeyboardArrowLeft />
                                 </IconButton>
                                 :
@@ -344,58 +346,98 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         );
     }
 
-    renderProductList = (data) => (
-        <Box>
-            <Grid container={true} alignItems="flex-start" spacing={2}>
-                {
-                    data.items.map((product) => (
-                        <Grid key={product.id} item={true} xs={6} md={3}>
-                            <ProductCard
-                                product={product}
-                                image={true}
-                                onClickImage={() => {
-                                    this.props.dispatch(actions.getProduct({ id: product.id }));
-                                    this.setState({ popup: true, dialogType: 'productInfo' });
-                                }}
-                                rating={true}
-                            />
-                        </Grid>
-                    ))
+    renderProductList = (data) => {
+        if (this.state.openProduct) {
+            const product = dataDig(this.props.formsPage, 'product');
+            const changeQty = (type) => {
+                switch (type) {
+                    case '-':
+                        this.setState((state) => ({ qty: state.qty - 1 }));
+                        break;
+                    case '+':
+                        this.setState((state) => ({ qty: state.qty + 1 }));
+                        break;
+                    default:
+                        break;
                 }
-            </Grid>
-            <MobileStepper
-                className={this.props.classes.stepper}
-                variant="dots"
-                steps={data._meta.pageCount}
-                position="static"
-                activeStep={this.state.activeStep}
-                nextButton={
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            this.props.dispatch(actions.getProductList({ url: data._links.next.href }));
-                            this.setState((state) => ({ activeStep: state.activeStep + 1 }));
-                        }}
-                        disabled={this.state.activeStep === data._meta.pageCount - 1}
-                    >
-                        Next <KeyboardArrowRight />
-                    </Button>
+            };
+            const content = () => {
+                if (dataDig(product, 'data')) {
+                    return (
+                        <ProductDetails
+                            product={product.data}
+                            addToCart={() => this.handleAddToCart(product.data)}
+                            qty={this.state.qty}
+                            handleChangeNumber={this.handleChangeNumber}
+                            changeQty={changeQty}
+                        />
+                    );
                 }
-                backButton={
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            this.props.dispatch(actions.getProductList({ url: data._links.prev.href }));
-                            this.setState((state) => ({ activeStep: state.activeStep - 1 }));
-                        }}
-                        disabled={this.state.activeStep === 0}
-                    >
-                        <KeyboardArrowLeft /> Back
-                    </Button>
+                if (dataDig(product, 'error')) {
+                    return <Box>Product not found</Box>;
                 }
-            />
-        </Box>
-    )
+                return <Box className={this.props.classes.productLoading}><CircularProgress /></Box>;
+            };
+            return (
+                <Box className={this.props.classes.productDetails}>
+                    {content()}
+                </Box>
+            );
+        }
+        return (
+            <Container>
+                <Grid container={true} alignItems="flex-start" spacing={2}>
+                    {
+                        data.items.map((product) => (
+                            <Grid key={product.id} item={true} xs={6} md={3}>
+                                <ProductCard
+                                    product={product}
+                                    image={true}
+                                    onClickImage={() => {
+                                        this.props.dispatch(actions.getProduct({ id: product.id }));
+                                        this.setState({ openProduct: true });
+                                    }}
+                                    rating={true}
+                                    disableBrandClick={true}
+                                />
+                            </Grid>
+                        ))
+                    }
+                </Grid>
+                <MobileStepper
+                    className={this.props.classes.stepper}
+                    variant="dots"
+                    steps={data._meta.pageCount}
+                    position="static"
+                    activeStep={this.state.activeStep}
+                    nextButton={
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                this.props.dispatch(actions.getProductList({ url: data._links.next.href }));
+                                this.setState((state) => ({ activeStep: state.activeStep + 1 }));
+                            }}
+                            disabled={this.state.activeStep === data._meta.pageCount - 1}
+                        >
+                            Next <KeyboardArrowRight />
+                        </Button>
+                    }
+                    backButton={
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                this.props.dispatch(actions.getProductList({ url: data._links.prev.href }));
+                                this.setState((state) => ({ activeStep: state.activeStep - 1 }));
+                            }}
+                            disabled={this.state.activeStep === 0}
+                        >
+                            <KeyboardArrowLeft /> Back
+                        </Button>
+                    }
+                />
+            </Container>
+        );
+    }
 
     renderDeliveryInfo = () => {
         const statesList = () => {
@@ -543,6 +585,8 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             case 'product':
                 if (dataDig(data, 'items.length')) {
                     return this.renderProductList(data);
+                } else if (dataDig(data, 'items.length') === 0) {
+                    return <Typography>No product found</Typography>;
                 } else if (dataDig(this.props.formsPage.productList, 'error')) {
                     return (
                         <Typography>{this.props.formsPage.productList.data.messages[0].text}</Typography>
@@ -581,35 +625,6 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             </Box>
         </Box>
     )
-    renderProductInfo = (product) => {
-        const content = () => {
-            if (dataDig(product, 'data')) {
-                return (
-                    <ProductSummary
-                        product={product.data}
-                        addToCart={() => this.handleAddToCart(product.data)}
-                        notifyMe={true}
-                    />
-                );
-            }
-            if (dataDig(product, 'error')) {
-                return <Box>Product not found</Box>;
-            }
-            return <Box className={this.props.classes.productLoading}><CircularProgress /></Box>;
-        };
-        return (
-            <Box className={this.props.classes.productInfo}>
-                {content()}
-            </Box>
-        );
-    }
-
-    renderDialogContent = () => {
-        switch (this.state.dialogType) {
-            case 'productInfo': return this.renderProductInfo(this.props.formsPage.product);
-            default: return null;
-        }
-    }
 
 
     render = () => (
@@ -618,17 +633,9 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                 {globalScope.formVersion}
             </Box> */}
             {this.renderHeader()}
-            <Container className={this.props.classes.content}>
+            <Box className={this.props.classes.content}>
                 {this.renderFormPage()}
-            </Container>
-            <PopupDialog
-                display={this.state.popup}
-                onClose={() => this.setState({ popup: false })}
-                fullScreen={true}
-                isBack={true}
-            >
-                {this.renderDialogContent()}
-            </PopupDialog>
+            </Box>
             <ThemeProvider theme={theme}>
                 <Drawer
                     anchor="bottom"
@@ -638,6 +645,13 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                     {this.renderSummary()}
                 </Drawer>
             </ThemeProvider>
+            <Snackbar
+                className={this.props.classes.snackbar}
+                open={this.state.openSnackBar}
+                autoHideDuration={3000}
+                message={<Typography>Item added into cart</Typography>}
+                onClose={() => this.setState({ openSnackBar: false })}
+            />
             {this.renderFooter()}
         </Box>
     );

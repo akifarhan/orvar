@@ -5,7 +5,7 @@
 */
 import React from 'react';
 import { dataChecking } from 'globalUtils';
-import { withRouter, NavLink } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import PropTypes from 'prop-types';
@@ -14,6 +14,7 @@ import
 {
     Box,
     Button,
+    ButtonBase,
     Card,
     CardActionArea,
     CardContent,
@@ -124,7 +125,14 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
 
     renderBrand = () => (
         <div className="product-brand pb-half">
-            <NavLink to={dataChecking(this.props.product, 'brand', 'url')} style={{ textDecoration: 'none' }}>
+            <ButtonBase
+                onClick={() => {
+                    if (this.props.disableBrandClick) {
+                        return null;
+                    }
+                    return this.props.history.push(dataChecking(this.props.product, 'brand', 'url'));
+                }}
+            >
                 <Typography
                     color="primary"
                     variant="button"
@@ -135,7 +143,7 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
                 <IconButton size="small" style={{ padding: '0 0 2px 3px' }}>
                     <KeyboardArrowRight color="primary" />
                 </IconButton>
-            </NavLink>
+            </ButtonBase>
         </div>
     )
 

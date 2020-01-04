@@ -1,6 +1,6 @@
 /**
 *
-* ProductSummary
+* ProductDetails
 *
 */
 
@@ -13,16 +13,20 @@ import {
     Box,
     Button,
     Chip,
+    Container,
     ExpansionPanel,
     ExpansionPanelDetails,
     ExpansionPanelSummary,
-    Grid,
+    IconButton,
+    TextField,
     Typography,
 } from '@material-ui/core';
 import {
+    Add,
     AddShoppingCart,
     ExpandMore,
     NotificationImportant,
+    Remove,
     Star,
     StarBorder,
 } from '@material-ui/icons';
@@ -32,7 +36,7 @@ import ProductInfo from 'containers/ProductInfo';
 
 import './style.scss';
 
-class ProductSummary extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+class ProductDetails extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
     renderImage = (product) => (
         <Box className="product-image-container">
             <Box className="feature-container">
@@ -148,18 +152,40 @@ class ProductSummary extends React.PureComponent { // eslint-disable-line react/
 
     renderDetails = (product) => (
         <Box className="product-section details">
-            <ExpansionPanel>
-                <ExpansionPanelSummary
-                    expandIcon={<ExpandMore />}
-                    id="quantity"
-                >
-                    <Typography variant="subtitle1">Quantity *</Typography>
-                    <Typography variant="subtitle1">Please select one</Typography>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
-                    <Typography>Quantity</Typography>
-                </ExpansionPanelDetails>
-            </ExpansionPanel>
+            {
+                this.props.changeQty
+                &&
+                <ExpansionPanel>
+                    <ExpansionPanelSummary
+                        expandIcon={<ExpandMore />}
+                        id="quantity"
+                    >
+                        <Box>
+                            <Typography variant="subtitle1" display="inline">Quantity</Typography><Typography variant="subtitle1" display="inline" style={{ color: 'red' }}> *</Typography>
+                            <br />
+                            <Typography variant="caption">Please select the quantity</Typography>
+                        </Box>
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails>
+                        <Box className="action-quantity" component="span" style={{ margin: 'auto' }}>
+                            <IconButton disabled={this.props.qty === 1} onClick={() => this.props.changeQty('-')}>
+                                <Remove />
+                            </IconButton>
+                            <TextField
+                                id="qty"
+                                variant="outlined"
+                                onChange={this.props.handleChangeNumber}
+                                value={this.props.qty}
+                                size="small"
+                                style={{ width: '4rem' }}
+                            />
+                            <IconButton onClick={() => this.props.changeQty('+')}>
+                                <Add />
+                            </IconButton>
+                        </Box>
+                    </ExpansionPanelDetails>
+                </ExpansionPanel>
+            }
             {
                 dataDig(product, 'description')
                 &&
@@ -244,27 +270,30 @@ class ProductSummary extends React.PureComponent { // eslint-disable-line react/
     render = () => {
         const { product } = this.props;
         return (
-            <Box className="product-summary">
-                <Grid container={true} spacing={2}>
-                    <Grid item={true} xs={12} md={4}>
-                        <Box>
-                            {this.renderImage(product)}
-                            {this.renderPrice(product)}
-                            {this.renderName(product)}
-                            {this.renderRating(product)}
-                            {dataDig(product, 'hashtags.length') && this.renderHashtags(product)}
-                            {this.renderDetails(product)}
-                            {this.renderAddToCart(product)}
-                        </Box>
-                    </Grid>
-                </Grid>
+            <Box className="product-details">
+                <Box>
+                    <Container>
+                        {this.renderImage(product)}
+                        {this.renderPrice(product)}
+                        {this.renderName(product)}
+                        {this.renderRating(product)}
+                        {dataDig(product, 'hashtags.length') && this.renderHashtags(product)}
+                    </Container>
+                    {this.renderDetails(product)}
+                    {this.renderAddToCart(product)}
+                </Box>
             </Box>
         );
     }
 }
 
-ProductSummary.propTypes = {
-    product: PropTypes.object.isRequired,
+ProductDetails.propTypes = {
+    product: PropTypes.object.isRequired, // Product informations
+    addToCart: PropTypes.func, // Function for add item to cart
+    notifyMe: PropTypes.func, // Function for notify user when item in stock
+    qty: PropTypes.number, // Number of quantity of the item (State)
+    handleChangeNumber: PropTypes.func, // Function for handling changes for number
+    changeQty: PropTypes.func, // Function for change quantity using button
 };
 
-export default ProductSummary;
+export default ProductDetails;
