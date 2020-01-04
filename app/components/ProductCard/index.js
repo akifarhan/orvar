@@ -5,7 +5,7 @@
 */
 import React from 'react';
 import { dataChecking } from 'globalUtils';
-import { withRouter } from 'react-router-dom';
+import { withRouter, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import PropTypes from 'prop-types';
@@ -14,7 +14,6 @@ import
 {
     Box,
     Button,
-    ButtonBase,
     Card,
     CardActionArea,
     CardContent,
@@ -123,29 +122,37 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
         );
     }
 
-    renderBrand = () => (
-        <div className="product-brand pb-half">
-            <ButtonBase
-                onClick={() => {
-                    if (this.props.disableBrandClick) {
-                        return null;
-                    }
-                    return this.props.history.push(dataChecking(this.props.product, 'brand', 'url'));
-                }}
-            >
-                <Typography
-                    color="primary"
-                    variant="button"
-                    style={{ fontWeight: 'bold' }}
-                >
-                    {dataChecking(this.props.product, 'brand', 'name')}
-                </Typography>
-                <IconButton size="small" style={{ padding: '0 0 2px 3px' }}>
-                    <KeyboardArrowRight color="primary" />
-                </IconButton>
-            </ButtonBase>
-        </div>
-    )
+    renderBrand = () => {
+        if (this.props.disableBrandClick) {
+            return (
+                <div className="product-brand pb-half">
+                    <Typography
+                        color="primary"
+                        variant="button"
+                        style={{ fontWeight: 'bold' }}
+                    >
+                        {dataChecking(this.props.product, 'brand', 'name')}
+                    </Typography>
+                </div>
+            );
+        }
+        return (
+            <div className="product-brand pb-half">
+                <NavLink to={dataChecking(this.props.product, 'brand', 'url')} style={{ textDecoration: 'none' }}>
+                    <Typography
+                        color="primary"
+                        variant="button"
+                        style={{ fontWeight: 'bold' }}
+                    >
+                        {dataChecking(this.props.product, 'brand', 'name')}
+                    </Typography>
+                    <IconButton size="small" style={{ padding: '0 0 2px 3px' }}>
+                        <KeyboardArrowRight color="primary" />
+                    </IconButton>
+                </NavLink>
+            </div>
+        );
+    }
 
     renderDescription = () => (
         <div className="product-description">
