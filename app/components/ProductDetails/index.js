@@ -10,6 +10,7 @@ import { dataDig } from 'globalUtils';
 
 // import styled from 'styled-components';
 import {
+    Avatar,
     Box,
     Button,
     Chip,
@@ -98,14 +99,21 @@ class ProductDetails extends React.PureComponent { // eslint-disable-line react/
 
     renderName = (product) => (
         <Box className="product-section product-name">
-            <Box className="brand-logo">
+            {/* <Box className="brand-logo">
                 <img
                     src={dataDig(product, 'brand.logo')}
                     alt={dataDig(product, 'brand.name')}
                     width="60px"
                     height="60px"
                 />
-            </Box>
+            </Box> */}
+            <Avatar
+                className={`brand-logo ${dataDig(product, 'brand.logo') === null && 'no-logo'}`}
+                src={dataDig(product, 'brand.logo')}
+                alt={dataDig(product, 'brand.name')}
+            >
+                {dataDig(product, 'brand.logo') === null && <Typography>{dataDig(product, 'brand.name')}</Typography>}
+            </Avatar>
             <Box className="brand-name">
                 <Typography color="primary" style={{ fontWeight: 'bold' }}>{dataDig(product, 'brand.name')}</Typography>
                 <Typography>{dataDig(product, 'display_name') || dataDig(product, 'name')}</Typography>

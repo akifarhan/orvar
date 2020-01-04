@@ -129,8 +129,8 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             ...initialState,
             pageIndex: 0,
             total: 0,
-            openProduct: true,  // [TEST] => PRODUCT DETAILS TEST
-            // openProduct: false,
+            // openProduct: true,  // [TEST] => PRODUCT DETAILS TEST
+            openProduct: false,
             openSummary: false,
             openSnackBar: false,
             subtotal: 0,
@@ -146,7 +146,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         this.props.dispatch(actions.getProductList({ url: `/mall/list?promotion_id=${PROMOTION_ID}` }));
         this.props.dispatch(actions.getConfig());
 
-        this.props.dispatch(actions.getProduct({ id: 45710 })); // [TEST] => PRODUCT DETAILS TEST
+        // this.props.dispatch(actions.getProduct({ id: 45710 })); // [TEST] => PRODUCT DETAILS TEST
     }
 
     componentWillReceiveProps(nextProps) {
