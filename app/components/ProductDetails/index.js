@@ -23,11 +23,11 @@ import {
     Typography,
 } from '@material-ui/core';
 import {
-    Add,
+    AddCircleOutlineRounded,
     AddShoppingCart,
     ExpandMore,
     NotificationImportant,
-    Remove,
+    RemoveCircleOutlineRounded,
     Star,
     StarBorder,
 } from '@material-ui/icons';
@@ -38,6 +38,12 @@ import ProductInfo from 'containers/ProductInfo';
 import './style.scss';
 
 class ProductDetails extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+    constructor(props) {
+        super(props);
+        this.state = {
+            qty: 1,
+        };
+    }
     renderImage = (product) => (
         <Box className="product-image-container">
             <Box className="feature-container">
@@ -158,11 +164,29 @@ class ProductDetails extends React.PureComponent { // eslint-disable-line react/
         </Box>
     )
 
-    renderDetails = (product) => (
-        <Box className="product-section details">
-            {
-                this.props.changeQty
-                &&
+    renderDetails = (product) => {
+        const changeQty = (type) => {
+            switch (type) {
+                case '-':
+                    this.setState((state) => ({ qty: state.qty - 1 }));
+                    break;
+                case '+':
+                    this.setState((state) => ({ qty: state.qty + 1 }));
+                    break;
+                default:
+                    break;
+            }
+        };
+        const handleChangeNumber = (event) => {
+            const onlyNums = event.target.value.replace(/[^0-9]/g, '');
+            let value = '';
+            if (onlyNums.length) {
+                value = parseInt(onlyNums, 10);
+            }
+            this.setState({ [event.target.id]: value });
+        };
+        return (
+            <Box className="product-section details">
                 <ExpansionPanel>
                     <ExpansionPanelSummary
                         expandIcon={<ExpandMore />}
@@ -176,57 +200,65 @@ class ProductDetails extends React.PureComponent { // eslint-disable-line react/
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
                         <Box className="action-quantity" component="span" style={{ margin: 'auto' }}>
-                            <IconButton disabled={this.props.qty === 1} onClick={() => this.props.changeQty('-')}>
-                                <Remove />
+                            <IconButton color="secondary" disabled={this.state.qty < 2} onClick={() => changeQty('-')}>
+                                <RemoveCircleOutlineRounded />
                             </IconButton>
                             <TextField
                                 id="qty"
                                 variant="outlined"
-                                onChange={this.props.handleChangeNumber}
-                                value={this.props.qty}
+                                onChange={handleChangeNumber}
+                                value={this.state.qty}
                                 size="small"
                                 style={{ width: '4rem' }}
                             />
-                            <IconButton onClick={() => this.props.changeQty('+')}>
-                                <Add />
+                            <IconButton color="secondary" onClick={() => changeQty('+')}>
+                                <AddCircleOutlineRounded />
                             </IconButton>
                         </Box>
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
-            }
-            {
-                dataDig(product, 'description')
-                &&
+                {
+                    dataDig(product, 'description')
+                    &&
+                    <ExpansionPanel>
+                        <ExpansionPanelSummary
+                            expandIcon={<ExpandMore />}
+                            id="description"
+                        >
+                            <Typography variant="subtitle1" color="primary">Description</Typography>
+                        </ExpansionPanelSummary>
+                        <ExpansionPanelDetails>
+                            <ProductDescription product={product} />
+                        </ExpansionPanelDetails>
+                    </ExpansionPanel>
+                }
                 <ExpansionPanel>
                     <ExpansionPanelSummary
                         expandIcon={<ExpandMore />}
-                        id="description"
+                        id="spec"
                     >
-                        <Typography variant="subtitle1" color="primary">Description</Typography>
+                        <Typography variant="subtitle1" color="primary">Spec and usage</Typography>
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
-                        <ProductDescription product={product} />
+                        <ProductInfo product={product} />
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
-
-            }
-            <ExpansionPanel>
-                <ExpansionPanelSummary
-                    expandIcon={<ExpandMore />}
-                    id="spec"
-                >
-                    <Typography variant="subtitle1" color="primary">Spec and usage</Typography>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
-                    <ProductInfo product={product} />
-                </ExpansionPanelDetails>
-            </ExpansionPanel>
-        </Box>
-    )
+            </Box>
+        );
+    }
 
     renderAddToCart = (product) => {
         const inStock = dataDig(product, 'instock');
         const notifyMe = dataDig(product, 'attribute.is_notifiable') && !dataDig(product, '_user.notified');
+        const checkCart = this.props.checkCart(product.id);
+        const buttonText = () => {
+            if (checkCart) {
+                return 'Item added into cart';
+            } else if (inStock) {
+                return 'Add to cart';
+            }
+            return 'Notify Me';
+        };
         return (
             <Box className="action-button">
                 {
@@ -255,19 +287,14 @@ class ProductDetails extends React.PureComponent { // eslint-disable-line react/
                         <Button
                             variant="contained"
                             color="secondary"
-                            disabled={!inStock}
+                            disabled={!inStock || this.state.qty < 1 || checkCart}
                             fullWidth={true}
                             className="action-button add-to-cart"
-                            onClick={this.props.addToCart}
+                            onClick={() => this.props.addToCart({ id: product.id, product, qty: this.state.qty, merchantId: product.merchant.id })}
                         >
                             {inStock ? <AddShoppingCart /> : null}
                             <Typography variant="overline" className="pl-1">
-                                {
-                                    inStock ?
-                                        'Add to cart'
-                                        :
-                                        'Out of stock'
-                                }
+                                {buttonText()}
                             </Typography>
                         </Button>
                 }
@@ -299,9 +326,7 @@ ProductDetails.propTypes = {
     product: PropTypes.object.isRequired, // Product informations
     addToCart: PropTypes.func, // Function for add item to cart
     notifyMe: PropTypes.func, // Function for notify user when item in stock
-    qty: PropTypes.number, // Number of quantity of the item (State)
-    handleChangeNumber: PropTypes.func, // Function for handling changes for number
-    changeQty: PropTypes.func, // Function for change quantity using button
+    checkCart: PropTypes.func, // Function to check either the item is already in cart
 };
 
 export default ProductDetails;

@@ -7,6 +7,10 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
+    leftHeader: {
+        display: 'flex',
+        alignItems: 'center',
+    },
     content: {
         marginTop: '6rem',
         marginBottom: '6rem',
@@ -32,7 +36,6 @@ const styles = {
         background: 'transparent',
     },
     productDetails: {
-        position: 'relative',
         width: '100%',
         height: '100%',
     },
@@ -46,10 +49,6 @@ const styles = {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    contact: {
-        margin: 'auto',
-        maxWidth: '30rem',
     },
     summaryHeader: {
         paddingLeft: '1rem',

@@ -76,8 +76,8 @@ class InputForm extends React.PureComponent { // eslint-disable-line react/prefe
             );
         }
         return (
-            <Button onClick={() => { this.props.onClick(); }}>
-                <Typography color="secondary" noWrap={true} variant="body2">
+            <Button color="secondary" onClick={() => { this.props.onClick(); }} disabled={this.props.value === ''}>
+                <Typography noWrap={true} variant="body2">
                     <b>Send OTP</b>
                 </Typography>
             </Button>
