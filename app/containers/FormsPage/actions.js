@@ -5,6 +5,7 @@
  */
 
 import {
+    UPDATE_CART,
     GET_PRODUCT_LIST,
     GET_PRODUCT_LIST_SUCCESS,
     GET_PRODUCT_LIST_FAIL,
@@ -24,6 +25,13 @@ import {
     ADD_ADDRESS_SUCCESS,
     ADD_ADDRESS_FAIL,
 } from './constants';
+
+export function updateCart(data) {
+    return {
+        type: UPDATE_CART,
+        data,
+    };
+}
 
 export function getProductList(params) {
     return {

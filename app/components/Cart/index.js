@@ -32,30 +32,43 @@ class Cart extends React.PureComponent { // eslint-disable-line react/prefer-sta
         super(props);
         this.state = {
             checkAll: false,
+            checkedValue: [],
         };
     }
-    handleChangeCheckBox = (event) => {
-        this.setState({ [event.target.id]: event.target.checked });
+    handleChangeCheckBox = (index) => {
+        this.setState((state) => ({
+            checkedValue: state.checkedValue.includes(index) ? state.checkedValue.filter((c) => c !== index) : [...state.checkedValue, index],
+        }));
     }
 
-    renderHeader = () => (
-        <Paper>
-            <Container className="cart-header flex-space-between">
-                <Box component="span">
-                    <Checkbox
-                        id="checkAll"
-                        checked={this.state.checkAll}
-                        onChange={this.handleChangeCheckBox}
-                        value="checkAll"
-                    />
-                    <Typography display="inline" variant="subtitle1">Select all available item</Typography>
-                </Box>
-                <IconButton style={{ color: 'black' }}>
-                    <Delete />
-                </IconButton>
-            </Container>
-        </Paper>
-    )
+    renderHeader = () => {
+        const { checkAll, checkedValue } = this.state;
+        return (
+            <Paper>
+                <Container className="cart-header flex-space-between">
+                    <Box component="span">
+                        <Checkbox
+                            onChange={() => this.setState((state) => ({ checkAll: !state.checkAll }))}
+                        />
+                        <Typography display="inline" variant="subtitle1">Select all available item</Typography>
+                    </Box>
+                    <IconButton
+                        style={{ color: 'black' }}
+                        onClick={() => {
+                            if (checkAll) {
+                                this.props.handleCart('removeAll');
+                            } else if (checkedValue.length) {
+                                this.props.handleCart('removeMultiple', checkedValue);
+                            }
+                            this.setState({ checkedValue: [] });
+                        }}
+                    >
+                        <Delete />
+                    </IconButton>
+                </Container>
+            </Paper>
+        );
+    }
 
     renderPrice = (product) => {
         const retailPrice = dataDig(product, 'price.retail');
@@ -90,7 +103,10 @@ class Cart extends React.PureComponent { // eslint-disable-line react/prefer-sta
         return (
             <Paper key={index}>
                 <Container className="cart-item flex-space-between">
-                    <Checkbox />
+                    <Checkbox
+                        onChange={() => this.handleChangeCheckBox(index)}
+                        checked={this.state.checkAll || this.state.checkedValue.includes(index)}
+                    />
                     <Box className="item-image">
                         <img src={product.image.small} alt={product.plain_name} width="75px" height="75px" />
                     </Box>
@@ -98,15 +114,15 @@ class Cart extends React.PureComponent { // eslint-disable-line react/prefer-sta
                         {this.renderPrice(product)}
                         <Typography variant="subtitle2" color="primary">{product.display_name}</Typography>
                         <Box className="item-action flex-space-between">
-                            <ButtonBase onClick={() => this.props.remove(index)}>
+                            <ButtonBase onClick={() => this.props.handleCart('remove', index)}>
                                 <Typography>Remove</Typography>
                             </ButtonBase>
                             <Box component="span">
-                                <IconButton color="secondary">
+                                <IconButton color="secondary" onClick={() => this.props.handleCart('reduceQty', index)} disabled={qty === 1}>
                                     <RemoveCircleOutlineRounded />
                                 </IconButton>
                                 <Typography display="inline">{qty}</Typography>
-                                <IconButton color="secondary">
+                                <IconButton color="secondary" onClick={() => this.props.handleCart('addQty', index)}>
                                     <AddCircleOutlineRounded />
                                 </IconButton>
                             </Box>
@@ -117,12 +133,17 @@ class Cart extends React.PureComponent { // eslint-disable-line react/prefer-sta
         );
     }
     render = () => {
-        const { items } = this.props;
+        console.log(this.state);
         return (
             <Box>
                 {this.renderHeader()}
                 {
-                    items.map((item, index) => this.renderItem(index, item.product, item.qty))
+                    dataDig(this.props, 'items.length') ?
+                        this.props.items.map((item, index) => this.renderItem(index, item.product, item.qty))
+                        :
+                        <Paper className="m-3 p-2">
+                            <Typography variant="h4">Oops! There is no item in cart!</Typography>
+                        </Paper>
                 }
             </Box>
         );
@@ -131,7 +152,7 @@ class Cart extends React.PureComponent { // eslint-disable-line react/prefer-sta
 
 Cart.propTypes = {
     items: PropTypes.array, // Items in cart
-    remove: PropTypes.func, // Function to remove item from cart
+    handleCart: PropTypes.func, // Function to remove item from cart
 };
 
 export default Cart;

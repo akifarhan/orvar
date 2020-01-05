@@ -6,6 +6,7 @@
 
 import { fromJS } from 'immutable';
 import {
+    UPDATE_CART,
     GET_PRODUCT_LIST,
     GET_PRODUCT_LIST_SUCCESS,
     GET_PRODUCT_LIST_FAIL,
@@ -27,6 +28,7 @@ import {
 } from './constants';
 
 export const initialState = fromJS({
+    cart: null,
     productList: {},
     product: {},
     config: {},
@@ -37,6 +39,9 @@ export const initialState = fromJS({
 
 function formsPageReducer(state = initialState, action) {
     switch (action.type) {
+        case UPDATE_CART:
+            return state
+                .set('cart', action.data);
         case GET_PRODUCT_LIST:
             return state
                 .setIn(['productList', 'loading'], true)
