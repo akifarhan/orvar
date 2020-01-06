@@ -29,6 +29,9 @@ import {
 
 export const initialState = fromJS({
     cart: null,
+    loading: {
+        status: false,
+    },
     productList: {},
     product: {},
     config: {},
@@ -134,19 +137,22 @@ function formsPageReducer(state = initialState, action) {
                 .setIn(['signup', 'data'], action.payload);
         case ADD_ADDRESS:
             return state
-                .setIn(['addAddress', 'loading'], true)
+                .setIn(['loading', 'status'], true)
+                .setIn(['loading', 'message'], 'Adding address')
                 .setIn(['addAddress', 'error'], false)
                 .setIn(['addAddress', 'success'], false)
                 .setIn(['addAddress', 'data'], null);
         case ADD_ADDRESS_SUCCESS:
             return state
-                .setIn(['addAddress', 'loading'], false)
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
                 .setIn(['addAddress', 'error'], false)
                 .setIn(['addAddress', 'success'], true)
                 .setIn(['addAddress', 'data'], action.data);
         case ADD_ADDRESS_FAIL:
             return state
-                .setIn(['addAddress', 'loading'], false)
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
                 .setIn(['addAddress', 'error'], true)
                 .setIn(['addAddress', 'success'], false)
                 .setIn(['addAddress', 'data'], action.payload);

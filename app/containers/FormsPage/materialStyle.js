@@ -25,12 +25,17 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
-    snackbar: {
-        bottom: '10rem',
+    footerPrice: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    nextButton: {
+    footerButton: {
         width: '10rem',
         height: '3.5rem',
+    },
+    snackbar: {
+        bottom: '10rem',
     },
     loader: {
         background: 'transparent',

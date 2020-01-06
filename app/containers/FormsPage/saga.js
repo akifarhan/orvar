@@ -115,7 +115,7 @@ export function* signUpWorker(action) {
             globalScope.axios.setHeader('hertoken', globalScope.token);
             setCookie(process.env.TOKEN_KEY, globalScope.token);
             // call reset password api
-            // yield call(apiRequest, '/password/reset', 'post', JSON.stringify({ action: 'reset', email: action.params.email }));
+            yield call(apiRequest, '/password/reset', 'post', JSON.stringify({ action: 'reset', email: action.params.email }));
             yield put(signUpSuccess(response.data));
         } else {
             err = staticErrorResponse({ text: 'No response from server' });

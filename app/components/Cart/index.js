@@ -132,22 +132,19 @@ class Cart extends React.PureComponent { // eslint-disable-line react/prefer-sta
             </Paper>
         );
     }
-    render = () => {
-        console.log(this.state);
-        return (
-            <Box>
-                {this.renderHeader()}
-                {
-                    dataDig(this.props, 'items.length') ?
-                        this.props.items.map((item, index) => this.renderItem(index, item.product, item.qty))
-                        :
-                        <Paper className="m-3 p-2">
-                            <Typography variant="h4">Oops! There is no item in cart!</Typography>
-                        </Paper>
-                }
-            </Box>
-        );
-    }
+    render = () => (
+        <Box>
+            {this.renderHeader()}
+            {
+                dataDig(this.props, 'items.length') ?
+                    this.props.items.map((item, index) => this.renderItem(index, item.product, item.qty))
+                    :
+                    <Paper className="m-3 p-2">
+                        <Typography variant="h4">Oops! There is no item in cart!</Typography>
+                    </Paper>
+            }
+        </Box>
+    )
 }
 
 Cart.propTypes = {

@@ -159,7 +159,7 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
             <ViewMoreText
                 text={this.props.product.display_name}
                 hideButton={true}
-                readMoreCharacterLimit={60}
+                readMoreCharacterLimit={55}
             />
         </div>
     )
