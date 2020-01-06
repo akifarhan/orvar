@@ -10,6 +10,9 @@ import {
     SEND_OTP,
     SIGN_UP,
     ADD_ADDRESS,
+    ADD_TO_CART,
+    CHECKOUT,
+    POST_CHECKOUT,
 } from './constants';
 
 import {
@@ -25,6 +28,12 @@ import {
     signUpFail,
     addAddressSuccess,
     addAddressFail,
+    addToCartSuccess,
+    addToCartFail,
+    checkoutSuccess,
+    checkoutFail,
+    postCheckoutSuccess,
+    postCheckoutFail,
 } from './actions';
 
 export function* getProductListWorker(action) {
@@ -147,6 +156,65 @@ export function* addAddressWorker(action) {
     }
 }
 
+export function* addToCartWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/cart/mall', 'post', JSON.stringify({ ...action.params }));
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(addToCartFail(response.data));
+            response.data.messages.map((message) => notifyError(message.text));
+        } else if (response && response.ok !== false) {
+            yield put(addToCartSuccess(response.data, action.cart));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(addToCartFail(e));
+    }
+}
+
+export function* checkoutWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/checkout', action.method, action.params && JSON.stringify({ ...action.params }));
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(checkoutFail(response.data));
+            response.data.messages.map((message) => notifyError(message.text));
+        } else if (response && response.ok !== false) {
+            yield put(checkoutSuccess(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(checkoutFail(e));
+    }
+}
+
+export function* postCheckoutWorker(action) {
+    let err;
+    try { // Trying the HTTP Request
+        const response = yield call(apiRequest, '/checkout', 'post', JSON.stringify({ ...action.params }));
+
+        if (response && (response.ok === false || (response.data && response.data.success === false))) {
+            yield put(postCheckoutFail(response.data));
+            response.data.messages.map((message) => notifyError(message.text));
+        } else if (response && response.ok !== false) {
+            yield put(postCheckoutSuccess(response.data));
+        } else {
+            err = staticErrorResponse({ text: 'No response from server' });
+            throw err;
+        }
+    } catch (e) {
+        console.log('error: ', e);
+        yield put(postCheckoutFail(e));
+    }
+}
 // Individual exports for testing
 export default function* formsPageSaga() {
     yield takeLatest(GET_PRODUCT_LIST, getProductListWorker);
@@ -155,4 +223,7 @@ export default function* formsPageSaga() {
     yield takeLatest(SEND_OTP, sendOTPWorker);
     yield takeLatest(SIGN_UP, signUpWorker);
     yield takeLatest(ADD_ADDRESS, addAddressWorker);
+    yield takeLatest(ADD_TO_CART, addToCartWorker);
+    yield takeLatest(CHECKOUT, checkoutWorker);
+    yield takeLatest(POST_CHECKOUT, postCheckoutWorker);
 }

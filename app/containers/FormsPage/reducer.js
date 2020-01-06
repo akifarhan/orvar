@@ -25,6 +25,15 @@ import {
     ADD_ADDRESS,
     ADD_ADDRESS_SUCCESS,
     ADD_ADDRESS_FAIL,
+    ADD_TO_CART,
+    ADD_TO_CART_SUCCESS,
+    ADD_TO_CART_FAIL,
+    CHECKOUT,
+    CHECKOUT_SUCCESS,
+    CHECKOUT_FAIL,
+    POST_CHECKOUT,
+    POST_CHECKOUT_SUCCESS,
+    POST_CHECKOUT_FAIL,
 } from './constants';
 
 export const initialState = fromJS({
@@ -38,6 +47,9 @@ export const initialState = fromJS({
     otp: {},
     signup: {},
     addAddress: {},
+    addToCart: {},
+    checkout: {},
+    postCheckout: {},
 });
 
 function formsPageReducer(state = initialState, action) {
@@ -47,37 +59,43 @@ function formsPageReducer(state = initialState, action) {
                 .set('cart', action.data);
         case GET_PRODUCT_LIST:
             return state
-                .setIn(['productList', 'loading'], true)
+                .setIn(['loading', 'status'], true)
+                .setIn(['loading', 'message'], null)
                 .setIn(['productList', 'error'], false)
                 .setIn(['productList', 'success'], false)
                 .setIn(['productList', 'data'], null);
         case GET_PRODUCT_LIST_SUCCESS:
             return state
-                .setIn(['productList', 'loading'], false)
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
                 .setIn(['productList', 'error'], false)
                 .setIn(['productList', 'success'], true)
                 .setIn(['productList', 'data'], action.data);
         case GET_PRODUCT_LIST_FAIL:
             return state
-                .setIn(['productList', 'loading'], false)
+                .setIn(['loading', 'status'], true)
+                .setIn(['loading', 'message'], null)
                 .setIn(['productList', 'error'], true)
                 .setIn(['productList', 'success'], false)
                 .setIn(['productList', 'data'], action.payload);
         case GET_PRODUCT:
             return state
-                .setIn(['product', 'loading'], true)
+                .setIn(['loading', 'status'], true)
+                .setIn(['loading', 'message'], null)
                 .setIn(['product', 'error'], false)
                 .setIn(['product', 'success'], false)
                 .setIn(['product', 'data'], null);
         case GET_PRODUCT_SUCCESS:
             return state
-                .setIn(['product', 'loading'], false)
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
                 .setIn(['product', 'error'], false)
                 .setIn(['product', 'success'], true)
                 .setIn(['product', 'data'], action.data);
         case GET_PRODUCT_FAIL:
             return state
-                .setIn(['product', 'loading'], false)
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
                 .setIn(['product', 'error'], true)
                 .setIn(['product', 'success'], false)
                 .setIn(['product', 'data'], action.payload);
@@ -156,6 +174,70 @@ function formsPageReducer(state = initialState, action) {
                 .setIn(['addAddress', 'error'], true)
                 .setIn(['addAddress', 'success'], false)
                 .setIn(['addAddress', 'data'], action.payload);
+        case ADD_TO_CART:
+            return state
+                .setIn(['loading', 'status'], true)
+                .setIn(['loading', 'message'], 'Adding item into cart')
+                .setIn(['addToCart', 'error'], false)
+                .setIn(['addToCart', 'success'], false)
+                .setIn(['addToCart', 'data'], null);
+        case ADD_TO_CART_SUCCESS:
+            return state
+                .set('cart', action.cart)
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
+                .setIn(['addToCart', 'error'], false)
+                .setIn(['addToCart', 'success'], true)
+                .setIn(['addToCart', 'data'], action.data);
+        case ADD_TO_CART_FAIL:
+            return state
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
+                .setIn(['addToCart', 'error'], true)
+                .setIn(['addToCart', 'success'], false)
+                .setIn(['addToCart', 'data'], action.payload);
+        case CHECKOUT:
+            return state
+                .setIn(['loading', 'status'], true)
+                .setIn(['loading', 'message'], 'Checking out')
+                .setIn(['checkout', 'error'], false)
+                .setIn(['checkout', 'success'], false)
+                .setIn(['checkout', 'data'], null);
+        case CHECKOUT_SUCCESS:
+            return state
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
+                .setIn(['checkout', 'error'], false)
+                .setIn(['checkout', 'success'], true)
+                .setIn(['checkout', 'data'], action.data);
+        case CHECKOUT_FAIL:
+            return state
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
+                .setIn(['checkout', 'error'], true)
+                .setIn(['checkout', 'success'], false)
+                .setIn(['checkout', 'data'], action.payload);
+        case POST_CHECKOUT:
+            return state
+                .setIn(['loading', 'status'], true)
+                .setIn(['loading', 'message'], 'Creating order...')
+                .setIn(['postCheckout', 'error'], false)
+                .setIn(['postCheckout', 'success'], false)
+                .setIn(['postCheckout', 'data'], null);
+        case POST_CHECKOUT_SUCCESS:
+            return state
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
+                .setIn(['postCheckout', 'error'], false)
+                .setIn(['postCheckout', 'success'], true)
+                .setIn(['postCheckout', 'data'], action.data);
+        case POST_CHECKOUT_FAIL:
+            return state
+                .setIn(['loading', 'status'], false)
+                .setIn(['loading', 'message'], null)
+                .setIn(['postCheckout', 'error'], true)
+                .setIn(['postCheckout', 'success'], false)
+                .setIn(['postCheckout', 'data'], action.payload);
         default:
             return state;
     }

@@ -27,16 +27,17 @@ import {
     Divider,
     Drawer,
     FormControl,
+    FormControlLabel,
     Grid,
-    Hidden,
+    // Hidden,
     IconButton,
     InputLabel,
     Link,
     MobileStepper,
     OutlinedInput,
     Paper,
-    // Radio,
-    // RadioGroup,
+    Radio,
+    RadioGroup,
     Select,
     Snackbar,
     Toolbar,
@@ -74,7 +75,7 @@ const formSetting = [
     },
     {
         type: 'addressInfo',
-        title: 'Where do you want us to mail to you?',
+        title: 'Where do you want us to deliver?',
     },
     {
         type: 'confirmOrder',
@@ -133,8 +134,12 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             ...mockData,
             // ...initialState,
             cart: [],
-            pageIndex: 2,
-            total: 0,
+            loading: {
+                status: false,
+                message: null,
+            },
+            pageIndex: 0,
+            total: null,
             // openCart: true, // [TEST] => ITEM IN CART
             openCart: false,
             openConfirmAlert: false,
@@ -144,7 +149,10 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             openSummary: false,
             editInfo: false,
             subtotal: 0,
+            shippingTotal: null,
             activeStep: 0,
+            paymentId: '',
+            voucherCode: '',
             // formId: dataChecking(this.props, 'match', 'params', 'id'),
         };
     }
@@ -154,17 +162,31 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         Events.trigger('hideFooter', {});
         this.props.dispatch(actions.getProductList({ url: `/mall/list?promotion_id=${PROMOTION_ID}` }));
         this.props.dispatch(actions.getConfig());
-
         // this.props.dispatch(actions.getProduct({ id: 45710 })); // [TEST] => PRODUCT DETAILS TEST
     }
 
     componentWillReceiveProps(nextProps) {
-        let total = 0;
-        const calculateTotal = (cart) => {
-            cart.forEach((item) => {
-                total += (item.product.price.selling * item.qty);
-            });
+        const resendTimer = (RESEND_TIME) => {
+            const interval = setInterval(() => {
+                if (this.state.timer > 0) {
+                    this.setState((prevState) => ({
+                        timer: prevState.timer - 1,
+                    }));
+                } else {
+                    clearInterval(interval);
+                    this.setState(() => ({
+                        canResend: true,
+                        timer: RESEND_TIME,
+                        sendClick: false,
+                        sendSuccess: false,
+                    }));
+                }
+            }, 1000);
+            return (interval);
         };
+        if (nextProps.formsPage.loading !== this.props.formsPage.loading && nextProps.formsPage.loading) {
+            this.setState({ loading: nextProps.formsPage.loading });
+        }
         if (nextProps.formsPage.otp.success !== this.props.formsPage.otp.success && nextProps.formsPage.otp.success) {
             this.setState({
                 otpSent: true,
@@ -174,18 +196,56 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             });
 
             if (this.state.sendClick) {
-                this.resendTimer(nextProps.formsPage.otp.data.data.ttl);
+                resendTimer(nextProps.formsPage.otp.data.data.ttl);
             }
         }
         if (nextProps.formsPage.cart !== this.props.formsPage.cart && nextProps.formsPage.cart) {
+            let subtotal = 0;
+            const calculateSubtotal = (newCart) => {
+                newCart.forEach((item) => {
+                    subtotal += (item.product.price.selling * item.qty);
+                });
+            };
             if (dataDig(nextProps.formsPage, 'cart.length')) {
-                calculateTotal(nextProps.formsPage.cart);
+                calculateSubtotal(nextProps.formsPage.cart);
             }
-            this.setState({ cart: nextProps.formsPage.cart, total });
+            this.setState({ cart: nextProps.formsPage.cart, subtotal });
+        }
+        if (nextProps.formsPage.addAddress.success !== this.props.formsPage.addAddress.success && nextProps.formsPage.addAddress.success) {
+            this.setState({ addressAdded: true });
+            this.handleAddToCart();
         }
 
-        if (nextProps.formsPage.loading.status !== this.props.formsPage.loading.status && nextProps.formsPage.loading.status) {
-            this.renderLoading(nextProps.formsPage.loading.message);
+        if (nextProps.formsPage.addToCart.success !== this.props.formsPage.addToCart.success && nextProps.formsPage.addToCart.success) {
+            if (dataDig(nextProps.formsPage, 'cart.length') > 0) {
+                this.handleAddToCart();
+            } else {
+                this.props.dispatch(actions.checkout('get'));
+                this.setState((state) => ({ pageIndex: state.pageIndex + 1, openConfirmAlert: false }));
+            }
+        }
+
+        if (nextProps.formsPage.checkout.success !== this.props.formsPage.checkout.success && nextProps.formsPage.checkout.success) {
+            const { data } = nextProps.formsPage.checkout;
+            const calculateSubtotal = (subtotal) => {
+                let result = 0;
+                subtotal.forEach((item) => {
+                    result += item.subtotal;
+                });
+                return result;
+            };
+
+            this.setState({ subtotal: calculateSubtotal(data.data.summary.subtotal), total: data.data.summary.total, shippingTotal: data.data.summary.shipping.total });
+
+            if (dataDig(data, 'data.delivery.address_id') === null && dataDig(data, 'addresses')) {
+                data.data.delivery.address_id = data.addresses[0].id;
+                this.props.dispatch(actions.checkout('put', { ...data }));
+            } else if (dataDig(data, 'data.delivery.courier_id') === null && dataDig(data, 'data.delivery.courier_options.weekday')) {
+                data.data.delivery.courier_id = data.data.delivery.courier_options.weekday[0].id;
+                this.props.dispatch(actions.checkout('put', { ...data }));
+            } else if (dataDig(data, 'data.delivery.address_id') && dataDig(data, 'data.delivery.courier_id') && dataDig(data, 'data.gateway_id')) {
+                this.props.dispatch(actions.postCheckout({ ...data }));
+            }
         }
     }
 
@@ -193,10 +253,14 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         this.setState({ [event.target.id]: '' });
     }
 
-    handleAddToCart = (item) => {
-        this.props.dispatch(actions.updateCart([...this.state.cart, item]));
+    handleAddToCart = () => {
+        const { cart } = this.state;
+        if (dataDig(cart, 'length') > 0) {
+            const lastItem = cart[cart.length - 1];
+            const payload = { id: lastItem.id, qty: lastItem.qty };
+            this.props.dispatch(actions.addToCart({ ...payload }, cart));
+        }
     }
-
     handleChange = (event, MAX) => {
         if (MAX) {
             if (event.target.value.length < MAX) {
@@ -214,7 +278,6 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         }
     }
 
-
     checkCart = (id) => {
         const { cart } = this.state;
         let result = false;
@@ -228,6 +291,14 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         return result;
     }
 
+    checkRequiredComplete = () => {
+        const { receiver_name, line_1, city, postal_code, state_code, sms_number, sms_prefix, cart } = this.state;
+        if (receiver_name !== '' && line_1 !== '' && city !== '' && postal_code !== '' && state_code !== '' && sms_number !== '' && sms_prefix !== '' && cart.length !== 0) {
+            return false;
+        }
+        return true;
+    }
+
     smsPrefixList = () => {
         if (!dataDig(this.props.formsPage, 'config.data.mobile_prefix.items.length')) {
             return null;
@@ -239,32 +310,6 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
         ));
     }
 
-    resendTimer = (RESEND_TIME) => {
-        const interval = setInterval(() => {
-            if (this.state.timer > 0) {
-                this.setState((prevState) => ({
-                    timer: prevState.timer - 1,
-                }));
-            } else {
-                clearInterval(interval);
-                this.setState(() => ({
-                    canResend: true,
-                    timer: RESEND_TIME,
-                    sendClick: false,
-                    sendSuccess: false,
-                }));
-            }
-        }, 1000);
-        return (interval);
-    }
-
-    renderLoading = (message) => (
-        <Backdrop className={this.props.classes.loader} open={true}>
-            <CircularProgress />
-            <Typography variant="caption">{message}</Typography>
-        </Backdrop>
-    )
-
     renderHeader = () => {
         const onClickPrev = () => {
             if (this.state.openCart) {
@@ -274,136 +319,104 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             }
             return this.setState((state) => ({ pageIndex: state.pageIndex - 1 }));
         };
-        const onClickNext = () => {
-            this.setState((state) => ({ pageIndex: state.pageIndex + 1 }));
-        };
-        const disablePrev = !!(this.state.pageIndex === 0);
-        const disableNext = () => {
-            const { receiver_name, line_1, city, postal_code, state_code } = this.state;
-            switch (dataDig(formSetting[this.state.pageIndex], 'type')) {
-                case 'product':
-                    return !(this.state.cart.length > 0);
-                case 'addressInfo' :
-                    if (receiver_name !== '' && line_1 !== '' && city !== '' && postal_code !== '' && state_code !== '') {
-                        return false;
-                    }
-                    return true;
-                case 'confirmOrder':
-                    return !dataDig(globalScope, 'token');
-                default:
-                    return !!(this.state.pageIndex === formSetting.length - 1);
-            }
-        };
         return (
             <AppBar className={this.props.classes.header} position="fixed" color="default">
                 <Toolbar className={this.props.classes.headerBar}>
-                    <Hidden smDown={true}>
-                        <Container className={this.props.classes.headerBar}>
-                            {
-                                this.state.pageIndex === 0 ?
-                                    <IconButton>
-                                        <Badge
-                                            color="secondary"
-                                            badgeContent={this.state.cart.length}
-                                            invisible={this.state.cart.length === 0}
-                                        >
-                                            <ShoppingCart />
-                                        </Badge>
-                                    </IconButton>
-                                    :
-                                    <Button className={this.props.classes.prevButton} variant="outlined" color="primary" disabled={disablePrev} aria-label="prev" onClick={onClickPrev}>
-                                        Prev
-                                    </Button>
-                            }
-                            <Button type="submit" className={this.props.classes.nextButton} variant="outlined" color="primary" disabled={disableNext()} aria-label="Next" onClick={onClickNext}>
-                                Next
-                            </Button>
-                        </Container>
-                    </Hidden>
-                    <Hidden mdUp={true}>
-                        {
-                            this.state.openProduct || this.state.pageIndex > 0 || this.state.openCart ?
-                                <Box className={this.props.classes.leftHeader} component="span">
-                                    <IconButton onClick={onClickPrev}>
-                                        <KeyboardArrowLeft />
-                                    </IconButton>
-                                    {
-                                        this.state.openCart
-                                        &&
-                                        <Box component="span">
-                                            <Typography variant="h1" color="primary" display="inline" style={{ fontSize: '2rem' }}>Cart</Typography>
-                                            <Typography variant="h2" color="textSecondary" display="inline" style={{ fontSize: '1.9rem' }}> {this.state.cart.length}</Typography>
-                                        </Box>
-                                    }
-                                </Box>
-                                :
-                                <Link href="https://www.hermo.my">
-                                    <img src={require('images/hermo-logo.png')} alt="Hermo Logo" width="100%" height="100%" />
-                                </Link>
-                        }
-                        {
-                            !this.state.openCart
-                            &&
-                            <IconButton
-                                disabled={this.state.cart.length === 0}
-                                onClick={() => this.setState((state) => ({ openCart: !state.openCart }))}
+                    {
+                        this.state.openProduct || this.state.pageIndex > 0 || this.state.openCart ?
+                            <Box className={this.props.classes.leftHeader} component="span">
+                                <IconButton onClick={onClickPrev}>
+                                    <KeyboardArrowLeft />
+                                </IconButton>
+                                {
+                                    this.state.openCart
+                                    &&
+                                    <Box component="span">
+                                        <Typography variant="h1" color="primary" display="inline" style={{ fontSize: '2rem' }}>Cart</Typography>
+                                        <Typography variant="h2" color="textSecondary" display="inline" style={{ fontSize: '1.9rem' }}> {this.state.cart.length}</Typography>
+                                    </Box>
+                                }
+                            </Box>
+                            :
+                            <Link href="https://www.hermo.my">
+                                <img src={require('images/hermo-logo.png')} alt="Hermo Logo" width="100%" height="100%" />
+                            </Link>
+                    }
+                    {
+                        !this.state.openCart
+                        &&
+                        <IconButton
+                            disabled={this.state.cart.length === 0}
+                            onClick={() => this.setState((state) => ({ openCart: !state.openCart }))}
+                        >
+                            <Badge
+                                color="secondary"
+                                badgeContent={this.state.cart.length}
+                                invisible={this.state.cart.length === 0}
                             >
-                                <Badge
-                                    color="secondary"
-                                    badgeContent={this.state.cart.length}
-                                    invisible={this.state.cart.length === 0}
-                                >
-                                    <ShoppingCart />
-                                </Badge>
-                            </IconButton>
-                        }
-                    </Hidden>
+                                <ShoppingCart />
+                            </Badge>
+                        </IconButton>
+                    }
                 </Toolbar>
             </AppBar>
         );
     }
 
     renderFooter = () => {
-        const { receiver_name, line_1, city, postal_code, state_code, sms_number, sms_prefix, openCart, cart, pageIndex, total, openSummary, editInfo } = this.state;
+        const { receiver_name, line_1, city, postal_code, state_code, openCart, cart, pageIndex, total, subtotal, openSummary, editInfo, paymentId } = this.state;
+        const checkoutData = dataDig(this.props.formsPage, 'checkout.data');
         const onClickNext = () => {
             if (formSetting[pageIndex].type === 'confirmOrder') {
                 return this.setState({ openConfirmAlert: true });
+            } else if (formSetting[pageIndex].type === 'payment') {
+                if (dataDig(checkoutData, 'data.gateway_id') === null) {
+                    checkoutData.data.gateway_id = paymentId;
+                }
+                return this.props.dispatch(actions.checkout('put', { ...checkoutData }));
             }
             return this.setState((state) => ({ pageIndex: state.pageIndex + 1 }));
         };
-        const checkAllFieldComplete = () => {
-            if (receiver_name !== '' && line_1 !== '' && city !== '' && postal_code !== '' && state_code !== '' && sms_number !== '' && sms_prefix !== '') {
-                return false;
-            }
-            return true;
-        };
         const disableNext = () => {
             if (openCart) {
-                return true;
+                return this.checkRequiredComplete();
             }
             switch (dataDig(formSetting[pageIndex], 'type')) {
                 case 'product':
                     return !(cart.length > 0);
                 case 'addressInfo' :
                     if (editInfo) {
-                        return checkAllFieldComplete();
+                        return this.checkRequiredComplete();
                     } else if (receiver_name !== '' && line_1 !== '' && city !== '' && postal_code !== '' && state_code !== '') {
                         return false;
                     }
                     return true;
                 case 'confirmOrder':
-                    return checkAllFieldComplete();
+                    return this.checkRequiredComplete();
+                case 'payment':
+                    if (paymentId !== '') {
+                        return false;
+                    }
+                    return true;
                 default:
                     return !!(pageIndex === formSetting.length - 1);
             }
+        };
+        const buttonText = () => {
+            if (openCart || formSetting[pageIndex].type === 'confirmOrder') {
+                return 'Checkout';
+            } else if (formSetting[pageIndex].type === 'payment') {
+                return 'Pay now';
+            }
+            return 'Next';
         };
         return (
             <AppBar className={this.props.classes.footer} position="fixed" color="default">
                 <Toolbar className={this.props.classes.footerBar} >
                     <Box className={this.props.classes.footerPrice} style={{ order: `${openCart ? '2' : ''}` }}>
-                        <Typography variant="subtitle1" display="inline">Total</Typography>
+                        <Typography variant="subtitle1" display="inline">{dataDig(this.state, 'total') ? 'Total' : 'Subtotal'}</Typography>
                         <Typography variant="body1" display="inline" style={{ paddingLeft: '0.5rem', fontSize: '1.5rem', fontWeight: 'bold' }} component="div">
-                            {CURRENCY} {Number(total).toFixed(2)}
+                            {CURRENCY} {Number(dataDig(this.state, 'total') ? total : subtotal).toFixed(2)}
                         </Typography>
                         <Tooltip title="Summary" aria-label="summary" style={{ order: `${openCart ? '-1' : ''}` }}>
                             <IconButton onClick={() => this.setState((state) => ({ openSummary: !state.openSummary }))}>
@@ -417,12 +430,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                         </Tooltip>
                     </Box>
                     <Button className={this.props.classes.footerButton} variant="contained" color="secondary" disabled={disableNext()} aria-label="Next" onClick={onClickNext}>
-                        {
-                            openCart || formSetting[pageIndex].type === 'confirmOrder' ?
-                                'Checkout'
-                                :
-                                'Next'
-                        }
+                        {buttonText()}
                     </Button>
                 </Toolbar>
             </AppBar>
@@ -432,12 +440,15 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
     renderProductList = (data) => {
         if (this.state.openProduct) {
             const product = dataDig(this.props.formsPage, 'product');
+            const addToCart = (item) => {
+                this.props.dispatch(actions.updateCart([...this.state.cart, item]));
+            };
             const content = () => {
                 if (dataDig(product, 'data')) {
                     return (
                         <ProductDetails
                             product={product.data}
-                            addToCart={(item) => this.handleAddToCart(item)}
+                            addToCart={(item) => addToCart(item)}
                             checkCart={this.checkCart}
                         />
                     );
@@ -445,7 +456,7 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                 if (dataDig(product, 'error')) {
                     return <Box>Product not found</Box>;
                 }
-                return <Box className={this.props.classes.productLoading}><CircularProgress /></Box>;
+                return null;
             };
             return (
                 <Box className={this.props.classes.productDetails}>
@@ -700,15 +711,70 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             </Box>
         );
     }
-    renderPayment= () => (
-        <Box>
-            <Paper className="mt-1">
-                <Container className="py-2">
-                    <Typography className="mt-1 mb-2" variant="h4" color="primary" style={{ fontWeight: 'bold' }}>{formSetting[this.state.pageIndex].title}</Typography>
-                </Container>
-            </Paper>
-        </Box>
-    )
+    renderPayment= (data) => {
+        const checkoutData = dataDig(this.props.formsPage, 'checkout.data');
+        const items = data.data.payment.methods[2].items;
+        return (
+            <Box>
+                <Paper className="mt-1">
+                    <Container className="py-2">
+                        <Typography className="mt-1 mb-2" variant="h4" color="primary" style={{ fontWeight: 'bold' }}>{formSetting[this.state.pageIndex].title}</Typography>
+                        <FormControl fullWidth={true}>
+                            <RadioGroup
+                                aria-label="payment-method"
+                                name="payment-method"
+                                value={this.state.paymentId}
+                                onChange={(event) => this.setState({ paymentId: event.target.value })}
+                            >
+                                <Box className={this.props.classes.paymentRadio}>
+                                    <FormControlLabel value="62" control={<Radio />} label="Boost" />
+                                    <img src={items[0].image} alt="Boost" width="72px" height="40px" />
+                                </Box>
+                                <Box className={this.props.classes.paymentRadio}>
+                                    <FormControlLabel value="63" control={<Radio />} label="GrabPay" />
+                                    <img src={items[1].image} alt="GrabPay" width="72px" height="40px" />
+                                </Box>
+                                <Box className={this.props.classes.paymentRadio}>
+                                    <FormControlLabel value="67" control={<Radio />} label="Touch 'n Go" />
+                                    <img src={items[5].image} alt="Touch 'n Go" width="72px" height="40px" />
+                                </Box>
+                            </RadioGroup>
+                        </FormControl>
+                        <Box className="mt-1 p-2">
+                            <FormControl fullWidth={true}>
+                                <Typography variant="subtitle1" color="primary">Enter promotional code here for great deals!</Typography>
+                                <Box className={this.props.classes.voucher}>
+                                    <InputForm
+                                        label="Voucher Code"
+                                        id="voucherCode"
+                                        handleChange={this.handleChange}
+                                        value={this.state.voucherCode}
+                                        onClear={this.onClear}
+                                        required="false"
+                                    />
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => {
+                                            checkoutData.data.voucher.code = this.state.voucherCode;
+                                            this.props.dispatch(actions.checkout('put', { ...checkoutData }));
+                                        }}
+                                    >
+                                        Use
+                                    </Button>
+                                </Box>
+                            </FormControl>
+                            {
+                                dataDig(checkoutData, 'data.voucher.messages.length')
+                                &&
+                                <Typography color={checkoutData.data.voucher.messages[0].type} variant="caption">{checkoutData.data.voucher.messages[0].text}</Typography>
+                            }
+                        </Box>
+                    </Container>
+                </Paper>
+            </Box>
+        );
+    }
 
     renderFormPage = () => {
         const data = dataDig(this.props.formsPage.productList, 'data');
@@ -723,14 +789,18 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                         <Typography>{this.props.formsPage.productList.data.messages[0].text}</Typography>
                     );
                 }
-                return this.renderLoading();
+                return null;
             case 'addressInfo': return this.renderDeliveryInfo();
             case 'confirmOrder':
                 if (dataDig(globalScope, 'token')) {
                     return this.renderConfirmOrder();
                 }
                 return this.renderSignUp();
-            case 'payment': return this.renderPayment();
+            case 'payment':
+                if (dataDig(this.props.formsPage.checkout, 'success')) {
+                    return this.renderPayment(this.props.formsPage.checkout.data);
+                }
+                return null;
             default: return <Box>Unknown page index</Box>;
         }
     }
@@ -786,33 +856,39 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
             </Box>
         );
     }
-    renderSummary = () => (
-        <Box className="py-1">
-            <Box className={this.props.classes.summaryHeader}>
-                <IconButton onClick={() => this.setState({ openSummary: false })}>
-                    <Close />
-                </IconButton>
-                <Typography variant="h5" display="inline">Summary</Typography>
+    renderSummary = () => {
+        const showInfo = (title, value) => (
+            <Box className={this.props.classes.summaryContent}>
+                <Typography className="text-capitalize" variant="h6" display="inline">
+                    {title}:
+                </Typography>
+                <Typography variant="body1" color="textSecondary" display="inline" style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
+                    {CURRENCY} {Number(value).toFixed(2)}
+                </Typography>
             </Box>
-            <Divider />
-            <Box className="py-2 px-2">
-                <Box className={this.props.classes.summaryContent}>
-                    <Typography variant="h6" display="inline">
-                        Total:
-                    </Typography>
-                    <Typography variant="body1" color="textSecondary" display="inline" style={{ fontSize: '1.4rem' }}>
-                        {CURRENCY} {Number(this.state.total).toFixed(2)}
-                    </Typography>
+        );
+        return (
+            <Box className="py-1">
+                <Box className={this.props.classes.summaryHeader}>
+                    <IconButton onClick={() => this.setState({ openSummary: false })}>
+                        <Close />
+                    </IconButton>
+                    <Typography variant="h5" display="inline">Summary</Typography>
+                </Box>
+                <Divider />
+                <Box className="py-2 px-2">
+                    {dataDig(this.state, 'subtotal') !== null && showInfo('subtotal', this.state.subtotal)}
+                    {dataDig(this.state, 'shippingTotal') !== null && showInfo('shipping total', this.state.shippingTotal)}
+                    {dataDig(this.state, 'total') !== null && showInfo('total', this.state.total)}
                 </Box>
             </Box>
-        </Box>
-    )
+        );
+    }
 
 
     render = () => {
-        console.log();
-        // const { receiver_name, line_1, postal_code, city, state_code, sms_prefix, sms_number } = this.state;
-        // const addressData = { receiver_name, line_1, postal_code, city, state_code, sms_number/*, sms_prefix */ };
+        const { receiver_name, line_1, postal_code, city, state_code, sms_prefix, sms_number } = this.state;
+        const addressData = { receiver_name, line_1, postal_code, city, state_code, sms_number, sms_prefix };
         return (
             <Box className="fast-checkout-page">
                 {/* <Box className="ppf-version">
@@ -859,15 +935,22 @@ export class FormsPage extends React.PureComponent { // eslint-disable-line reac
                             autoFocus={true}
                             color="primary"
                             onClick={() => {
-                                this.setState({ openConfirmAlert: false });
-                                this.renderLoading();
-                                //  this.props.dispatch(actions.addAddress({ ...addressData }));
+                                if (this.state.addressAdded) {
+                                    return this.handleAddToCart();
+                                }
+                                return this.props.dispatch(actions.addAddress({ ...addressData }));
                             }}
                         >
                             Confirm
                         </Button>
                     </DialogActions>
                 </PopupDialog>
+                <Backdrop className={this.props.classes.loader} open={dataDig(this.state.loading, 'status')}>
+                    <Box className={this.props.classes.loaderContent}>
+                        <CircularProgress />
+                        <Typography className="p-2" variant="body1" style={{ color: 'white' }}>{dataDig(this.state.loading, 'message')}</Typography>
+                    </Box>
+                </Backdrop>
                 {this.renderFooter()}
             </Box>
         );

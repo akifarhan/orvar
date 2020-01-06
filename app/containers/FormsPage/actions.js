@@ -3,6 +3,7 @@
  * FormsPage actions
  *
  */
+import { dataDig } from 'globalUtils';
 
 import {
     UPDATE_CART,
@@ -24,8 +25,18 @@ import {
     ADD_ADDRESS,
     ADD_ADDRESS_SUCCESS,
     ADD_ADDRESS_FAIL,
+    ADD_TO_CART,
+    ADD_TO_CART_SUCCESS,
+    ADD_TO_CART_FAIL,
+    CHECKOUT,
+    CHECKOUT_SUCCESS,
+    CHECKOUT_FAIL,
+    POST_CHECKOUT,
+    POST_CHECKOUT_SUCCESS,
+    POST_CHECKOUT_FAIL,
 } from './constants';
 
+// update cart state
 export function updateCart(data) {
     return {
         type: UPDATE_CART,
@@ -154,6 +165,75 @@ export function addAddressSuccess(data) {
 export function addAddressFail(payload) {
     return {
         type: ADD_ADDRESS_FAIL,
+        payload,
+    };
+}
+
+export function addToCart(params, cart) {
+    return {
+        type: ADD_TO_CART,
+        params,
+        cart,
+    };
+}
+
+export function addToCartSuccess(data, cart) {
+    if (dataDig(cart, 'length') > 0) {
+        cart.splice(cart.length - 1, 1);
+    }
+    return {
+        type: ADD_TO_CART_SUCCESS,
+        data,
+        cart: [...cart],
+    };
+}
+
+export function addToCartFail(payload) {
+    return {
+        type: ADD_TO_CART_FAIL,
+        payload,
+    };
+}
+
+export function checkout(method, params) {
+    return {
+        type: CHECKOUT,
+        method,
+        params,
+    };
+}
+
+export function checkoutSuccess(data) {
+    return {
+        type: CHECKOUT_SUCCESS,
+        data,
+    };
+}
+
+export function checkoutFail(payload) {
+    return {
+        type: CHECKOUT_FAIL,
+        payload,
+    };
+}
+
+export function postCheckout(params) {
+    return {
+        type: POST_CHECKOUT,
+        params,
+    };
+}
+
+export function postCheckoutSuccess(data) {
+    return {
+        type: POST_CHECKOUT_SUCCESS,
+        data,
+    };
+}
+
+export function postCheckoutFail(payload) {
+    return {
+        type: POST_CHECKOUT_FAIL,
         payload,
     };
 }

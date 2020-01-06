@@ -31,3 +31,16 @@ export const SIGN_UP_FAIL = `${page}SIGN_UP_FAIL`;
 export const ADD_ADDRESS = `${page}ADD_ADDRESS `;
 export const ADD_ADDRESS_SUCCESS = `${page}ADD_ADDRESS_SUCCESS`;
 export const ADD_ADDRESS_FAIL = `${page}ADD_ADDRESS_FAIL`;
+
+export const ADD_TO_CART = `${page}ADD_TO_CART `;
+export const ADD_TO_CART_SUCCESS = `${page}ADD_TO_CART_SUCCESS`;
+export const ADD_TO_CART_FAIL = `${page}ADD_TO_CART_FAIL`;
+
+export const CHECKOUT = `${page}CHECKOUT `;
+export const CHECKOUT_SUCCESS = `${page}CHECKOUT_SUCCESS`;
+export const CHECKOUT_FAIL = `${page}CHECKOUT_FAIL`;
+
+export const POST_CHECKOUT = `${page}POST_CHECKOUT `;
+export const POST_CHECKOUT_SUCCESS = `${page}POST_CHECKOUT_SUCCESS`;
+export const POST_CHECKOUT_FAIL = `${page}POST_CHECKOUT_FAIL`;
+

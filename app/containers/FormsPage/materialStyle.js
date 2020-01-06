@@ -39,6 +39,13 @@ const styles = {
     },
     loader: {
         background: 'transparent',
+        zIndex: 1500,
+    },
+    loaderContent: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     productDetails: {
         width: '100%',
@@ -65,6 +72,14 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    paymentRadio: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    voucher: {
+        paddingTop: '1rem',
     },
 };
 
